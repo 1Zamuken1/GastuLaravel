@@ -10,6 +10,9 @@ use App\Http\Controllers\ProyeccionIngresoController;
 // Ingresos
 Route::get('/ingresos', [IngresoController::class, 'index']);
 
+//pruebas
+Route::get('/ingresos/full', [IngresoController::class, 'indexFull']);
+
 Route::get('/ingresos/{id}', [IngresoController::class, 'show']);
 
 Route::post('/ingresos', [IngresoController::class, 'store']);
@@ -45,4 +48,3 @@ Route::put('/proyecciones-ingreso/{id}', [ProyeccionIngresoController::class, 'u
 Route::patch('/proyecciones-ingreso/{id}', [ProyeccionIngresoController::class, 'updatePartial']);
 
 Route::delete('/proyecciones-ingreso/{id}', [ProyeccionIngresoController::class, 'destroy']);
-

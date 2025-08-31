@@ -6,27 +6,29 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Ingreso;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+
 
 class ingresoController extends Controller
 {
-    public function index(){
-        $ingresos = Ingreso::all();
+    public function index()
+{
+    $ingresos = \App\Models\Ingreso::with('proyeccion')->get();
 
-        if($ingresos->isEmpty()){
-            $data = [
-                'message' => 'No hay ingresos registrados',
-                'status' => 200
-            ];
-            return response()->json($ingresos, 404);
-        }
-
-        $data=[
-            'ingresos' => $ingresos,
-            'status' => 200
+    $data = $ingresos->map(function ($ingreso) {
+        return [
+            'id' => $ingreso->ingreso_id,
+            'concepto' => $ingreso->proyeccion ? $ingreso->proyeccion->descripcion : 'N/A',
+            'monto' => $ingreso->monto,
+            'tipo' => $ingreso->tipo,
+            'fecha' => $ingreso->fecha_registro,
+            'estado' => $ingreso->proyeccion ? ($ingreso->proyeccion->activo ? 'Activo' : 'Inactivo') : 'Desconocido',
         ];
+    });
 
-        return response()->json($ingresos, 200);
-    }
+    return response()->json($data);
+}
+
 
     public function store(Request $request){
         $validator = Validator::make($request->all(), [
@@ -207,4 +209,38 @@ class ingresoController extends Controller
 
         return response()->json($data, 200);
     }
+
+    // pruebas
+public function indexFull()
+{
+    // 1. Traer ingresos normales
+    $ingresos = \App\Models\Ingreso::with('conceptoIngreso')->get()->map(function($ingreso) {
+        return [
+            'id' => $ingreso->ingreso_id,
+            'concepto' => $ingreso->conceptoIngreso->nombre ?? ($ingreso->descripcion ?? 'N/A'),
+            'monto' => $ingreso->monto,
+            'tipo' => 'Ingreso',
+            'fecha' => $ingreso->fecha_registro,
+            'estado' => '', // <--- aquí
+        ];
+    });
+
+    // 2. Traer proyecciones como filas independientes
+    $proyecciones = \App\Models\ProyeccionIngreso::with('conceptoIngreso')->get()->map(function($proy) {
+        return [
+            'id' => $proy->proyeccion_ingreso_id,
+            'concepto' => $proy->conceptoIngreso->nombre ?? ($proy->descripcion ?? 'N/A'),
+            'monto' => $proy->monto_programado,
+            'tipo' => 'Proyección',
+            'fecha' => $proy->fecha_inicio,
+            'estado' => $proy->activo ? 'Activo' : 'Inactivo',
+        ];
+    });
+
+    // 3. Unir ambos resultados
+    $result = $ingresos->concat($proyecciones)->values();
+
+    return response()->json($result, 200);
+}
+
 }

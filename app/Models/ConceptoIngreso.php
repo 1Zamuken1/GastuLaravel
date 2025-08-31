@@ -16,4 +16,15 @@ class ConceptoIngreso extends Model
         'descripcion',
         'usuario_id'
     ];
+
+    public function proyeccion()
+    {
+        return $this->belongsTo(ProyeccionIngreso::class, 'concepto_ingreso_id', 'concepto_ingreso_id');
+    }
+
+    public function conceptoIngreso() {
+        return $this->belongsTo(\App\Models\ConceptoIngreso::class, 'concepto_ingreso_id');
+    }
 }
+
+
