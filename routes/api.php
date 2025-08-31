@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IngresoController;
 use App\Http\Controllers\ConceptoIngresoController;
+use App\Http\Controllers\ProyeccionIngresoController;
 
 
 // Ingresos
@@ -31,3 +32,17 @@ Route::put('/conceptos-ingreso/{id}', [ConceptoIngresoController::class, 'update
 Route::patch('/conceptos-ingreso/{id}', [ConceptoIngresoController::class, 'updatePartial']);
 
 Route::delete('/conceptos-ingreso/{id}', [ConceptoIngresoController::class, 'destroy']);
+
+// Proyecciones de Ingreso
+Route::get('/proyecciones-ingreso', [ProyeccionIngresoController::class, 'index']);
+
+Route::get('/proyecciones-ingreso/{id}', [ProyeccionIngresoController::class, 'show']);
+
+Route::post('/proyecciones-ingreso', [ProyeccionIngresoController::class, 'store']);
+
+Route::put('/proyecciones-ingreso/{id}', [ProyeccionIngresoController::class, 'update']);
+
+Route::patch('/proyecciones-ingreso/{id}', [ProyeccionIngresoController::class, 'updatePartial']);
+
+Route::delete('/proyecciones-ingreso/{id}', [ProyeccionIngresoController::class, 'destroy']);
+
