@@ -1,13 +1,15 @@
 <?php
-
+// controladores 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IngresoController;
 use App\Http\Controllers\ConceptoIngresoController;
 use App\Http\Controllers\ProyeccionIngresoController;
+use App\Http\Controllers\GastosController;  
+use App\Http\Controllers\ConceptoEgresoController;
 
 
-// Ingresos
+// ================================== Rutas para Ingresos ==================================================================================================================
 Route::get('/ingresos', [IngresoController::class, 'index']);
 
 //pruebas
@@ -23,7 +25,7 @@ Route::patch('/ingresos/{id}', [IngresoController::class, 'updatePartial']);
 
 Route::delete('/ingresos/{id}', [IngresoController::class, 'destroy']);
 
-// Conceptos de Ingreso
+// ================================= Rutas para Conceptos de Ingreso ==================================================================================================================
 Route::get('/conceptos-ingreso', [ConceptoIngresoController::class, 'index']);
 
 Route::get('/conceptos-ingreso/{id}', [ConceptoIngresoController::class, 'show']);
@@ -36,7 +38,7 @@ Route::patch('/conceptos-ingreso/{id}', [ConceptoIngresoController::class, 'upda
 
 Route::delete('/conceptos-ingreso/{id}', [ConceptoIngresoController::class, 'destroy']);
 
-// Proyecciones de Ingreso
+// ============================= Rutas para Proyecciones de Ingreso ==================================================================================================================
 Route::get('/proyecciones-ingreso', [ProyeccionIngresoController::class, 'index']);
 
 Route::get('/proyecciones-ingreso/{id}', [ProyeccionIngresoController::class, 'show']);
@@ -48,3 +50,18 @@ Route::put('/proyecciones-ingreso/{id}', [ProyeccionIngresoController::class, 'u
 Route::patch('/proyecciones-ingreso/{id}', [ProyeccionIngresoController::class, 'updatePartial']);
 
 Route::delete('/proyecciones-ingreso/{id}', [ProyeccionIngresoController::class, 'destroy']);
+
+// // ============================= Rutas para Gastos ==================================================================================================================
+// Route::get('/gastos', [GastosController::class, 'index']);
+// Route::get('/gastos/{gastos}', [GastosController::class, 'show']);
+// Route::post('/gastos', [GastosController::class, 'store']);
+// Route::put('/gastos/{gastos}', [GastosController::class, 'update']);
+// Route::delete('/gastos/{gastos}', [GastosController::class, 'destroy']);
+
+// // ============================= Rutas para Conceptos de Egreso ==================================================================================================================
+// Route::get('/conceptoEgresos', [ConceptoEgresoController::class, 'index']);
+// Route::get('/conceptoEgresos/{conceptoEgreso}', [ConceptoEgresoController::class, 'show']);
+// Route::post('/conceptoEgresos', [ConceptoEgresoController::class, 'store']);
+// Route::put('/conceptoEgresos/{conceptoEgreso}', [ConceptoEgresoController::class, 'update']);
+// Route::delete('/conceptoEgresos/{conceptoEgreso}', [ConceptoEgresoController::class, 'destroy']);
+
