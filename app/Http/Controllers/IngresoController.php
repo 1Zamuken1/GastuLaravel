@@ -2,245 +2,158 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Ingreso;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
+use App\Models\ConceptoIngreso;
+use App\Models\ProyeccionIngreso;
+use Carbon\Carbon;
 
-
-class ingresoController extends Controller
+class IngresoController extends Controller
 {
     public function index()
+    {
+        // ========================
+        // Traer ingresos reales
+        // ========================
+        $ingresos = Ingreso::with('conceptoIngreso')
+            ->get()
+            ->map(function ($ingreso) {
+                return [
+                    'id' => $ingreso->ingreso_id,
+                    'concepto' => $ingreso->conceptoIngreso->nombre ?? 'Sin concepto',
+                    'monto' => $ingreso->monto,
+                    'tipo' => 'Ingreso',
+                    'fecha' => $ingreso->fecha_registro,
+                    'estado' => 'Activo', // la tabla ingreso no tiene estado
+                ];
+            });
+
+        // ========================
+        // Traer proyecciones
+        // ========================
+        $proyecciones = ProyeccionIngreso::with('conceptoIngreso')
+            ->get()
+            ->map(function ($proyeccion) {
+                return [
+                    'id' => $proyeccion->proyeccion_ingreso_id,
+                    'concepto' => $proyeccion->conceptoIngreso->nombre ?? 'Sin concepto',
+                    'monto' => $proyeccion->monto_programado,
+                    'tipo' => 'Proyección',
+                    'fecha' => $proyeccion->fecha_inicio,
+                    'estado' => $proyeccion->activo ? 'Activo' : 'Inactivo',
+                ];
+            });
+
+        // ========================
+        // Fusionar ingresos y proyecciones
+        // ========================
+        $registros = $ingresos->merge($proyecciones);
+
+        // ========================
+        // Calcular totales
+        // ========================
+        $totalIngresos = Ingreso::sum('monto');
+        $totalProyecciones = ProyeccionIngreso::sum('monto_programado');
+
+        $mesActual = Carbon::now()->month;
+        $anioActual = Carbon::now()->year;
+
+        $ingresosMes = Ingreso::whereYear('fecha_registro', $anioActual)
+            ->whereMonth('fecha_registro', $mesActual)
+            ->sum('monto');
+
+        // ========================
+        // Traer conceptos (para modal de selección)
+        // ========================
+        $conceptoIngresos = ConceptoIngreso::all();
+
+        // ========================
+        // Enviar a la vista
+        // ========================
+        return view('ingresos.ingresos', compact(
+            'registros',
+            'totalIngresos',
+            'totalProyecciones',
+            'ingresosMes',
+            'conceptoIngresos'
+        ));
+    }
+
+    public function store(Request $request)
 {
-    $ingresos = \App\Models\Ingreso::with('proyeccion')->get();
+    $tipo = $request->input('tipo');
 
-    $data = $ingresos->map(function ($ingreso) {
-        return [
-            'id' => $ingreso->ingreso_id,
-            'concepto' => $ingreso->proyeccion ? $ingreso->proyeccion->descripcion : 'N/A',
-            'monto' => $ingreso->monto,
-            'tipo' => $ingreso->tipo,
-            'fecha' => $ingreso->fecha_registro,
-            'estado' => $ingreso->proyeccion ? ($ingreso->proyeccion->activo ? 'Activo' : 'Inactivo') : 'Desconocido',
-        ];
-    });
+    if ($tipo === 'Ingreso') {
+        $validated = $request->validate([
+            'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
+            'monto'               => 'required|numeric',
+            'fecha'               => 'required|date',
+            'descripcion'         => 'nullable|string|max:200',
+            // 'estado' -> NO se guarda en ingreso
+        ]);
 
-    return response()->json($data);
+        Ingreso::create([
+            'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
+            'monto'               => $validated['monto'],
+            'fecha_registro'      => $validated['fecha'],
+            'descripcion'         => $validated['descripcion'] ?? '',
+        ]);
+
+        return redirect()->route('ingresos.index')->with('success', 'Ingreso creado correctamente.');
+    }
+
+    if ($tipo === 'Proyección') {
+        $validated = $request->validate([
+            'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
+            'monto'               => 'required|numeric',
+            'fecha'               => 'required|date',
+            'estado'              => 'required|in:Activo,Inactivo',
+            'frecuencia'          => 'required|in:ninguna,diaria,semanal,quincenal,mensual,trimestral,semestral,anual',
+            'descripcion'         => 'required|string|max:200', // NOT NULL en la tabla
+        ]);
+
+        $fechaInicio = Carbon::parse($validated['fecha']);
+
+        ProyeccionIngreso::create([
+            'monto_programado'   => $validated['monto'],
+            'descripcion'        => $validated['descripcion'],
+            'frecuencia'         => $validated['frecuencia'],
+            'dia_recurrencia'    => $this->calcularDiaRecurrencia($fechaInicio, $validated['frecuencia']),
+            'fecha_inicio'       => $fechaInicio->toDateString(),
+            'fecha_fin'          => $this->calcularFechaFin($fechaInicio, $validated['frecuencia']),
+            'activo'             => $validated['estado'] === 'Activo' ? 1 : 0,
+            'ultima_generacion'  => null,
+            'concepto_ingreso_id'=> $validated['concepto_ingreso_id'],
+        ]);
+
+        return redirect()->route('ingresos.index')->with('success', 'Proyección creada correctamente.');
+    }
+
+    return redirect()->route('ingresos.index')->with('error', 'Tipo inválido.');
 }
 
-
-    public function store(Request $request){
-        $validator = Validator::make($request->all(), [
-            'tipo' => 'nullable|string|max:30',
-            'monto' => 'required|numeric',
-            'descripcion' => 'nullable|string|max:200',
-            'fecha_registro' => 'required|date',
-            'concepto_ingreso_id' => 'nullable|integer',
-        ]);
-
-        if($validator->fails()){
-            $data = [
-                'message' => 'Error de validación',
-                'errors' => $validator->errors(),
-                'status' => 400
-            ];
-            return response()->json($data, 400);
-        }
-
-        $ingreso = Ingreso::create([
-            'tipo' => $request->tipo,
-            'monto' => $request->monto,
-            'descripcion' => $request->descripcion,
-            'fecha_registro' => $request->fecha_registro,
-            'concepto_ingreso_id' => $request->concepto_ingreso_id,
-        ]);
-
-        if(!$ingreso){
-            $data = [
-                'message' => 'Error al crear el ingreso',
-                'status' => 500
-            ];
-            return response()->json($data, 500);
-        }
-
-        $data = [
-            'ingreso' => $ingreso,
-            'status' => 201
-        ];
-
-        return response()->json($data, 201);
-    }
-
-    public function show($id){
-        $ingreso = Ingreso::find($id);
-
-        if(!$ingreso){
-            $data = [
-                'message' => 'Ingreso no encontrado',
-                'status' => 404
-            ];
-            return response()->json($data, 404);
-        }
-
-        $data = [
-            'ingreso' => $ingreso,
-            'status' => 200
-        ];
-
-        return response()->json($data, 200);
-    }
-
-    public function destroy($id){
-        $ingreso = Ingreso::find($id);
-
-        if(!$ingreso){
-            $data = [
-                'message' => 'Ingreso no encontrado',
-                'status' => 404
-            ];
-            return response()->json($data, 404);
-        }
-
-        $ingreso->delete();
-
-        $data = [
-            'message' => 'Ingreso eliminado correctamente',
-            'status' => 200
-        ];
-
-        return response()->json($data, 200);
-    }
-
-    public function update(Request $request, $id){
-        $ingreso = Ingreso::find($id);
-
-        if(!$ingreso){
-            $data = [
-                'message' => 'Ingreso no encontrado',
-                'status' => 404
-            ];
-            return response()->json($data, 404);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'tipo' => 'nullable|string|max:30',
-            'monto' => 'required|numeric',
-            'descripcion' => 'nullable|string|max:200',
-            'fecha_registro' => 'required|date',
-            'concepto_ingreso_id' => 'nullable|integer',
-        ]);
-
-        if($validator->fails()){
-            $data = [
-                'message' => 'Error de validación',
-                'errors' => $validator->errors(),
-                'status' => 400
-            ];
-            return response()->json($data, 400);
-        }
-
-        $ingreso->tipo = $request->tipo;
-        $ingreso->monto = $request->monto;
-        $ingreso->descripcion = $request->descripcion;
-        $ingreso->fecha_registro = $request->fecha_registro;
-        $ingreso->concepto_ingreso_id = $request->concepto_ingreso_id;
-
-        $ingreso->save();
-
-        $data = [
-            'ingreso' => $ingreso,
-            'status' => 200
-        ];
-
-        return response()->json($data, 200);
-    }
-
-    public function updatePartial(Request $request, $id){
-        $ingreso = Ingreso::find($id);
-
-        if(!$ingreso){
-            $data = [
-                'message' => 'Ingreso no encontrado',
-                'status' => 404
-            ];
-            return response()->json($data, 404);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'tipo' => 'nullable|string|max:30',
-            'monto' => 'nullable|numeric',
-            'descripcion' => 'nullable|string|max:200',
-            'fecha_registro' => 'nullable|date',
-            'concepto_ingreso_id' => 'nullable|integer',
-        ]);
-
-        if($validator->fails()){
-            $data = [
-                'message' => 'Error de validación',
-                'errors' => $validator->errors(),
-                'status' => 400
-            ];
-            return response()->json($data, 400);
-        }
-
-        if($request->has('tipo')){
-            $ingreso->tipo = $request->tipo;
-        }
-        if($request->has('monto')){
-            $ingreso->monto = $request->monto;
-        }
-        if($request->has('descripcion')){
-            $ingreso->descripcion = $request->descripcion;
-        }
-        if($request->has('fecha_registro')){
-            $ingreso->fecha_registro = $request->fecha_registro;
-        }
-        if($request->has('concepto_ingreso_id')){
-            $ingreso->concepto_ingreso_id = $request->concepto_ingreso_id;
-        }
-
-        $ingreso->save();
-
-        $data = [
-            'ingreso' => $ingreso,
-            'status' => 200
-        ];
-
-        return response()->json($data, 200);
-    }
-
-    // pruebas
-public function indexFull()
+private function calcularDiaRecurrencia(Carbon $fecha, string $frecuencia): ?int
 {
-    // 1. Traer ingresos normales
-    $ingresos = \App\Models\Ingreso::with('conceptoIngreso')->get()->map(function($ingreso) {
-        return [
-            'id' => $ingreso->ingreso_id,
-            'concepto' => $ingreso->conceptoIngreso->nombre ?? ($ingreso->descripcion ?? 'N/A'),
-            'monto' => $ingreso->monto,
-            'tipo' => 'Ingreso',
-            'fecha' => $ingreso->fecha_registro,
-            'estado' => '', // <--- aquí
-        ];
-    });
+    switch ($frecuencia) {
+        case 'mensual':
+        case 'trimestral':
+        case 'semestral':
+        case 'anual':
+            return (int) $fecha->day; // día del mes
+        default:
+            return null;
+    }
+}
 
-    // 2. Traer proyecciones como filas independientes
-    $proyecciones = \App\Models\ProyeccionIngreso::with('conceptoIngreso')->get()->map(function($proy) {
-        return [
-            'id' => $proy->proyeccion_ingreso_id,
-            'concepto' => $proy->conceptoIngreso->nombre ?? ($proy->descripcion ?? 'N/A'),
-            'monto' => $proy->monto_programado,
-            'tipo' => 'Proyección',
-            'fecha' => $proy->fecha_inicio,
-            'estado' => $proy->activo ? 'Activo' : 'Inactivo',
-        ];
-    });
-
-    // 3. Unir ambos resultados
-    $result = $ingresos->concat($proyecciones)->values();
-
-    return response()->json($result, 200);
+private function calcularFechaFin(Carbon $fecha, string $frecuencia): ?string
+{
+    switch ($frecuencia) {
+        case 'mensual':     return $fecha->copy()->addYear()->toDateString();    // 1 año
+        case 'trimestral':  return $fecha->copy()->addYears(2)->toDateString();  // 2 años
+        case 'semestral':   return $fecha->copy()->addYears(3)->toDateString();  // 3 años
+        case 'anual':       return $fecha->copy()->addYears(5)->toDateString();  // 5 años
+        default:            return null;
+    }
 }
 
 }
