@@ -100,41 +100,61 @@ if (descripcionField) {
 // Botones Editar
 // ===============================
 document.querySelectorAll(".edit-btn").forEach((btn) => {
-  btn.addEventListener("click", (e) => {
-    const row = e.target.closest("tr");
+  btn.addEventListener("click", function () {
+    const row = btn.closest("tr");
     const id = row.children[0].textContent.trim();
     const concepto = row.children[1].textContent.trim();
-    const monto = row.children[2].textContent.replace(/[^0-9.-]+/g,""); // quitar $
+    const monto = row.children[2].textContent.replace("$", "").trim();
     const tipo = row.children[3].textContent.trim();
-    const fecha = row.children[4].textContent.trim().split("/").reverse().join("-"); // dd/mm/yyyy -> yyyy-mm-dd
+    const fecha = row.children[4].textContent.split("/").reverse().join("-");
     const estado = row.children[5].textContent.trim();
+    const descripcion = row.getAttribute("data-descripcion") || "";
+    const conceptoId = row.getAttribute("data-concepto-id") || "";
 
-    // Abrir modal y llenar
-    openModal(incomeModal);
-    document.getElementById("modalTitle").textContent = "Editar registro";
     document.getElementById("editId").value = id;
     document.getElementById("tipo").value = tipo;
     document.getElementById("concepto").value = concepto;
+    document.getElementById("concepto_id").value = conceptoId;
     document.getElementById("monto").value = monto;
     document.getElementById("fecha").value = fecha;
-    document.getElementById("estado").value = estado !== "" ? estado : "";
+    document.getElementById("estado").value = estado;
+    document.getElementById("descripcion").value = descripcion;
 
-    toggleFieldsByTipo();
-
-    // Cambiar action del form para update
     const form = document.getElementById("formIngreso");
-    form.action = `/ingresos/update/${id}`;
+    form.action = tipo === "Proyección"
+      ? `/proyecciones/${id}`
+      : `/ingresos/update/${id}`;
+    form.method = "POST";
+
+    // Manejo del método PUT para proyección
+    let methodInput = form.querySelector('input[name="_method"]');
+    if (tipo === "Proyección") {
+      if (!methodInput) {
+        methodInput = document.createElement("input");
+        methodInput.type = "hidden";
+        methodInput.name = "_method";
+        form.appendChild(methodInput);
+      }
+      methodInput.value = "PUT";
+    } else {
+      if (methodInput) methodInput.remove();
+    }
+
+    openModal(incomeModal);
   });
 });
 
 // ===============================
 // Botones Eliminar
 // ===============================
+// ...existing code...
 let deleteId = null;
+let tipo = null;
 document.querySelectorAll(".delete-btn").forEach((btn) => {
   btn.addEventListener("click", (e) => {
-    const row = e.target.closest("tr");
+    const row = btn.closest("tr");
     deleteId = row.children[0].textContent.trim();
+    tipo = row.children[3].textContent.trim(); // Detecta el tipo correctamente
     openModal(document.getElementById("deleteConfirmationModal"));
   });
 });
@@ -147,7 +167,10 @@ if (confirmDeleteBtn) {
     // Creamos un form dinámico
     const form = document.createElement("form");
     form.method = "POST";
-    form.action = `/ingresos/destroy/${deleteId}`;
+    form.action =
+      tipo === "Proyección"
+        ? `/proyecciones/${deleteId}`
+        : `/ingresos/destroy/${deleteId}`;
 
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
     const tokenInput = document.createElement("input");
@@ -176,3 +199,12 @@ const cancelDeleteBtn = document.getElementById("cancelDelete");
 
 if (closeDeleteModal) closeDeleteModal.addEventListener("click", () => closeModal(deleteModal));
 if (cancelDeleteBtn) cancelDeleteBtn.addEventListener("click", () => closeModal(deleteModal));
+
+// ===============================
+// DataTable
+// ===============================
+$('#miTabla').DataTable({
+    language: {
+        url: '/datatables/es-ES.json'
+    }
+});

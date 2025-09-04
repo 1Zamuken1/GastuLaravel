@@ -104,76 +104,44 @@ class ProyeccionIngresoController extends Controller
         $proyeccion = ProyeccionIngreso::find($id);
 
         if(!$proyeccion){
-            $data = [
-                'message' => 'Proyección de ingreso no encontrada',
-                'status' => 404
-            ];
-            return response()->json($data, 404);
+            return redirect()->route('ingresos.index')->with('error', 'Proyección no encontrada.');
         }
 
         $proyeccion->delete();
 
-        $data = [
-            'message' => 'Proyección de ingreso eliminada exitosamente',
-            'status' => 200
-        ];
-
-        return response()->json($data, 200);
+        return redirect()->route('ingresos.index')->with('success', 'Proyección eliminada correctamente.');
     }
 
-    public function update(Request $request, $id){
+    public function update(Request $request, $id)
+    {
         $proyeccion = ProyeccionIngreso::find($id);
 
-        if(!$proyeccion){
-            $data = [
-                'message' => 'Proyección de ingreso no encontrada',
-                'status' => 404
-            ];
-            return response()->json($data, 404);
+        if (!$proyeccion) {
+            return redirect()->route('ingresos.index')->with('error', 'Proyección no encontrada.');
         }
 
-        $validator = Validator::make($request->all(), [
-            'monto_programado'    => 'required|numeric',
-            'descripcion'         => 'required|string|max:200',
-            'frecuencia'          => 'required|string|max:30',
-            'dia_recurrencia'     => 'nullable|integer',
-            'fecha_inicio'        => 'required|date',
-            'fecha_fin'           => 'nullable|date',
-            'activo'              => 'required|boolean',
-            'fecha_creacion'      => 'nullable|date',
-            'ultima_generacion'   => 'nullable|date',
-            'concepto_ingreso_id' => 'required|integer',
-        ]);
-
-        if($validator->fails()){
-            $data = [
-                'message' => 'Error de validación',
-                'errors' => $validator->errors(),
-                'status' => 400
-            ];
-            return response()->json($data, 400);
-        }
-
-        $proyeccion->monto_programado    = $request->monto_programado;
-        $proyeccion->descripcion         = $request->descripcion;
-        $proyeccion->frecuencia          = $request->frecuencia;
-        $proyeccion->dia_recurrencia     = $request->dia_recurrencia;
-        $proyeccion->fecha_inicio        = $request->fecha_inicio;
-        $proyeccion->fecha_fin           = $request->fecha_fin;
-        $proyeccion->activo              = $request->activo;
-        $proyeccion->fecha_creacion      = $request->fecha_creacion;
-        $proyeccion->ultima_generacion   = $request->ultima_generacion;
-        $proyeccion->concepto_ingreso_id = $request->concepto_ingreso_id;
-
-        $proyeccion->save();
-
+        // Mapeo de campos del formulario a los de la tabla
         $data = [
-            'message' => 'Proyección de ingreso actualizada exitosamente',
-            'proyeccion' => $proyeccion,
-            'status' => 200
+            'monto_programado'    => $request->input('monto'),
+            'descripcion'         => $request->input('descripcion'),
+            'frecuencia'          => $request->input('frecuencia'),
+            'fecha_inicio'        => $request->input('fecha'),
+            'activo'              => $request->input('estado') === 'Activo' ? 1 : 0,
+            'concepto_ingreso_id' => $request->input('concepto_ingreso_id'),
         ];
 
-        return response()->json($data, 200);
+        $validated = \Validator::make($data, [
+            'monto_programado'    => 'required|numeric',
+            'descripcion'         => 'required|string|max:200',
+            'frecuencia'          => 'required|in:ninguna,diaria,semanal,quincenal,mensual,trimestral,semestral,anual',
+            'fecha_inicio'        => 'required|date',
+            'activo'              => 'required|in:0,1',
+            'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
+        ])->validate();
+
+        $proyeccion->update($validated);
+
+        return redirect()->route('ingresos.index')->with('success', 'Proyección actualizada correctamente.');
     }
 
     public function updatePartial(Request $request, $id){
@@ -249,5 +217,20 @@ class ProyeccionIngresoController extends Controller
         ];
 
         return response()->json($data, 200);
+    }
+
+    public function proyeccionesParaConfirmar()
+    {
+        $hoy = now()->toDateString();
+
+        $proyecciones = ProyeccionIngreso::where('activo', 1)
+            ->where('fecha_inicio', '<=', $hoy)
+            ->where(function ($q) use ($hoy) {
+                $q->whereNull('ultima_generacion')
+                  ->orWhere('ultima_generacion', '<', $hoy);
+            })
+            ->get();
+
+        return response()->json(['proyecciones' => $proyecciones]);
     }
 }

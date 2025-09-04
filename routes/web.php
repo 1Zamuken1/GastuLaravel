@@ -17,8 +17,8 @@ Route::get('/gastos', function () {
 Route::get('/ingresos', [IngresoController::class, 'index'])->name('ingresos.index');
 //Route::post('/ingresos', [IngresoController::class, 'store'])->name('ingresos.store');
 Route::post('/ingresos/store', [IngresoController::class, 'store'])->name('ingresos.store');
-//Route::post('/ingresos/update/{id}', [IngresoController::class, 'update'])->name('ingresos.update');
-//Route::delete('/ingresos/destroy/{id}', [IngresoController::class, 'destroy'])->name('ingresos.destroy');
+Route::post('/ingresos/update/{id}', [IngresoController::class, 'update'])->name('ingresos.update');
+Route::delete('/ingresos/destroy/{id}', [IngresoController::class, 'destroy'])->name('ingresos.destroy');
 
 //Proyecciones de Ingresos
 Route::post('/proyecciones', [ProyeccionIngresoController::class, 'store'])->name('proyecciones.store');

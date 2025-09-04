@@ -25,6 +25,8 @@ class IngresoController extends Controller
                     'tipo' => 'Ingreso',
                     'fecha' => $ingreso->fecha_registro,
                     'estado' => 'Activo', // la tabla ingreso no tiene estado
+                    'descripcion' => $ingreso->descripcion ?? '',
+                    'concepto_id' => $ingreso->concepto_ingreso_id,
                 ];
             });
 
@@ -41,6 +43,8 @@ class IngresoController extends Controller
                     'tipo' => 'Proyección',
                     'fecha' => $proyeccion->fecha_inicio,
                     'estado' => $proyeccion->activo ? 'Activo' : 'Inactivo',
+                    'descripcion' => $proyeccion->descripcion ?? '', // <-- AGREGAR ESTO
+            'concepto_id' => $proyeccion->concepto_ingreso_id,
                 ];
             });
 
@@ -123,6 +127,7 @@ class IngresoController extends Controller
             'fecha_fin'          => $this->calcularFechaFin($fechaInicio, $validated['frecuencia']),
             'activo'             => $validated['estado'] === 'Activo' ? 1 : 0,
             'ultima_generacion'  => null,
+            'tipo' => $tipo,
             'concepto_ingreso_id'=> $validated['concepto_ingreso_id'],
         ]);
 
@@ -154,6 +159,42 @@ private function calcularFechaFin(Carbon $fecha, string $frecuencia): ?string
         case 'anual':       return $fecha->copy()->addYears(5)->toDateString();  // 5 años
         default:            return null;
     }
+}
+
+public function update(Request $request, $id)
+{
+    $tipo = $request->input('tipo');
+
+    if ($tipo === 'Ingreso') {
+        $validated = $request->validate([
+            'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
+            'monto'               => 'required|numeric',
+            'fecha'               => 'required|date',
+            'descripcion'         => 'nullable|string|max:200',
+        ]);
+
+        $ingreso = Ingreso::findOrFail($id);
+        $ingreso->update([
+            'tipo'                => $tipo,
+            'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
+            'monto'               => $validated['monto'],
+            'fecha_registro'      => $validated['fecha'],
+            'descripcion'         => $validated['descripcion'] ?? '',
+        ]);
+
+        return redirect()->route('ingresos.index')->with('success', 'Ingreso actualizado correctamente.');
+    }
+
+
+    return redirect()->route('ingresos.index')->with('error', 'Solo se puede editar ingresos reales desde este formulario.');
+}
+
+public function destroy($id)
+{
+    $ingreso = Ingreso::findOrFail($id);
+    $ingreso->delete();
+
+    return redirect()->route('ingresos.index')->with('success', 'Ingreso eliminado correctamente.');
 }
 
 }

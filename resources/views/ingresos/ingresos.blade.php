@@ -14,6 +14,8 @@
     {{-- Tus estilos con Vite --}}
     @vite('resources/css/nav-bar.css')
     @vite('resources/css/ingresos.css')
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
     <div class="layout">
@@ -110,38 +112,40 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($registros as $registro)
-                            <tr>
-                                <td>{{ $registro['id'] }}</td>
-                                <td>{{ $registro['concepto'] }}</td>
-                                <td>${{ number_format($registro['monto'], 2) }}</td>
-                                <td>{{ $registro['tipo'] }}</td>
-                                <td>{{ \Carbon\Carbon::parse($registro['fecha'])->format('d/m/Y') }}</td>
-                                <td>{{ $registro['estado'] }}</td>
-                                <td>
-                                    <!-- Botón Editar -->
-                                    <button class="icon-btn edit-btn" title="Editar">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25zM20.71 
-                                            7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 
-                                            1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 
-                                            1.84-1.82z"/>
-                                        </svg>
-                                    </button>
-                                    <!-- Botón Eliminar -->
-                                    <button class="icon-btn delete-btn" title="Eliminar">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M6 7h12v14H6z" fill="none"/>
-                                            <path d="M19 7V4H5v3H2v2h20V7zM7 9v12h10V9H7z"/>
-                                        </svg>
-                                    </button>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center">No hay registros</td>
-                            </tr>
-                        @endforelse
+                        {{-- filepath: c:\Users\juanb\GastuLaravel\resources\views\ingresos\ingresos.blade.php --}}
+@forelse ($registros as $registro)
+    <tr
+        data-descripcion="{{ $registro['descripcion'] ?? '' }}"
+        data-concepto-id="{{ $registro['concepto_id'] ?? '' }}"
+    >
+        <td>{{ $registro['id'] }}</td>
+        <td>{{ $registro['concepto'] }}</td>
+        <td>
+    {{ $registro['tipo'] === 'Ingreso' ? $registro['monto'] : $registro['monto'] }}
+</td>
+        <td>{{ $registro['tipo'] }}</td>
+        <td>{{ \Carbon\Carbon::parse($registro['fecha'])->format('d/m/Y') }}</td>
+        <td>{{ $registro['estado'] }}</td>
+        <td>
+    <!-- Botón Editar -->
+    <button class="icon-btn edit-btn" title="Editar">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#1976d2" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25zm14.71-10.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+        </svg>
+    </button>
+    <!-- Botón Eliminar -->
+    <button class="icon-btn delete-btn" title="Eliminar">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#d32f2f" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm3.46-9.12l1.41-1.41L12 10.59l1.13-1.12 1.41 1.41L13.41 12l1.13 1.12-1.41 1.41L12 13.41l-1.13 1.12-1.41-1.41L10.59 12l-1.13-1.12zm8.54-5.88V4c0-.55-.45-1-1-1h-4c-.55 0-1 .45-1 1v1H5v2h14V5h-2z"/>
+        </svg>
+    </button>
+</td>
+    </tr>
+@empty
+    <tr>
+        <td colspan="7" class="text-center">No hay registros</td>
+    </tr>
+@endforelse
                     </tbody>
                 </table>
 
