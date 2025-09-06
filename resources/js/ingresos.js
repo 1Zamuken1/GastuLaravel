@@ -47,6 +47,25 @@ if (conceptosGrid) {
 }
 
 // ===============================
+// Búsqueda en el Modal de Conceptos
+// ===============================
+const searchConceptoInput = document.getElementById("searchConcepto");
+
+if (searchConceptoInput && conceptosGrid) {
+  searchConceptoInput.addEventListener("input", function () {
+    const search = this.value.toLowerCase();
+    conceptosGrid.querySelectorAll(".concepto-item").forEach(item => {
+      const nombre = item.getAttribute("data-nombre").toLowerCase();
+      if (nombre.includes(search)) {
+        item.style.display = "";
+      } else {
+        item.style.display = "none";
+      }
+    });
+  });
+}
+
+// ===============================
 // Botón "Hoy" -> Poner fecha actual
 // ===============================
 const btnHoy = document.getElementById("btnHoy");
@@ -147,7 +166,6 @@ document.querySelectorAll(".edit-btn").forEach((btn) => {
 // ===============================
 // Botones Eliminar
 // ===============================
-// ...existing code...
 let deleteId = null;
 let tipo = null;
 document.querySelectorAll(".delete-btn").forEach((btn) => {
@@ -207,4 +225,55 @@ $('#miTabla').DataTable({
     language: {
         url: '/datatables/es-ES.json'
     }
+});
+
+// ===============================
+// Modal de Recordatorio de Recurrencia
+// ===============================
+function shouldShowRecurrenceModal() {
+  const today = new Date().toISOString().slice(0, 10);
+  return localStorage.getItem("recurrenceModalShown") !== today;
+}
+
+if (shouldShowRecurrenceModal()) {
+  fetch('/proyecciones/para-confirmar')
+    .then(res => res.json())
+    .then(data => {
+      if (data.proyecciones && data.proyecciones.length > 0) {
+        // Llena el modal con los datos
+        const items = data.proyecciones.map(p =>
+          `<div class="recurrence-item" data-id="${p.id}">
+            <strong>${p.descripcion}</strong> - $${p.monto_programado} (${p.frecuencia})
+          </div>`
+        ).join('');
+        document.getElementById("recurrenceItems").innerHTML = items;
+        openModal(document.getElementById("recurrenceModal"));
+      }
+    });
+}
+
+// Al cerrar el modal (por cancelar o confirmar), guarda la fecha en localStorage
+document.getElementById("remindLater").addEventListener("click", () => {
+  localStorage.setItem("recurrenceModalShown", new Date().toISOString().slice(0, 10));
+  closeModal(document.getElementById("recurrenceModal"));
+});
+document.getElementById("confirmRecurrences").addEventListener("click", () => {
+  // Obtén los IDs de las proyecciones a confirmar
+  const items = document.querySelectorAll("#recurrenceItems .recurrence-item");
+  const ids = Array.from(items).map(item => item.getAttribute("data-id"));
+
+  fetch('/proyecciones/confirmar', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+    },
+    body: JSON.stringify({ ids })
+  })
+  .then(res => res.json())
+  .then(data => {
+    localStorage.setItem("recurrenceModalShown", new Date().toISOString().slice(0, 10));
+    closeModal(document.getElementById("recurrenceModal"));
+    // Opcional: recargar la tabla o mostrar mensaje de éxito
+  });
 });

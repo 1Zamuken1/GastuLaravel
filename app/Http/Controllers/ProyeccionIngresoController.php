@@ -233,4 +233,29 @@ class ProyeccionIngresoController extends Controller
 
         return response()->json(['proyecciones' => $proyecciones]);
     }
+
+    public function confirmarRecurrencias(Request $request)
+{
+    $ids = $request->input('ids', []);
+    $hoy = now()->toDateString();
+
+    foreach ($ids as $id) {
+        $proy = ProyeccionIngreso::find($id);
+        if ($proy && $proy->activo) {
+            // Registrar ingreso real
+            \App\Models\Ingreso::create([
+                'concepto_ingreso_id' => $proy->concepto_ingreso_id,
+                'monto'               => $proy->monto_programado,
+                'fecha_registro'      => $hoy,
+                'descripcion'         => $proy->descripcion,
+                'tipo'                => 'Ingreso',
+            ]);
+            // Actualizar ultima_generacion
+            $proy->ultima_generacion = $hoy;
+            $proy->save();
+        }
+    }
+
+    return response()->json(['message' => 'Ingresos recurrentes registrados']);
+}
 }

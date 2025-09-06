@@ -25,6 +25,8 @@ Route::post('/proyecciones', [ProyeccionIngresoController::class, 'store'])->nam
 Route::put('/proyecciones/{id}', [ProyeccionIngresoController::class, 'update'])->name('proyecciones.update');
 Route::delete('/proyecciones/{id}', [ProyeccionIngresoController::class, 'destroy'])->name('proyecciones.destroy');
 Route::get('/proyecciones/{id}', [ProyeccionIngresoController::class, 'show'])->name('proyecciones.show');
+Route::get('/proyecciones/para-confirmar', [ProyeccionIngresoController::class, 'proyeccionesParaConfirmar']);
+Route::post('/proyecciones/confirmar', [ProyeccionIngresoController::class, 'confirmarRecurrencias']);
 
 
 Route::get('/gastos', [App\Http\Controllers\GastosController::class, 'index'])->name('gastos.index');
