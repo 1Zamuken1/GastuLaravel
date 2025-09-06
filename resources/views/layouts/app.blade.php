@@ -14,6 +14,9 @@
     {{-- Estilos globales con Vite --}}
     @vite('resources/css/nav-bar.css')
     @vite('resources/js/nav-bar.js')
+    @vite('resources/css/app.css')
+    @vite('resources/js/app.js')
+    @vite('resources/css/header.css')
 
     {{-- Espacio para estilos específicos de cada vista --}}
     @stack('styles')
@@ -24,6 +27,7 @@
     <div class="layout">
         {{-- Sidebar --}}
         @include('components.sidenav')
+        @include('components.header')
 
         {{-- Contenido principal --}}
         <main class="page-content">

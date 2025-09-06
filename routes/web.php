@@ -3,15 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IngresoController;
 use App\Http\Controllers\ProyeccionIngresoController;
+use App\Http\Controllers\GastosController;
 
 Route::get('/', function () {
     return view('welcome');
 });
-
-Route::get('/gastos', function () {
-    return view('gastos');
-});
-
+            
 
 //Ingresos
 Route::get('/ingresos', [IngresoController::class, 'index'])->name('ingresos.index');
@@ -28,6 +25,12 @@ Route::get('/proyecciones/{id}', [ProyeccionIngresoController::class, 'show'])->
 Route::get('/proyecciones/para-confirmar', [ProyeccionIngresoController::class, 'proyeccionesParaConfirmar']);
 Route::post('/proyecciones/confirmar', [ProyeccionIngresoController::class, 'confirmarRecurrencias']);
 
-
 Route::get('/gastos', [App\Http\Controllers\GastosController::class, 'index'])->name('gastos.index');
 Route::post('/gastos', [App\Http\Controllers\GastosController::class, 'store'])->name('gastos.store');
+Route::get('/gastos/{id}', [App\Http\Controllers\GastosController::class, 'show'])->name('gastos.show');
+Route::put('/gastos/{id}', [App\Http\Controllers\GastosController::class, 'update'])->name('gastos.update');
+Route::delete('/gastos/{id}', [App\Http\Controllers\GastosController::class, 'destroy'])->name('gastos.destroy');
+
+
+
+Route::resource('gastos', GastosController::class);

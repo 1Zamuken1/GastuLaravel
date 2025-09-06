@@ -130,7 +130,7 @@ class ProyeccionIngresoController extends Controller
             'concepto_ingreso_id' => $request->input('concepto_ingreso_id'),
         ];
 
-        $validated = \Validator::make($data, [
+        $validated = Validator::make($data, [
             'monto_programado'    => 'required|numeric',
             'descripcion'         => 'required|string|max:200',
             'frecuencia'          => 'required|in:ninguna,diaria,semanal,quincenal,mensual,trimestral,semestral,anual',

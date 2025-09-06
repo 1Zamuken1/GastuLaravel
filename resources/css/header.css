@@ -1,0 +1,40 @@
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #000; /* fondo negro */
+    color: #fff; /* texto e iconos blancos */
+    padding: 10px 20px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+}
+
+.header-center {
+    font-size: 1rem;
+}
+
+.header-right {
+    position: relative;
+}
+
+.header-right .notification {
+    color: #fff;
+    text-decoration: none;
+    position: relative;
+}
+
+.header-right .notification .badge {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+}
