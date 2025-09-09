@@ -1,0 +1,345 @@
+/* --- RESET GENERAL --- */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+*, *::before, *::after {
+  box-sizing: inherit;
+  max-width: 100%;
+}
+.gastu-logo{
+  filter: invert(1);
+}
+/* --- BODY & LAYOUT BACKGROUND --- */
+body {
+  background: #f5f5f5; /* dashboard background start */
+}
+.layout {
+  background: #f5f5f5; /* dashboard background start */
+}
+
+/* --- SIDEBAR BASE --- */
+.side-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  min-width: 250px;
+  max-width: 250px;
+  height: 100vh;
+  background: #292929; /* color-dark-gray para un look moderno */
+  color: #f0f0f0; /* background-gray como texto claro */
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden !important;
+  z-index: 1000;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15), 2px 0 8px rgba(0, 0, 0, 0.08);
+  border-right: 1px solid #666; /* medium-gray para bordes */
+  transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- SIDEBAR INTERIOR --- */
+.side-nav-header,
+.side-nav-footer {
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.side-nav-main {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden !important;
+}
+
+.side-nav-brand {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 16px 0 16px;
+}
+
+.side-nav-logo {
+  width: 32px;
+  height: 32px;
+  max-width: 40px;
+  max-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.side-nav-logo img {
+  width: 100%;
+  height: 100%;
+  max-width: 40px;
+  max-height: 40px;
+  object-fit: contain;
+  display: block;
+}
+
+.side-nav-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff; /* white para destacar */
+  letter-spacing: 0.5px;
+  margin: 0;
+  background: linear-gradient(135deg, #ccc 0%, #fff 100%); /* lighter-gray a white */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.side-nav-separator {
+  width: 90%;
+  border: none;
+  border-top: 2px solid transparent;
+  background: linear-gradient(90deg, transparent, #666, transparent); /* medium-gray */
+  margin: 16px auto 0 auto;
+  height: 2px;
+}
+
+/* --- LISTA DE OPCIONES --- */
+.side-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+.side-nav-list li {
+  margin: 0;
+  position: relative;
+}
+.side-nav-list li a {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  color: #ccc; /* lighter-gray para texto inactivo */
+  text-decoration: none;
+  font-size: 1rem;
+  transition: all 0.3s;
+  border-left: 4px solid transparent;
+  font-weight: 500;
+  gap: 12px;
+  background: transparent;
+  border-radius: 0 12px 12px 0;
+  margin: 2px 0;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.side-nav-list li.active a,
+.side-nav-list li a.active {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(221, 221, 221, 0.08) 100%); /* white/very-light-gray con transparencia */
+  color: #fff; /* white para texto activo */
+  border-left: 4px solid #999; /* light-gray para borde activo */
+  font-weight: 600;
+}
+.side-nav-list li a:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(221, 221, 221, 0.06) 100%); /* hover más sutil */
+  color: #fff; /* white en hover */
+  border-left: 4px solid #999; /* light-gray para borde hover */
+  transform: translateX(4px);
+}
+
+/* --- ICONOS --- */
+.side-nav-icon img,
+.side-nav-menu-icon img {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+  filter: brightness(0) saturate(100%) invert(80%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(90%) contrast(90%); /* iconos grises claros */
+  transition: all 0.3s;
+}
+.side-nav-list li.active .side-nav-icon img,
+.side-nav-list li a.active .side-nav-icon img,
+.side-nav-list li a:hover .side-nav-icon img {
+  filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%); /* iconos blancos cuando activos */
+  transform: scale(1.1);
+}
+
+/* --- BOTÓN MENÚ --- */
+.side-nav-menu-btn {
+  background: none;
+  border: none;
+  color: #ccc; /* lighter-gray */
+  font-size: 1.1rem;
+  padding: 14px 20px;
+  text-align: left;
+  cursor: pointer;
+  font-weight: 500;
+  width: 100%;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border-radius: 0 12px 12px 0;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  gap: 12px;
+}
+.side-nav-menu-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  transition: transform 0.3s;
+}
+.side-nav-menu-btn:hover .side-nav-menu-icon {
+  transform: scale(1.1);
+}
+
+/* --- FOOTER --- */
+.side-nav-footer {
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 0;
+  margin-top: 40px;
+  margin-bottom: 24px;
+}
+.side-nav-footer-link {
+  display: flex;
+  align-items: center;
+  color: #ccc; /* lighter-gray */
+  text-decoration: none;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 0 12px 12px 0;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.side-nav-footer-link.active,
+.side-nav-footer-link:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(221, 221, 221, 0.06) 100%); /* hover sutil */
+  color: #fff; /* white */
+  border-left: 4px solid #999; /* light-gray */
+  transform: translateX(4px);
+}
+.side-nav-footer-link .side-nav-icon img {
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  filter: brightness(0) saturate(100%) invert(80%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(90%) contrast(90%); /* iconos grises claros */
+  transition: all 0.3s;
+}
+.side-nav-footer-link:hover .side-nav-icon img {
+  filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%); /* iconos blancos en hover */
+  transform: scale(1.1);
+}
+
+/* --- SCROLLBAR --- */
+.side-nav,
+.side-nav-main {
+  scrollbar-width: thin;
+  scrollbar-color: #666 #333; /* medium-gray sobre dark-gray */
+  overflow-x: hidden !important;
+}
+.side-nav::-webkit-scrollbar,
+.side-nav-main::-webkit-scrollbar {
+  width: 8px;
+  height: 0px;
+}
+.side-nav::-webkit-scrollbar-thumb,
+.side-nav-main::-webkit-scrollbar-thumb {
+  background: #666; /* medium-gray */
+  border-radius: 4px;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 700px) {
+  .side-nav {
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+  }
+  .side-nav-title,
+  .side-nav-text {
+    display: none;
+  }
+  .side-nav-brand {
+    justify-content: center;
+    padding: 24px 0 0 0;
+  }
+}
+
+/* Sidebar colapsada */
+.side-nav.collapsed {
+  width: 130px !important;
+  min-width: 130px !important;
+  max-width: 130px !important;
+}
+.side-nav.collapsed .side-nav-title,
+.side-nav.collapsed .side-nav-text {
+  display: none !important;
+}
+.side-nav.collapsed .side-nav-brand {
+  justify-content: center;
+  padding: 24px 0 0 0;
+}
+.side-nav.collapsed .side-nav-list li a,
+.side-nav.collapsed .side-nav-footer-link,
+.side-nav.collapsed .side-nav-menu-btn {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+.side-nav.collapsed .side-nav-icon img,
+.side-nav.collapsed .side-nav-menu-icon img {
+  margin-right: 0;
+}
+
+/* Layout colapsado */
+.layout {
+  margin-left: 250px;
+  transition: margin-left 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.layout.nav-collapsed {
+  margin-left: 130px !important;
+}
+
+/* Responsive: colapsar automáticamente en móvil */
+@media (max-width: 700px) {
+  .side-nav,
+  .side-nav.collapsed {
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+  }
+  .layout,
+  .layout.nav-collapsed {
+    margin-left: 60px !important;
+  }
+}
+
+/* --- TRANSICIONES --- */
+.side-nav,
+.side-nav.collapsed,
+.layout,
+.layout.nav-collapsed {
+  transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1), margin-left 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}

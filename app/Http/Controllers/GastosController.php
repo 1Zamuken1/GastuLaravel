@@ -9,88 +9,80 @@ use Illuminate\Http\Request;
 
 class GastosController extends Controller
 {
-    // GET: /api/gastos
+    // Mostrar listado de gastos
     public function index()
-{
-    $gastos = Gastos::all();
-    $conceptoEgresos = ConceptoEgreso::all();
+    {
+        $gastos = Gastos::all();
+        return view('gastos.index', compact('gastos'));
+    }
 
-    return view('gastos', compact('gastos', 'conceptoEgresos'));
-}
+    // Mostrar formulario para crear un nuevo gasto
+    public function create()
+    {   
+        $gastos = Gastos::all();
+        return view('gastos.create', compact('gastos'));
+    }
 
-
-    // POST: /api/gastos
+    // Guardar un nuevo gasto
     public function store(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'tipo' => 'required|string|max:50',
-        'monto' => 'required|numeric',
-        'descripcion' => 'nullable|string|max:255',
-        'fecha_registro' => 'required|date',
-        'concepto_egreso_id' => 'required|integer|exists:concepto_egreso,concepto_egreso_id',
-    ]);
-
-    if ($validator->fails()) {
-        return redirect()->back()
-            ->withErrors($validator)
-            ->withInput();
-    }
-
-    Gastos::create($request->only([
-        'tipo',
-        'monto',
-        'descripcion',
-        'fecha_registro',
-        'concepto_egreso_id'
-    ]));
-
-    return redirect()->route('gastos.index')
-        ->with('success', 'Gasto creado exitosamente');
-}
-
-    // GET: /api/gastos/{id}
-    public function show($id)
     {
-        $gasto = Gastos::find($id);
-
-        if (!$gasto) {
-            return response()->json([
-                'status' => 404,
-                'message' => 'Gasto no encontrado'
-            ], 404);
-        }
-
-        return response()->json([
-            'status' => 200,
-            'gasto' => $gasto
-        ], 200);
-    }
-
-    // PUT/PATCH: /api/gastos/{id}
-    public function update(Request $request, $id)
-    {
-        $gasto = Gastos::find($id);
-
-        if (!$gasto) {
-            return response()->json([
-                'status' => 404,
-                'message' => 'Gasto no encontrado'
-            ], 404);
-        }
-
         $validator = Validator::make($request->all(), [
-            'tipo' => 'sometimes|required|string|max:50',
-            'monto' => 'sometimes|required|numeric',
-            'descripcion' => 'sometimes|nullable|string|max:255',
-            'fecha_registro' => 'sometimes|required|date',
-            'concepto_egreso_id' => 'sometimes|required|integer|exists:concepto_egreso,concepto_egreso_id',
+            'tipo' => 'required|string|max:50',
+            'monto' => 'required|numeric',
+            'descripcion' => 'nullable|string|max:255',
+            'fecha_registro' => 'required|date',
+            'concepto_egreso_id' => 'required|integer|exists:concepto_egreso,concepto_egreso_id',
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 400,
-                'errors' => $validator->errors()
-            ], 400);
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        Gastos::create($request->only([
+            'tipo',
+            'monto',
+            'descripcion',
+            'fecha_registro',
+            'concepto_egreso_id'
+        ]));
+
+        return redirect()->route('gastos.index')
+            ->with('success', 'Gasto creado exitosamente');
+    }
+
+    // Mostrar un gasto en detalle
+    public function show($id)
+    {
+        $gasto = Gastos::findOrFail($id);
+        return view('gastos.show', compact('gasto'));
+    }
+
+    // Mostrar formulario de edición
+    public function edit($id)
+    {
+        $gasto = Gastos::findOrFail($id);
+        return view('gastos.edit', compact('gasto'));
+    }
+
+    // Actualizar un gasto existente
+    public function update(Request $request, $id)
+    {
+        $gasto = Gastos::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [
+            'tipo' => 'required|string|max:50',
+            'monto' => 'required|numeric',
+            'descripcion' => 'nullable|string|max:255',
+            'fecha_registro' => 'required|date',
+            'concepto_egreso_id' => 'required|integer|exists:concepto_egreso,concepto_egreso_id',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
         }
 
         $gasto->update($request->only([
@@ -101,30 +93,17 @@ class GastosController extends Controller
             'concepto_egreso_id'
         ]));
 
-        return response()->json([
-            'status' => 200,
-            'message' => 'Gasto actualizado exitosamente',
-            'gasto' => $gasto
-        ], 200);
+        return redirect()->route('gastos.index')
+            ->with('success', 'Gasto actualizado exitosamente');
     }
 
-    // DELETE: /api/gastos/{id}
+    // Eliminar un gasto
     public function destroy($id)
     {
-        $gasto = Gastos::find($id);
-
-        if (!$gasto) {
-            return response()->json([
-                'status' => 404,
-                'message' => 'Gasto no encontrado'
-            ], 404);
-        }
-
+        $gasto = Gastos::findOrFail($id);
         $gasto->delete();
 
-        return response()->json([
-            'status' => 200,
-            'message' => 'Gasto eliminado exitosamente'
-        ], 200);
+        return redirect()->route('gastos.index')
+            ->with('success', 'Gasto eliminado exitosamente');
     }
 }

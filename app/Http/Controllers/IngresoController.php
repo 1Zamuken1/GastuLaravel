@@ -185,7 +185,6 @@ public function update(Request $request, $id)
         return redirect()->route('ingresos.index')->with('success', 'Ingreso actualizado correctamente.');
     }
 
-
     return redirect()->route('ingresos.index')->with('error', 'Solo se puede editar ingresos reales desde este formulario.');
 }
 
