@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IngresoController;
 use App\Http\Controllers\ProyeccionIngresoController;
+use App\Http\Controllers\AhorroMetaController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -10,6 +11,11 @@ Route::get('/', function () {
 
 Route::get('/gastos', function () {
     return view('gastos');
+});
+
+
+Route::get('/ahorros', function () {
+    return view('ahorros.AhorroMeta'); 
 });
 
 
@@ -29,3 +35,22 @@ Route::get('/proyecciones/{id}', [ProyeccionIngresoController::class, 'show'])->
 
 Route::get('/gastos', [App\Http\Controllers\GastosController::class, 'index'])->name('gastos.index');
 Route::post('/gastos', [App\Http\Controllers\GastosController::class, 'store'])->name('gastos.store');
+
+// ahorro meta
+Route::prefix('ahorros')->group(function () {
+    // Mostrar todos los ahorros (index)
+    Route::get('/', [AhorroMetaController::class, 'index'])->name('ahorros.index');
+
+    // Formulario para crear nuevo ahorro
+    Route::get('/create', [AhorroMetaController::class, 'create'])->name('ahorros.create');
+
+    // Guardar nuevo ahorro
+    Route::post('/', [AhorroMetaController::class, 'store'])->name('ahorros.store');
+
+    // Ver detalle de un ahorro
+    Route::get('/{id}', [AhorroMetaController::class, 'show'])->name('ahorros.show');
+
+    // Eliminar ahorro
+    Route::delete('/{id}', [AhorroMetaController::class, 'destroy'])->name('ahorros.destroy');
+});
+
