@@ -13,9 +13,14 @@ const addIncomeBtn = document.getElementById("addIncome");
 const closeIncomeBtn = document.getElementById("closeModal");
 const cancelIncomeBtn = document.getElementById("cancelModal");
 
-if (addIncomeBtn) addIncomeBtn.addEventListener("click", () => openModal(incomeModal));
+// if (addIncomeBtn) addIncomeBtn.addEventListener("click", () => openModal(incomeModal));
+// if (closeIncomeBtn) closeIncomeBtn.addEventListener("click", () => closeModal(incomeModal));
+// if (cancelIncomeBtn) cancelIncomeBtn.addEventListener("click", () => closeModal(incomeModal));
+
+if (addIncomeBtn) addIncomeBtn.addEventListener("click", () => openModal(conceptoModal));
 if (closeIncomeBtn) closeIncomeBtn.addEventListener("click", () => closeModal(incomeModal));
 if (cancelIncomeBtn) cancelIncomeBtn.addEventListener("click", () => closeModal(incomeModal));
+
 
 // -------------------------------
 // Modal Selección de Concepto
@@ -26,8 +31,8 @@ const conceptoInput = document.getElementById("concepto");
 const conceptosGrid = document.getElementById("conceptosGrid");
 const conceptoHidden = document.getElementById("concepto_id");
 
-if (selectConceptoBtn) selectConceptoBtn.addEventListener("click", () => openModal(conceptoModal));
-if (conceptoInput) conceptoInput.addEventListener("click", () => openModal(conceptoModal));
+//if (selectConceptoBtn) selectConceptoBtn.addEventListener("click", () => openModal(conceptoModal));
+//if (conceptoInput) conceptoInput.addEventListener("click", () => openModal(conceptoModal));
 
 const closeConceptoBtn = document.getElementById("closeConceptoModal");
 const cancelConceptoBtn = document.getElementById("cancelConceptoModal");
@@ -38,13 +43,25 @@ if (conceptosGrid) {
   conceptosGrid.addEventListener("click", (e) => {
     const item = e.target.closest(".concepto-item");
     if (!item) return;
+
     const id = item.getAttribute("data-id");
     const nombre = item.getAttribute("data-nombre");
-    if (conceptoInput) conceptoInput.value = nombre;
+
+    // Pasar valores al formulario del modal
+const conceptoHidden = document.getElementById("concepto_id"); // hidden
+const conceptoInput = document.getElementById("concepto");
+
     if (conceptoHidden) conceptoHidden.value = id;
+    if (conceptoInput) conceptoInput.value = nombre;
+
+    // Abrir modal ya con los datos cargados
+    openModal(incomeModal);
     closeModal(conceptoModal);
   });
 }
+
+
+
 
 // ===============================
 // Búsqueda en el Modal de Conceptos

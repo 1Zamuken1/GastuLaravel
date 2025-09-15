@@ -83,8 +83,18 @@ class IngresoController extends Controller
         ));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, $id = null)
 {
+    if ($request->isMethod('get')) {
+        // Mostrar formulario con el concepto precargado si hay id
+        $concepto = null;
+        if ($id) {
+            $concepto = ConceptoIngreso::find($id);
+        }
+        return view('ingresos.partials.income-modal', compact('concepto'));
+    }
+
+    // Aquí va tu lógica actual de guardar
     $tipo = $request->input('tipo');
 
     if ($tipo === 'Ingreso') {
@@ -93,7 +103,6 @@ class IngresoController extends Controller
             'monto'               => 'required|numeric',
             'fecha'               => 'required|date',
             'descripcion'         => 'nullable|string|max:200',
-            // 'estado' -> NO se guarda en ingreso
         ]);
 
         Ingreso::create([
@@ -113,7 +122,7 @@ class IngresoController extends Controller
             'fecha'               => 'required|date',
             'estado'              => 'required|in:Activo,Inactivo',
             'frecuencia'          => 'required|in:ninguna,diaria,semanal,quincenal,mensual,trimestral,semestral,anual',
-            'descripcion'         => 'required|string|max:200', // NOT NULL en la tabla
+            'descripcion'         => 'required|string|max:200',
         ]);
 
         $fechaInicio = Carbon::parse($validated['fecha']);
@@ -136,6 +145,7 @@ class IngresoController extends Controller
 
     return redirect()->route('ingresos.index')->with('error', 'Tipo inválido.');
 }
+
 
 private function calcularDiaRecurrencia(Carbon $fecha, string $frecuencia): ?int
 {
@@ -195,5 +205,6 @@ public function destroy($id)
 
     return redirect()->route('ingresos.index')->with('success', 'Ingreso eliminado correctamente.');
 }
+
 
 }

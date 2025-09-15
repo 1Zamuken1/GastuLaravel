@@ -21,7 +21,7 @@
         </div>
 
         {{-- Tarjetas resumen --}}
-        <div class="summary-cards">
+        <!-- <div class="summary-cards">
             <div class="summary-card">
                 <div class="card-label">
                     <i class="fas fa-wallet"></i>
@@ -49,7 +49,7 @@
                     ${{ number_format($ingresosMes, 2) }}
                 </div>
             </div>
-        </div>
+        </div> -->
 
         {{-- Filtros y búsqueda --}}
         <div class="search-container">

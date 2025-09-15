@@ -27,7 +27,7 @@
     <div class="layout">
         {{-- Sidebar --}}
         @include('components.sidenav')
-        @include('components.header')
+        {{-- @include('components.header') --}}
 
         {{-- Contenido principal --}}
         <main class="page-content">
