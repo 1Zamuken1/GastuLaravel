@@ -11,18 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('proyeccion_ingreso', function (Blueprint $table) {
-            $table->bigIncrements('proyeccion_ingreso_id');
+        Schema::create('proyeccion_egreso', function (Blueprint $table) {
+            $table->bigIncrements('proyeccion_egreso_id');
             $table->decimal('monto_programado', 12);
-            $table->string('descripcion', 200);
-            $table->string('frecuencia', 30);
-            $table->integer('dia_recurrencia')->nullable();
-            $table->date('fecha_inicio');
+            $table->string('descripcion', 100);
             $table->date('fecha_fin')->nullable();
             $table->boolean('activo')->nullable()->default(true);
             $table->timestamp('fecha_creacion')->useCurrent();
-            $table->date('ultima_generacion')->nullable();
-            $table->unsignedBigInteger('concepto_ingreso_id')->index('concepto_ingreso_id');
+            $table->unsignedBigInteger('concepto_egreso_id')->index('concepto_egreso_id');
         });
     }
 
@@ -31,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('proyeccion_ingreso');
+        Schema::dropIfExists('proyeccion_egreso');
     }
 };

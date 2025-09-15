@@ -1,26 +1,46 @@
 <?php
 
+/**
+ * Created by Reliese Model.
+ */
+
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class AporteAhorro
+ * 
+ * @property int $aporte_ahorro_id
+ * @property int $ahorro_meta_id
+ * @property float $monto
+ * @property Carbon $fecha_registro
+ * 
+ * @property AhorroMetum $ahorro_metum
+ *
+ * @package App\Models
+ */
 class AporteAhorro extends Model
 {
-    use HasFactory;
-    protected $table = 'aporte_ahorro';
-    protected $primaryKey = 'aporte_ahorro_id';
-    public $timestamps = false;
+	protected $table = 'aporte_ahorro';
+	protected $primaryKey = 'aporte_ahorro_id';
+	public $timestamps = false;
 
-    protected $fillable = [
-        'monto',
-        'fecha_registro',
-        'ahorro_meta_id'
-    ];
-    
-    public function ameta()
-    {
-        return $this->belongsTo(AhorroMeta::class, 'ahorro_meta_id');
-    }
+	protected $casts = [
+		'ahorro_meta_id' => 'int',
+		'monto' => 'float',
+		'fecha_registro' => 'datetime'
+	];
 
+	protected $fillable = [
+		'ahorro_meta_id',
+		'monto',
+		'fecha_registro'
+	];
+
+	public function ahorro_metum()
+	{
+		return $this->belongsTo(AhorroMetum::class, 'ahorro_meta_id');
+	}
 }

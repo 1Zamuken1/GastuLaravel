@@ -33,7 +33,6 @@
               class="form-control"
               required
               readonly
-              placeholder="Haga clic para seleccionar un concepto"
               style="cursor: pointer"
             />
             <button type="button" class="btn-select-concepto" id="selectConcepto">
@@ -63,22 +62,6 @@
             <option value="Activo">Activo</option>
             <option value="Inactivo">Inactivo</option>
           </select>
-        </div>
-
-        <div class="form-group" id="recurrenciaGroup" style="display:none;">
-          <div class="recurrence-container">
-            <label for="recurrencia">Frecuencia:</label>
-            <select id="recurrencia" name="frecuencia" class="form-control">
-              <option value="ninguna">Ninguna</option>
-              <option value="diaria">Diaria</option>
-              <option value="semanal">Semanal</option>
-              <option value="quincenal">Quincenal</option>
-              <option value="mensual">Mensual</option>
-              <option value="trimestral">Trimestral</option>
-              <option value="semestral">Semestral</option>
-              <option value="anual">Anual</option>
-            </select>
-          </div>
         </div>
 
         <div class="form-group">

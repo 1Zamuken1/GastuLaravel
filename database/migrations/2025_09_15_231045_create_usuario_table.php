@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('usuario', function (Blueprint $table) {
             $table->bigIncrements('usuario_id');
-            $table->string('nombre', 60);
-            $table->string('correo', 254)->unique('correo');
+            $table->string('nombre', 30);
+            $table->string('correo', 50)->unique('correo');
             $table->string('telefono', 20)->nullable();
-            $table->string('password');
+            $table->string('password', 50);
             $table->timestamp('fecha_registro')->useCurrent();
             $table->boolean('activo')->nullable()->default(true);
             $table->integer('rol_id')->index('rol_id');

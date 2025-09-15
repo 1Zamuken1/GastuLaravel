@@ -19,7 +19,7 @@ Route::get('/ahorros', function () {
 //Ingresos
 Route::get('/ingresos', [IngresoController::class, 'index'])->name('ingresos.index');
 //Route::post('/ingresos', [IngresoController::class, 'store'])->name('ingresos.store');
-Route::get('/ingresos/create/{id?}', [IngresoController::class, 'create2'])->name('ingresos.create');
+Route::get('/ingresos/create/{id?}', [IngresoController::class, 'create'])->name('ingresos.create');
 
 Route::post('/ingresos/store', [IngresoController::class, 'store'])->name('ingresos.store');
 Route::post('/ingresos/update/{id}', [IngresoController::class, 'update'])->name('ingresos.update');

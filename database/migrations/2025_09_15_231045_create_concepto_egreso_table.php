@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('concepto_egreso', function (Blueprint $table) {
             $table->bigIncrements('concepto_egreso_id');
-            $table->string('nombre', 50);
+            $table->string('nombre', 30);
             $table->string('descripcion', 100);
             $table->unsignedBigInteger('usuario_id')->index('usuario_id');
         });

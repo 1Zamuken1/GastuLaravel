@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rol_permiso', function (Blueprint $table) {
-            $table->integer('rol_id');
-            $table->integer('permiso_id')->index('permiso_id');
-
-            $table->primary(['rol_id', 'permiso_id']);
+        Schema::create('cache_locks', function (Blueprint $table) {
+            $table->string('key')->primary();
+            $table->string('owner');
+            $table->integer('expiration');
         });
     }
 
@@ -24,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('rol_permiso');
+        Schema::dropIfExists('cache_locks');
     }
 };

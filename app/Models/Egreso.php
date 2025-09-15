@@ -10,29 +10,29 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class Ingreso
+ * Class Egreso
  * 
- * @property int $ingreso_id
+ * @property int $egreso_id
  * @property string|null $tipo
  * @property float $monto
  * @property string|null $descripcion
  * @property Carbon $fecha_registro
- * @property int|null $concepto_ingreso_id
+ * @property int|null $concepto_egreso_id
  * 
- * @property ConceptoIngreso|null $concepto_ingreso
+ * @property ConceptoEgreso|null $concepto_egreso
  *
  * @package App\Models
  */
-class Ingreso extends Model
+class Egreso extends Model
 {
-	protected $table = 'ingreso';
-	protected $primaryKey = 'ingreso_id';
+	protected $table = 'egreso';
+	protected $primaryKey = 'egreso_id';
 	public $timestamps = false;
 
 	protected $casts = [
 		'monto' => 'float',
 		'fecha_registro' => 'datetime',
-		'concepto_ingreso_id' => 'int'
+		'concepto_egreso_id' => 'int'
 	];
 
 	protected $fillable = [
@@ -40,11 +40,11 @@ class Ingreso extends Model
 		'monto',
 		'descripcion',
 		'fecha_registro',
-		'concepto_ingreso_id'
+		'concepto_egreso_id'
 	];
 
-	public function ConceptoIngreso()
+	public function concepto_egreso()
 	{
-		return $this->belongsTo(ConceptoIngreso::class);
+		return $this->belongsTo(ConceptoEgreso::class);
 	}
 }

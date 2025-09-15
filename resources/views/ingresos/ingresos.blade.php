@@ -20,37 +20,6 @@
             </div>
         </div>
 
-        {{-- Tarjetas resumen --}}
-        <!-- <div class="summary-cards">
-            <div class="summary-card">
-                <div class="card-label">
-                    <i class="fas fa-wallet"></i>
-                    <span>Total Ingresos</span>
-                </div>
-                <div class="card-value" id="total-income">
-                    ${{ number_format($totalIngresos, 2) }}
-                </div>
-            </div>
-            <div class="summary-card proyeccion">
-                <div class="card-label">
-                    <i class="fas fa-chart-line"></i>
-                    <span>Total Proyecciones</span>
-                </div>
-                <div class="card-value" id="total-projection">
-                    ${{ number_format($totalProyecciones, 2) }}
-                </div>
-            </div>
-            <div class="summary-card">
-                <div class="card-label">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>Ingresos este mes</span>
-                </div>
-                <div class="card-value" id="month-income">
-                    ${{ number_format($ingresosMes, 2) }}
-                </div>
-            </div>
-        </div> -->
-
         {{-- Filtros y búsqueda --}}
         <div class="search-container">
             <div class="search-box">
@@ -98,7 +67,7 @@
                         data-concepto-id="{{ $registro['concepto_id'] ?? '' }}">
                         <td>{{ $registro['id'] }}</td>
                         <td>{{ $registro['concepto'] }}</td>
-                        <td>{{ $registro['monto'] }}</td>
+                        <td>{{ number_format($registro['monto'], 2) }}</td>
                         <td>{{ $registro['tipo'] }}</td>
                         <td>{{ \Carbon\Carbon::parse($registro['fecha'])->format('d/m/Y') }}</td>
                         <td>{{ $registro['estado'] }}</td>
