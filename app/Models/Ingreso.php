@@ -45,6 +45,6 @@ class Ingreso extends Model
 
 	public function ConceptoIngreso()
 	{
-		return $this->belongsTo(ConceptoIngreso::class);
+		return $this->belongsTo(ConceptoIngreso::class, 'concepto_ingreso_id', 'concepto_ingreso_id');
 	}
 }

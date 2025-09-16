@@ -15,12 +15,12 @@ class IngresoController extends Controller
         // ========================
         // Traer ingresos reales
         // ========================
-        $ingresos = Ingreso::with('ConceptoIngreso')
+        $ingresos = Ingreso::with('conceptoIngreso')
             ->get()
             ->map(function ($ingreso) {
                 return [
                     'id'          => $ingreso->ingreso_id,
-                    'concepto'    => $ingreso->concepto_ingreso->nombre ?? 'Sin concepto',
+                    'concepto'    => $ingreso->conceptoIngreso->nombre ?? 'Sin concepto',
                     'monto'       => $ingreso->monto,
                     'tipo'        => $ingreso->tipo ?? 'Ingreso', // ahora existe en la tabla
                     'fecha'       => $ingreso->fecha_registro,
@@ -33,12 +33,12 @@ class IngresoController extends Controller
         // ========================
         // Traer proyecciones
         // ========================
-        $proyecciones = ProyeccionIngreso::with('ConceptoIngreso')
+        $proyecciones = ProyeccionIngreso::with('conceptoIngreso')
             ->get()
             ->map(function ($proyeccion) {
                 return [
                     'id'          => $proyeccion->proyeccion_ingreso_id,
-                    'concepto'    => $proyeccion->concepto_ingreso->nombre ?? 'Sin concepto',
+                    'concepto'    => $proyeccion->conceptoIngreso->nombre ?? 'Sin concepto',
                     'monto'       => $proyeccion->monto_programado,
                     'tipo'        => 'Proyección',
                     'fecha'       => $proyeccion->fecha_inicio,
@@ -85,6 +85,7 @@ class IngresoController extends Controller
 
     public function store(Request $request, $id = null)
     {
+        //dd($request->all());
         if ($request->isMethod('get')) {
             // Mostrar formulario con el concepto precargado si hay id
             $concepto = null;
@@ -120,23 +121,16 @@ class IngresoController extends Controller
                 'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
                 'monto'               => 'required|numeric',
                 'fecha'               => 'required|date',
-                'estado'              => 'required|in:Activo,Inactivo',
-                'frecuencia'          => 'required|in:ninguna,diaria,semanal,quincenal,mensual,trimestral,semestral,anual',
+                'activo'              => 'required|in:1,0',
                 'descripcion'         => 'required|string|max:200',
             ]);
-
-            $fechaInicio = Carbon::parse($validated['fecha']);
 
             ProyeccionIngreso::create([
                 'monto_programado'    => $validated['monto'],
                 'descripcion'         => $validated['descripcion'],
-                'frecuencia'          => $validated['frecuencia'],
-                'dia_recurrencia'     => $this->calcularDiaRecurrencia($fechaInicio, $validated['frecuencia']),
-                'fecha_inicio'        => $fechaInicio->toDateString(),
-                'fecha_fin'           => $this->calcularFechaFin($fechaInicio, $validated['frecuencia']),
-                'activo'              => $validated['estado'] === 'Activo' ? 1 : 0,
-                'ultima_generacion'   => null,
-                'tipo'                => $tipo,
+                'fecha_creacion'      => now(),
+                'fecha_inicio'        => $validated['fecha'],
+                'activo'              => $validated['activo'],
                 'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
             ]);
 

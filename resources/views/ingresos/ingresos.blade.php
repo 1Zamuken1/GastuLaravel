@@ -67,11 +67,21 @@
                         data-concepto-id="{{ $registro['concepto_id'] ?? '' }}">
                         <td>{{ $registro['id'] }}</td>
                         <td>{{ $registro['concepto'] }}</td>
-                        <td>{{ number_format($registro['monto'], 2) }}</td>
+                        <td>{{ number_format($registro['monto']) }}</td>
                         <td>{{ $registro['tipo'] }}</td>
                         <td>{{ \Carbon\Carbon::parse($registro['fecha'])->format('d/m/Y') }}</td>
-                        <td>{{ $registro['estado'] }}</td>
                         <td>
+                            @if ($registro['tipo'] === 'Ingreso')
+                                --
+                            @else
+                                {{ $registro['estado'] }}
+                            @endif
+                        </td>
+                        <td>
+                            {{-- Botón Ver --}}
+                            <button class="icon-btn view-btn" title="Ver">
+                                <i class="fas fa-eye"></i>
+                            </button>
                             {{-- Botón Editar --}}
                             <button class="icon-btn edit-btn" title="Editar">
                                 <i class="fas fa-edit"></i>
