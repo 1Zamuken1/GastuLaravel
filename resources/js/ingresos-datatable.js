@@ -3,17 +3,23 @@ document.addEventListener("DOMContentLoaded", function () {
     let table = $("#incomeTable").DataTable({
         pageLength: 10,
         language: {
-            url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+            url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json",
         },
         columnDefs: [
             {
+                targets: 0, // Columna ID
+                visible: false, // Oculta la columna ID
+                searchable: false, // Opcional: que no se busque por ID
+            },
+            {
                 targets: -1, // última columna (acciones)
                 orderable: false,
-                searchable: false
-            }
+                searchable: false,
+            },
         ],
-        // 🔴 Ocultar controles de DataTables (buscador y length menu)
-        dom: 'tip' // t = tabla, i = info, p = paginación
+        dom: "tip",
+        autoWidth: false, // <-- Añade esto
+    responsive: true,
     });
 
     // =========================
@@ -57,7 +63,9 @@ document.addEventListener("DOMContentLoaded", function () {
     table.on("draw", function () {
         let info = table.page.info();
         $("#paginationInfo").html(
-            `Mostrando ${info.start + 1} a ${info.end} de ${info.recordsTotal} registros`
+            `Mostrando ${info.start + 1} a ${info.end} de ${
+                info.recordsTotal
+            } registros`
         );
     });
 
