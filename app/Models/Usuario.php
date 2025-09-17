@@ -8,7 +8,8 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 /**
  * Class Usuario
@@ -23,14 +24,16 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $rol_id
  * 
  * @property Rol $rol
- * @property Collection|AhorroMeta[] $ahorro_meta
+ * @property Collection|AhorroMetum[] $ahorro_meta
  * @property Collection|ConceptoEgreso[] $concepto_egresos
  * @property Collection|ConceptoIngreso[] $concepto_ingresos
  *
  * @package App\Models
  */
-class Usuario extends Model
+class Usuario extends Authenticatable
 {
+	use Notifiable;
+
 	protected $table = 'usuario';
 	protected $primaryKey = 'usuario_id';
 	public $timestamps = false;
@@ -55,6 +58,16 @@ class Usuario extends Model
 		'rol_id'
 	];
 
+	public function setPasswordAttribute($value)
+	{
+		$this->attributes['password'] = bcrypt($value);
+	}
+
+	public function getAuthIdentifierName()
+	{
+		return 'correo';
+	}
+
 	public function rol()
 	{
 		return $this->belongsTo(Rol::class);
@@ -62,7 +75,7 @@ class Usuario extends Model
 
 	public function ahorro_meta()
 	{
-		return $this->hasMany(AhorroMeta::class);
+		return $this->hasMany(AhorroMetum::class);
 	}
 
 	public function concepto_egresos()
