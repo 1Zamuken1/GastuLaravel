@@ -110,7 +110,7 @@
     @include('ingresos.partials.income-modal', ['conceptoIngresos' => $conceptoIngresos])
     @include('ingresos.partials.concepto-modal', ['conceptoIngresos' => $conceptoIngresos])
     @include('ingresos.partials.delete-modal', ['conceptoIngresos' => $conceptoIngresos])
-    @include('ingresos.partials.recurrence-modal', ['conceptoIngresos' => $conceptoIngresos])
+    @include('ingresos.partials.view-modal')
 @endsection
 
 @push('scripts')

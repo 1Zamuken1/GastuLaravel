@@ -26,11 +26,13 @@ Route::get('/', function () {
 
     Route::post('/ingresos/store', [IngresoController::class, 'store'])->name('ingresos.store');
     Route::post('/ingresos/update/{id}', [IngresoController::class, 'update'])->name('ingresos.update');
+    // Para ingresos reales
     Route::delete('/ingresos/destroy/{id}', [IngresoController::class, 'destroy'])->name('ingresos.destroy');
 
     //Proyecciones de Ingresos
     Route::post('/proyecciones', [ProyeccionIngresoController::class, 'store'])->name('proyecciones.store');
     Route::put('/proyecciones/{id}', [ProyeccionIngresoController::class, 'update'])->name('proyecciones.update');
+    // Para proyecciones
     Route::delete('/proyecciones/{id}', [ProyeccionIngresoController::class, 'destroy'])->name('proyecciones.destroy');
     Route::get('/proyecciones/{id}', [ProyeccionIngresoController::class, 'show'])->name('proyecciones.show');
     Route::get('/proyecciones/para-confirmar', [ProyeccionIngresoController::class, 'proyeccionesParaConfirmar']);
