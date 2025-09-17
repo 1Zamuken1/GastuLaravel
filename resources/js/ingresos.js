@@ -146,55 +146,7 @@ if (descripcionField) {
 // ===============================
 // Botones Ver
 // ===============================
-document.querySelectorAll(".view-btn").forEach((btn) => {
-    btn.addEventListener("click", function () {
-        const row = btn.closest("tr");
-        const id = row.children[0].textContent.trim();
-        const concepto = row.children[1].textContent.trim();
-        const monto = row.children[2].textContent.replace("$", "").trim();
-        const tipo = row.children[3].textContent.trim();
-        const fecha = row.children[4].textContent.split("/").reverse().join("-");
-        const estado = row.children[5].textContent.trim();
-        const descripcion = row.getAttribute("data-descripcion") || "";
-        const conceptoId = row.getAttribute("data-concepto-id") || "";
 
-        // Asigna los valores igual que en editar
-        document.getElementById("editId").value = id;
-        document.getElementById("tipo").value = tipo;
-        document.getElementById("concepto").value = concepto;
-        document.getElementById("concepto_id").value = conceptoId;
-        document.getElementById("monto").value = monto;
-        document.getElementById("fecha").value = fecha;
-        document.getElementById("estado").value = (tipo === "Proyección") ? (estado === "Activo" ? "1" : "0") : "";
-        document.getElementById("descripcion").value = descripcion;
-
-        // Deshabilita todos los campos del formulario
-        Array.from(document.querySelectorAll("#formIngreso input, #formIngreso select, #formIngreso textarea")).forEach(el => {
-            el.disabled = true;
-        });
-
-        // Oculta los botones de guardar/cancelar si existen
-        document.querySelectorAll("#formIngreso .modal-footer, #formIngreso button[type=submit]").forEach(el => {
-            el.style.display = "none";
-        });
-
-        // Cambia el título del modal
-        document.getElementById("modalTitle").textContent = "Ver registro";
-
-        openModal(incomeModal);
-    });
-});
-
-// Al cerrar el modal, vuelve a habilitar los campos y mostrar los botones
-incomeModal.addEventListener("hide", function () {
-    Array.from(document.querySelectorAll("#formIngreso input, #formIngreso select, #formIngreso textarea")).forEach(el => {
-        el.disabled = false;
-    });
-    document.querySelectorAll("#formIngreso .modal-footer, #formIngreso button[type=submit]").forEach(el => {
-        el.style.display = "";
-    });
-    document.getElementById("modalTitle").textContent = "Añadir nuevo registro";
-});
 
 
 
@@ -204,64 +156,44 @@ incomeModal.addEventListener("hide", function () {
 // ===============================
 document.querySelectorAll(".edit-btn").forEach((btn) => {
     btn.addEventListener("click", function () {
-        const row = btn.closest("tr");
-        const id = row.children[0].textContent.trim();
-        const concepto = row.children[1].textContent.trim();
-        const monto =
-            row.getAttribute("data-monto") ||
-            row.children[2].textContent
-                .replace(/[^0-9.,-]/g, "")
-                .replace(",", ".")
-                .trim();
-        const tipo = row.children[3].textContent.trim();
-        const estado = row.children[5].textContent.trim();
-        const fecha = row.children[4].textContent
-            .split("/")
-            .reverse()
-            .join("-");
-        const descripcion = row.getAttribute("data-descripcion") || "";
-        const conceptoId = row.getAttribute("data-concepto-id") || "";
+        // Usar DataTables API para obtener los datos correctos
+        const table = $("#incomeTable").DataTable();
+        const tr = btn.closest("tr");
+        const rowIdx = table.row(tr).index();
+        const data = table.row(rowIdx).data();
+
+        // data es un array con los valores de las columnas visibles y ocultas
+        // Según tu Blade:
+        // 0: ID (oculto), 1: Concepto, 2: Monto, 3: Tipo, 4: Fecha, 5: Estado
+
+        const id = data[0];
+        const concepto = data[1];
+        const monto = data[2].replace(/[^0-9.,-]/g, "").replace(",", ".").trim();
+        const tipo = data[3];
+        // Fecha en formato d/m/Y, convertir a yyyy-mm-dd
+        const fecha = data[4].split("/").reverse().join("-");
+        const estado = data[5];
+        // Los atributos extra siguen igual
+        const descripcion = tr.getAttribute("data-descripcion") || "";
+        const conceptoId = tr.getAttribute("data-concepto-id") || "";
 
         document.getElementById("editId").value = id;
-        document.getElementById("tipo").value = tipo; // <-- Asegúrate que el valor sea exactamente "Ingreso" o "Proyección"
+        document.getElementById("tipo").value = tipo;
         document.getElementById("concepto").value = concepto;
         document.getElementById("concepto_id").value = conceptoId;
         document.getElementById("monto").value = monto;
         document.getElementById("fecha").value = fecha;
-        document.getElementById("estado").value = estado;
         document.getElementById("descripcion").value = descripcion;
 
+        // Estado solo para proyección
         if (tipo === "Proyección") {
-            document.getElementById("estado").value =
-                estado === "Activo" ? "1" : "0";
+            document.getElementById("estado").value = estado === "Activo" ? "1" : "0";
         } else {
             document.getElementById("estado").value = "";
         }
 
-        // 🔴 Llama a toggleFieldsByTipo después de asignar el tipo
         if (typeof toggleFieldsByTipo === "function") {
             toggleFieldsByTipo();
-        }
-
-        const form = document.getElementById("formIngreso");
-        form.action =
-            tipo === "Proyección"
-                ? `/proyecciones/${id}`
-                : `/ingresos/update/${id}`;
-        form.method = "POST";
-
-        // Manejo del método PUT para proyección
-        let methodInput = form.querySelector('input[name="_method"]');
-        if (tipo === "Proyección") {
-            if (!methodInput) {
-                methodInput = document.createElement("input");
-                methodInput.type = "hidden";
-                methodInput.name = "_method";
-                form.appendChild(methodInput);
-            }
-            methodInput.value = "PUT";
-        } else {
-            if (methodInput) methodInput.remove();
         }
 
         openModal(incomeModal);

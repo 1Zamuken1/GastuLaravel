@@ -126,13 +126,13 @@ class IngresoController extends Controller
             ]);
 
             ProyeccionIngreso::create([
-                'monto_programado'    => $validated['monto'],
-                'descripcion'         => $validated['descripcion'],
-                'fecha_creacion'      => now(),
-                'fecha_inicio'        => $validated['fecha'],
-                'activo'              => $validated['activo'],
-                'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
-            ]);
+    'monto_programado'    => $validated['monto'],
+    'descripcion'         => $validated['descripcion'],
+    'fecha_creacion'      => now(),
+    'fecha_inicio'        => $validated['fecha'],
+    'activo'              => $validated['activo'],
+    'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
+]);
 
             return redirect()->route('ingresos.index')->with('success', 'Proyección creada correctamente.');
         }
