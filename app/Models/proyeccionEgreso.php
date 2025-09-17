@@ -10,7 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class ProyeccionEgreso
+ * Class proyeccionEgreso
  * 
  * @property int $proyeccion_egreso_id
  * @property float $monto_programado
@@ -47,8 +47,8 @@ class ProyeccionEgreso extends Model
 		'concepto_egreso_id'
 	];
 
-	public function concepto_egreso()
+	public function ConceptoEgreso()
 	{
-		return $this->belongsTo(ConceptoEgreso::class);
+		return $this->belongsTo(ConceptoEgreso::class, 'concepto_egreso_id', 'concepto_egreso_id');
 	}
 }

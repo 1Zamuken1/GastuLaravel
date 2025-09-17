@@ -3,7 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IngresoController;
 use App\Http\Controllers\ProyeccionIngresoController;
-use App\Http\Controllers\GastosController;
+use App\Http\Controllers\ProyeccionEgresoController;
+use App\Http\Controllers\EgresoController;
 use App\Http\Controllers\AhorroMetaController;
 use App\Http\Controllers\AutenticacionController;
 
@@ -38,12 +39,22 @@ Route::get('/', function () {
     Route::get('/proyecciones/para-confirmar', [ProyeccionIngresoController::class, 'proyeccionesParaConfirmar']);
     Route::post('/proyecciones/confirmar', [ProyeccionIngresoController::class, 'confirmarRecurrencias']);
 
-    Route::get('/gastos', [App\Http\Controllers\GastosController::class, 'index'])->name('gastos.index');
-    Route::post('/gastos', [App\Http\Controllers\GastosController::class, 'store'])->name('gastos.store');
-    Route::get('/gastos/{id}', [App\Http\Controllers\GastosController::class, 'show'])->name('gastos.show');
-    Route::put('/gastos/{id}', [App\Http\Controllers\GastosController::class, 'update'])->name('gastos.update');
-    Route::delete('/gastos/{id}', [App\Http\Controllers\GastosController::class, 'destroy'])->name('gastos.destroy');
-    Route::resource('gastos', GastosController::class);
+   //Egresos
+    Route::get('/egresos', [EgresoController::class, 'index'])->name('egresos.index');
+    //Route::post('/ingresos', [IngresoController::class, 'store'])->name('ingresos.store');
+    Route::get('/egresos/create/{id?}', [EgresoController::class, 'create'])->name('egresos.create');
+
+    Route::post('/egresos/store', [EgresoController::class, 'store'])->name('egresos.store');
+    Route::post('/egresos/update/{id}', [EgresoController::class, 'update'])->name('egresos.update');
+    Route::delete('/egresos/destroy/{id}', [EgresoController::class, 'destroy'])->name('egresos.destroy');
+
+    //Proyecciones de Ingresos
+    Route::post('/proyecciones', [ProyeccionEgresoController::class, 'store'])->name('proyecciones.store');
+    Route::put('/proyecciones/{id}', [ProyeccionEgresoController::class, 'update'])->name('proyecciones.update');
+    Route::delete('/proyecciones/{id}', [ProyeccionEgresoController::class, 'destroy'])->name('proyecciones.destroy');
+    Route::get('/proyecciones/{id}', [ProyeccionEgresoController::class, 'show'])->name('proyecciones.show');
+    Route::get('/proyecciones/para-confirmar', [ProyeccionEgresoController::class, 'proyeccionesParaConfirmar']);
+    Route::post('/proyecciones/confirmar', [ProyeccionEgresoController::class, 'confirmarRecurrencias']);
 
     // ahorro meta
     Route::prefix('ahorros')->group(function () {
