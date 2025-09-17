@@ -125,10 +125,12 @@ function toggleFieldsByTipo() {
     if (estadoGroup)
         estadoGroup.style.display = isProyeccion ? "block" : "none";
     if (estadoSelect) estadoSelect.required = isProyeccion;
-}
-if (tipoSelect) {
-    tipoSelect.addEventListener("change", toggleFieldsByTipo);
-    toggleFieldsByTipo();
+    // Mostrar/ocultar grupo fecha_fin
+    const fecha_finGroup = document.getElementById("fecha_finGroup");
+    const fecha_finInput = document.getElementById("fecha_fin");
+    if (fecha_finGroup)
+        fecha_finGroup.style.display = isProyeccion ? "block" : "none";
+    if (fecha_finInput) fecha_finInput.required = isProyeccion;
 }
 
 // ===============================
@@ -172,10 +174,11 @@ document.querySelectorAll(".edit-btn").forEach((btn) => {
         const tipo = data[3];
         // Fecha en formato d/m/Y, convertir a yyyy-mm-dd
         const fecha = data[4].split("/").reverse().join("-");
-        const estado = data[5];
+        const estado = data[6];
         // Los atributos extra siguen igual
         const descripcion = tr.getAttribute("data-descripcion") || "";
         const conceptoId = tr.getAttribute("data-concepto-id") || "";
+        const fecha_fin = tr.getAttribute("data-fecha_fin") || "";
 
         document.getElementById("editId").value = id;
         document.getElementById("tipo").value = tipo;
@@ -183,6 +186,7 @@ document.querySelectorAll(".edit-btn").forEach((btn) => {
         document.getElementById("concepto_id").value = conceptoId;
         document.getElementById("monto").value = monto;
         document.getElementById("fecha").value = fecha;
+        document.getElementById("fecha_fin").value = fecha_fin;
         document.getElementById("descripcion").value = descripcion;
 
         // Estado solo para proyección
@@ -265,3 +269,8 @@ $("#miTabla").DataTable({
         url: "/datatables/es-ES.json",
     },
 });
+
+if (tipoSelect) {
+    tipoSelect.addEventListener("change", toggleFieldsByTipo);
+    toggleFieldsByTipo();
+}

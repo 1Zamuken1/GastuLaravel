@@ -42,6 +42,7 @@ class IngresoController extends Controller
                     'monto'       => $proyeccion->monto_programado,
                     'tipo'        => 'Proyección',
                     'fecha'       => $proyeccion->fecha_inicio,
+                    'fecha_fin'   => $proyeccion->fecha_fin ? $proyeccion->fecha_fin->format('Y-m-d') : '',
                     'estado'      => $proyeccion->activo ? 'Activo' : 'Inactivo',
                     'descripcion' => $proyeccion->descripcion ?? '',
                     'concepto_id' => $proyeccion->concepto_ingreso_id,
@@ -121,18 +122,19 @@ class IngresoController extends Controller
                 'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
                 'monto'               => 'required|numeric',
                 'fecha'               => 'required|date',
+                'fecha_fin'           => 'required|date|after_or_equal:fecha',
                 'activo'              => 'required|in:1,0',
                 'descripcion'         => 'required|string|max:200',
             ]);
 
             ProyeccionIngreso::create([
-    'monto_programado'    => $validated['monto'],
-    'descripcion'         => $validated['descripcion'],
-    'fecha_creacion'      => now(),
-    'fecha_inicio'        => $validated['fecha'],
-    'activo'              => $validated['activo'],
-    'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
-]);
+                'monto_programado'    => $validated['monto'],
+                'descripcion'         => $validated['descripcion'],
+                'fecha_inicio'        => $validated['fecha'],
+                'fecha_fin'           => $validated['fecha_fin'],
+                'activo'              => $validated['activo'],
+                'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
+            ]);
 
             return redirect()->route('ingresos.index')->with('success', 'Proyección creada correctamente.');
         }

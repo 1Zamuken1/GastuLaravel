@@ -69,9 +69,6 @@
 
                 <div class="modal-footer">
                     <button class="btn btn-cancel" id="cancelModal" type="button">Cancelar</button>
-                    <button class="btn btn-save" id="saveIncome" type="submit">
-                        <i class="fas fa-save"></i> Guardar
-                    </button>
                 </div>
             </form>
         </div>

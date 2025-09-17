@@ -64,7 +64,8 @@
             <tbody>
                 @forelse ($registros as $registro)
                     <tr data-descripcion="{{ $registro['descripcion'] ?? '' }}"
-                        data-concepto-id="{{ $registro['concepto_id'] ?? '' }}">
+                        data-concepto-id="{{ $registro['concepto_id'] ?? '' }}"
+                        data-fecha_fin="{{ $registro['fecha_fin'] ?? '' }}">
                         <td>{{ $registro['id'] }}</td>
                         <td>{{ $registro['concepto'] }}</td>
                         <td>{{ number_format($registro['monto']) }}</td>

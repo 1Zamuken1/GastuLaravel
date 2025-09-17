@@ -17,7 +17,7 @@ Route::get('/', function () {
 }); **/
 
 //vistas protegidas
-Route::middleware('auth')->group(function () {
+//Route::middleware('auth')->group(function () {
 
     //Ingresos
     Route::get('/ingresos', [IngresoController::class, 'index'])->name('ingresos.index');
@@ -61,7 +61,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [AhorroMetaController::class, 'destroy'])->name('ahorros.destroy');
 
     });
-});
+//});
 
 //Formularios de autenticación
 Route::get('/registro', function () {
