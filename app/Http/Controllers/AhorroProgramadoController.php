@@ -11,7 +11,7 @@ class AhorroProgramadoController extends Controller
 {
     //si no hay ningun ahorro registrado->index
     public function index(){
-        $ahorroProgramado = ahorroProgramado::all();
+        $ahorroProgramado = AhorroProgramado::all();
 
         if($ahorroProgramado->isEmpty()){
             $data = [
@@ -48,7 +48,7 @@ class AhorroProgramadoController extends Controller
             return response()->json($data, 400);
         }
 
-        $ahorroProgramado = ahorroProgramado::create([
+        $ahorroProgramado = AhorroProgramado::create([
             'monto_programado' => $request->monto_programado,
             'frecuencia' => $request->frecuencia,
             'fecha_inicio' => $request->fecha_inicio,
@@ -76,7 +76,7 @@ class AhorroProgramadoController extends Controller
 
      //mostrar un solo ahorro en especifico por su id->show
      public function show($id){
-        $ahorroProgramado = ahorroProgramado::find($id);
+        $ahorroProgramado = AhorroProgramado::find($id);
 
         if(!$ahorroProgramado){
             $data = [
@@ -95,7 +95,7 @@ class AhorroProgramadoController extends Controller
      //actualizar todos los registros de un ahorro-> update
 
      public function update(Request $request, $id){
-        $ahorroProgramado = ahorroProgramado::find($id);
+        $ahorroProgramado = AhorroProgramado::find($id);
 
         if(!$ahorroProgramado){
             $data = [
@@ -145,7 +145,7 @@ class AhorroProgramadoController extends Controller
      //actualizar solo un campo del registro de un ahorro-> updatePartial
 
      public function updatePartial(Request $request, $id){
-        $ahorroProgramado = ahorroProgramado::find($id);
+        $ahorroProgramado = AhorroProgramado::find($id);
 
         if(!$ahorroProgramado){
             $data = [
@@ -209,7 +209,7 @@ class AhorroProgramadoController extends Controller
     //eliminar un registro de ahorro-> destroy
 
     public function destroy($id){
-        $ahorroProgramado = ahorroProgramado::find($id);
+        $ahorroProgramado = AhorroProgramado::find($id);
 
         if(!$ahorroProgramado){
             $data = [

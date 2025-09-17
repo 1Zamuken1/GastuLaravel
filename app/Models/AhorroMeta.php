@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class AhorroMetum
+ * Class AhorroMeta
  * 
  * @property int $ahorro_meta_id
  * @property int $usuario_id
@@ -29,7 +29,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
-class AhorroMetum extends Model
+class AhorroMeta extends Model
 {
 	protected $table = 'ahorro_meta';
 	protected $primaryKey = 'ahorro_meta_id';
@@ -60,12 +60,12 @@ class AhorroMetum extends Model
 		return $this->belongsTo(Usuario::class);
 	}
 
-	public function ahorro_programados()
+	public function ahorroProgramados()
 	{
 		return $this->hasMany(AhorroProgramado::class, 'ahorro_meta_id');
 	}
 
-	public function aporte_ahorros()
+	public function aporteAhorros()
 	{
 		return $this->hasMany(AporteAhorro::class, 'ahorro_meta_id');
 	}

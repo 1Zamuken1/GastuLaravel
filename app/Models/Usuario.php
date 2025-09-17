@@ -8,7 +8,8 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 /**
  * Class Usuario
@@ -29,8 +30,10 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
-class Usuario extends Model
+class Usuario extends Authenticatable
 {
+	use Notifiable;
+
 	protected $table = 'usuario';
 	protected $primaryKey = 'usuario_id';
 	public $timestamps = false;
@@ -54,6 +57,16 @@ class Usuario extends Model
 		'activo',
 		'rol_id'
 	];
+
+	public function setPasswordAttribute($value)
+	{
+		$this->attributes['password'] = bcrypt($value);
+	}
+
+	public function getAuthIdentifierName()
+	{
+		return 'correo';
+	}
 
 	public function rol()
 	{
