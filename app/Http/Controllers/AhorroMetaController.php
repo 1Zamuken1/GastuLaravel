@@ -11,7 +11,7 @@ class AhorroMetaController extends Controller
 {
     //si no hay ningun ahorro registrado->index
     public function index(){
-        $ahorroMeta = ahorroMeta::all();
+        $ahorroMeta = AhorroMeta::all();
 
         if($ahorroMeta->isEmpty()){
             $data = [
@@ -49,8 +49,8 @@ class AhorroMetaController extends Controller
             ];
             return response()->json($data, 400);
         }
-
-        $ahorroMeta = ahorroMeta::create([
+        // crea el ahorro con los datos validados
+        $ahorroMeta = AhorroMeta::create([
             'concepto' => $request->concepto,
             'descripcion' => $request->descripcion,
             'monto_meta' => $request->monto_meta,
@@ -80,7 +80,7 @@ class AhorroMetaController extends Controller
 
     //mostrar un solo ahorro en especifico por su id->show
     public function show($id){
-        $ahorroMeta = ahorroMeta::find($id);
+        $ahorroMeta = AhorroMeta::find($id);
 
         if(!$ahorroMeta){
             $data = [
@@ -100,7 +100,7 @@ class AhorroMetaController extends Controller
 
     //actualizar todos los registros de un ahorro-> update
     public function update(Request $request, $id){
-        $ahorroMeta = ahorroMeta::find($id);
+        $ahorroMeta = AhorroMeta::find($id);
 
         if(!$ahorroMeta){
             $data = [
@@ -152,7 +152,7 @@ class AhorroMetaController extends Controller
 
     //actualizar solo un campo del registro de un ahorro-> updatePartial
     public function updatePartial(Request $request, $id){
-        $ahorroMeta = ahorroMeta::find($id);
+        $ahorroMeta = AhorroMeta::find($id);
 
         if(!$ahorroMeta){
             $data = [
@@ -219,7 +219,7 @@ class AhorroMetaController extends Controller
     
     //eliminar un registro de ahorro-> destroy
     public function destroy($id){
-        $ahorroMeta = ahorroMeta::find($id);
+        $ahorroMeta = AhorroMeta::find($id);
 
         if(!$ahorroMeta){
             $data = [

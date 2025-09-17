@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $num_cuotas
  * @property Carbon|null $ultimo_aporte_generadao
  * 
- * @property AhorroMetum $ahorro_metum
+ * @property AhorroMeta $ahorro_meta
  *
  * @package App\Models
  */
@@ -47,11 +47,11 @@ class AhorroProgramado extends Model
 		'fecha_inicio',
 		'fecha_fin',
 		'num_cuotas',
-		'ultimo_aporte_generadao'
+		'ultimo_aporte_generado'
 	];
 
-	public function ahorro_metum()
+	public function ahorro_meta()
 	{
-		return $this->belongsTo(AhorroMetum::class, 'ahorro_meta_id');
+		return $this->belongsTo(AhorroMeta::class, 'ahorro_meta_id');
 	}
 }

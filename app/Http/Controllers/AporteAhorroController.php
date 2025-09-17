@@ -11,7 +11,7 @@ class AporteAhorroController extends Controller
 {
     //si no hay ningun aporte registrado->index
     public function index(){
-        $aporteAhorro = aporteAhorro::all();
+        $aporteAhorro = AporteAhorro::all();
 
         if($aporteAhorro->isEmpty()){
             $data = [
@@ -44,7 +44,7 @@ class AporteAhorroController extends Controller
             return response()->json($data, 400);
         }
 
-        $aporteAhorro = aporteAhorro::create([
+        $aporteAhorro = AporteAhorro::create([
             'monto' => $request->monto,
             'fecha_registro' => $request->fecha_registro,
             'ahorro_meta_id' => $request->ahorro_meta_id
@@ -71,7 +71,7 @@ class AporteAhorroController extends Controller
 
     //ver un aporte por id->show
     public function show($id){
-        $aporteAhorro = aporteAhorro::find($id);
+        $aporteAhorro = AporteAhorro::find($id);
 
         if(!$aporteAhorro){
             $data = [
@@ -90,7 +90,7 @@ class AporteAhorroController extends Controller
 
     //actualizar un aporte por id->update
     public function update(Request $request, $id){
-        $aporteAhorro = aporteAhorro::find($id);
+        $aporteAhorro = AporteAhorro::find($id);
 
         if(!$aporteAhorro){
             $data = [
@@ -132,7 +132,7 @@ class AporteAhorroController extends Controller
 
     //actualizar solo un campo del registro de un aporte-> updatePartial
     public function updatePartial(Request $request, $id){
-        $aporteAhorro = aporteAhorro::find($id);
+        $aporteAhorro = AporteAhorro::find($id);
 
         if(!$aporteAhorro){
             $data = [
@@ -180,7 +180,7 @@ class AporteAhorroController extends Controller
 
     //eliminar un aporte por id->destroy
     public function destroy($id){
-        $aporteAhorro = aporteAhorro::find($id);
+        $aporteAhorro = AporteAhorro::find($id);
 
         if(!$aporteAhorro){
             $data = [
