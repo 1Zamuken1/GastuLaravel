@@ -15,12 +15,14 @@ class AutenticacionController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'correo' => 'required|string|email|max:255|unique:usuario,correo',
+            'telefono' => 'required|string|max:20',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         $usuario = Usuario::create([
             'nombre' => $request->nombre,
             'correo' => $request->correo,
+            'telefono' => $request->telefono,
             'password' => $request->password, //se encripta automáticamente en el modelo
             'fecha_registro' => now(),
             'activo' => true,
