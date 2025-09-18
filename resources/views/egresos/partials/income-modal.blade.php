@@ -10,7 +10,7 @@
         </div>
 
         <div class="modal-body">
-            <form id="formIngreso" method="POST" action="{{ route('ingresos.store') }}">
+            <form id="formEgreso" method="POST" action="{{ route('egresos.store') }}">
                 @csrf
 
                 <input type="hidden" id="editId" name="editId" />
@@ -19,7 +19,7 @@
                     <label for="tipo">Tipo *</label>
                     <select id="tipo" name="tipo" class="form-control" required>
                         <option value="">Seleccione un tipo</option>
-                        <option value="Ingreso">Ingreso</option>
+                        <option value="Egreso">egreso</option>
                         <option value="Proyección">Proyección</option>
                     </select>
                 </div>
@@ -33,7 +33,7 @@
                         </button>
                     </div>
                 </div>
-                <input type="hidden" id="concepto_id" name="concepto_ingreso_id" />
+                <input type="hidden" id="concepto_id" name="concepto_egreso_id" />
 
                 <div class="form-group">
                     <label for="monto">Monto ($) *</label>

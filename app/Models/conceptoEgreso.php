@@ -18,8 +18,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $usuario_id
  * 
  * @property Usuario $usuario
- * @property Collection|Egreso[] $egresos
- * @property Collection|ProyeccionEgreso[] $proyeccion_egresos
+ * @property Collection|Egreso[] $ingresos
+ * @property Collection|ProyeccionEgreso[] $proyeccion_ingresos
  *
  * @package App\Models
  */
@@ -44,7 +44,7 @@ class ConceptoEgreso extends Model
 		return $this->belongsTo(Usuario::class);
 	}
 
-	public function egresos()
+	public function ingresos()
 	{
 		return $this->hasMany(Egreso::class);
 	}

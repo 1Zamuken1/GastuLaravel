@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
-@section('title', 'Ingresos y Proyecciones')
+@section('title', 'Egresos y Proyecciones')
 
 @push('styles')
-    @vite('resources/css/ingresos.css')
+    @vite('resources/css/egresos.css')
 @endpush
 
 @section('content')
@@ -11,7 +11,7 @@
         <div class="card-header">
             <div class="card-title">
                 <i class="fas fa-money-bill-wave"></i>
-                <span id="section-title">Ingresos y Proyecciones</span>
+                <span id="section-title">Egresos y Proyecciones</span>
             </div>
             <div class="controls">
                 <button class="add-btn" id="addIncome">
@@ -33,7 +33,7 @@
             </select>
             <select class="filter" id="typeFilter">
                 <option value="all">Todos los tipos</option>
-                <option value="Ingreso">Ingreso</option>
+                <option value="Egreso">Egreso</option>
                 <option value="Proyección">Proyección</option>
             </select>
         </div>
@@ -72,7 +72,7 @@
                         <td>{{ $registro['tipo'] }}</td>
                         <td>{{ \Carbon\Carbon::parse($registro['fecha'])->format('d/m/Y') }}</td>
                         <td>
-                            @if ($registro['tipo'] === 'Ingreso')
+                            @if ($registro['tipo'] === 'Egreso')
                                 --
                             @else
                                 {{ $registro['estado'] }}
@@ -107,13 +107,13 @@
     </div>
 
     {{-- Modales --}}
-    @include('ingresos.partials.income-modal', ['conceptoIngresos' => $conceptoIngresos])
-    @include('ingresos.partials.concepto-modal', ['conceptoIngresos' => $conceptoIngresos])
-    @include('ingresos.partials.delete-modal', ['conceptoIngresos' => $conceptoIngresos])
-    @include('ingresos.partials.view-modal')
+    @include('egresos.partials.income-modal', ['conceptoEgresos' => $conceptoEgresos])
+    @include('egresos.partials.concepto-modal', ['conceptoEgresos' => $conceptoEgresos])
+    @include('egresos.partials.delete-modal', ['conceptoEgresos' => $conceptoEgresos])
+    @include('egresos.partials.view-modal', ['conceptoEgresos' => $conceptoEgresos])
 @endsection
 
 @push('scripts')
-    @vite('resources/js/ingresos.js')
-    @vite('resources/js/ingresos-datatable.js')
+    @vite('resources/js/egresos.js')
+    @vite('resources/js/egresos-datatable.js')
 @endpush

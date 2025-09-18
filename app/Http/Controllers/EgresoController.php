@@ -3,84 +3,85 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Ingreso;
-use App\Models\ConceptoIngreso;
-use App\Models\ProyeccionIngreso;
+use App\Models\Egreso;
+use App\Models\ConceptoEgreso;
+use App\Models\ProyeccionEgreso;
 use Carbon\Carbon;
 
-class IngresoController extends Controller
+
+class EgresoController extends Controller
 {
     public function index()
     {
         // ========================
         // Traer ingresos reales
         // ========================
-        $ingresos = Ingreso::with('conceptoIngreso')
+        $egresos = Egreso::with('conceptoEgreso')
             ->get()
-            ->map(function ($ingreso) {
+            ->map(function ($egreso) {
                 return [
-                    'id'          => $ingreso->ingreso_id,
-                    'concepto'    => $ingreso->conceptoIngreso->nombre ?? 'Sin concepto',
-                    'monto'       => $ingreso->monto,
-                    'tipo'        => $ingreso->tipo ?? 'Ingreso', // ahora existe en la tabla
-                    'fecha'       => $ingreso->fecha_registro,
+                    'id'          => $egreso->egreso_id,
+                    'concepto'    => $egreso->conceptoEgreso->nombre ?? 'Sin concepto',
+                    'monto'       => $egreso->monto,
+                    'tipo'        => $egreso->tipo ?? 'Egreso', // ahora existe en la tabla
+                    'fecha'       => $egreso->fecha_registro,
                     'estado'      => 'Activo', // la tabla ingreso no tiene estado
-                    'descripcion' => $ingreso->descripcion ?? '',
-                    'concepto_id' => $ingreso->concepto_ingreso_id,
+                    'descripcion' => $egreso->descripcion ?? '',
+                    'concepto_id' => $egreso->concepto_egreso_id,
                 ];
             });
 
         // ========================
         // Traer proyecciones
         // ========================
-        $proyecciones = ProyeccionIngreso::with('conceptoIngreso')
+        $proyecciones = ProyeccionEgreso::with('conceptoEgreso')
             ->get()
             ->map(function ($proyeccion) {
                 return [
-                    'id'          => $proyeccion->proyeccion_ingreso_id,
-                    'concepto'    => $proyeccion->conceptoIngreso->nombre ?? 'Sin concepto',
+                    'id'          => $proyeccion->proyeccion_egreso_id,
+                    'concepto'    => $proyeccion->conceptoEgreso->nombre ?? 'Sin concepto',
                     'monto'       => $proyeccion->monto_programado,
                     'tipo'        => 'Proyección',
                     'fecha'       => $proyeccion->fecha_inicio,
                     'fecha_fin'   => $proyeccion->fecha_fin ? $proyeccion->fecha_fin->format('Y-m-d') : '',
                     'estado'      => $proyeccion->activo ? 'Activo' : 'Inactivo',
                     'descripcion' => $proyeccion->descripcion ?? '',
-                    'concepto_id' => $proyeccion->concepto_ingreso_id,
+                    'concepto_id' => $proyeccion->concepto_egreso_id,
                 ];
             });
 
         // ========================
         // Fusionar ingresos y proyecciones
         // ========================
-        $registros = $ingresos->merge($proyecciones);
+        $registros = $egresos->merge($proyecciones);
 
         // ========================
         // Calcular totales
         // ========================
-        $totalIngresos = Ingreso::sum('monto');
-        $totalProyecciones = ProyeccionIngreso::sum('monto_programado');
+        $totalEgresos = Egreso::sum('monto');
+        $totalProyecciones = ProyeccionEgreso::sum('monto_programado');
 
         $mesActual = Carbon::now()->month;
         $anioActual = Carbon::now()->year;
 
-        $ingresosMes = Ingreso::whereYear('fecha_registro', $anioActual)
+        $egresoMes = Egreso::whereYear('fecha_registro', $anioActual)
             ->whereMonth('fecha_registro', $mesActual)
             ->sum('monto');
 
         // ========================
         // Traer conceptos (para modal de selección)
         // ========================
-        $conceptoIngresos = ConceptoIngreso::all();
+        $conceptoEgresos = ConceptoEgreso::all();
 
         // ========================
         // Enviar a la vista
         // ========================
-        return view('ingresos.ingresos', compact(
+        return view('egresos.egresos', compact(
             'registros',
-            'totalIngresos',
+            'totalEgresos',
             'totalProyecciones',
-            'ingresosMes',
-            'conceptoIngresos'
+            'egresoMes',
+            'conceptoEgresos'
         ));
     }
 
@@ -91,35 +92,35 @@ class IngresoController extends Controller
             // Mostrar formulario con el concepto precargado si hay id
             $concepto = null;
             if ($id) {
-                $concepto = ConceptoIngreso::find($id);
+                $concepto = ConceptoEgreso::find($id);
             }
-            return view('ingresos.partials.income-modal', compact('concepto'));
+            return view('egresos.partials.income-modal', compact('concepto'));
         }
 
         $tipo = $request->input('tipo');
 
-        if ($tipo === 'Ingreso') {
+        if ($tipo === 'Egreso') {
             $validated = $request->validate([
-                'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
+                'concepto_egreso_id' => 'required|integer|exists:concepto_egreso,concepto_egreso_id',
                 'monto'               => 'required|numeric',
                 'fecha'               => 'required|date',
                 'descripcion'         => 'nullable|string|max:200',
             ]);
 
-            Ingreso::create([
+            Egreso::create([
                 'tipo'                => $tipo,
-                'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
+                'concepto_egreso_id' => $validated['concepto_egreso_id'],
                 'monto'               => $validated['monto'],
                 'fecha_registro'      => $validated['fecha'],
                 'descripcion'         => $validated['descripcion'] ?? '',
             ]);
 
-            return redirect()->route('ingresos.index')->with('success', 'Ingreso creado correctamente.');
+            return redirect()->route('egresos.index')->with('success', 'Ingreso creado correctamente.');
         }
 
         if ($tipo === 'Proyección') {
             $validated = $request->validate([
-                'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
+                'concepto_egreso_id' => 'required|integer|exists:concepto_egreso,concepto_egreso_id',
                 'monto'               => 'required|numeric',
                 'fecha'               => 'required|date',
                 'fecha_fin'           => 'required|date|after_or_equal:fecha',
@@ -127,77 +128,77 @@ class IngresoController extends Controller
                 'descripcion'         => 'required|string|max:200',
             ]);
 
-            ProyeccionIngreso::create([
+            ProyeccionEgreso::create([
                 'monto_programado'    => $validated['monto'],
                 'descripcion'         => $validated['descripcion'],
                 'fecha_inicio'        => $validated['fecha'],
                 'fecha_fin'           => $validated['fecha_fin'],
                 'activo'              => $validated['activo'],
-                'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
+                'concepto_egreso_id' => $validated['concepto_egreso_id'],
             ]);
 
-            return redirect()->route('ingresos.index')->with('success', 'Proyección creada correctamente.');
+            return redirect()->route('egresos.index')->with('success', 'Proyección creada correctamente.');
         }
 
-        return redirect()->route('ingresos.index')->with('error', 'Tipo inválido.');
+        return redirect()->route('egresos.index')->with('error', 'Tipo inválido.');
     }
 
-    private function calcularDiaRecurrencia(Carbon $fecha, string $frecuencia): ?int
-    {
-        switch ($frecuencia) {
-            case 'mensual':
-            case 'trimestral':
-            case 'semestral':
-            case 'anual':
-                return (int) $fecha->day;
-            default:
-                return null;
-        }
-    }
+    // private function calcularDiaRecurrencia(Carbon $fecha, string $frecuencia): ?int
+    // {
+    //     switch ($frecuencia) {
+    //         case 'mensual':
+    //         case 'trimestral':
+    //         case 'semestral':
+    //         case 'anual':
+    //             return (int) $fecha->day;
+    //         default:
+    //             return null;
+    //     }
+    // }
 
-    private function calcularFechaFin(Carbon $fecha, string $frecuencia): ?string
-    {
-        switch ($frecuencia) {
-            case 'mensual':     return $fecha->copy()->addYear()->toDateString();
-            case 'trimestral':  return $fecha->copy()->addYears(2)->toDateString();
-            case 'semestral':   return $fecha->copy()->addYears(3)->toDateString();
-            case 'anual':       return $fecha->copy()->addYears(5)->toDateString();
-            default:            return null;
-        }
-    }
+    // private function calcularFechaFin(Carbon $fecha, string $frecuencia): ?string
+    // {
+    //     switch ($frecuencia) {
+    //         case 'mensual':     return $fecha->copy()->addYear()->toDateString();
+    //         case 'trimestral':  return $fecha->copy()->addYears(2)->toDateString();
+    //         case 'semestral':   return $fecha->copy()->addYears(3)->toDateString();
+    //         case 'anual':       return $fecha->copy()->addYears(5)->toDateString();
+    //         default:            return null;
+    //     }
+    // }
 
     public function update(Request $request, $id)
     {
         $tipo = $request->input('tipo');
 
-        if ($tipo === 'Ingreso') {
+        if ($tipo === 'Egreso') {
             $validated = $request->validate([
-                'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
+                'concepto_egreso_id' => 'required|integer|exists:concepto_egreso,concepto_egreso_id',
                 'monto'               => 'required|numeric',
                 'fecha'               => 'required|date',
                 'descripcion'         => 'nullable|string|max:200',
             ]);
 
-            $ingreso = Ingreso::findOrFail($id);
-            $ingreso->update([
+            $egreso = Egreso::findOrFail($id);
+            $egreso->update([
                 'tipo'                => $tipo,
-                'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
+                'concepto_egreso_id' => $validated['concepto_egreso_id'],
                 'monto'               => $validated['monto'],
                 'fecha_registro'      => $validated['fecha'],
                 'descripcion'         => $validated['descripcion'] ?? '',
             ]);
 
-            return redirect()->route('ingresos.index')->with('success', 'Ingreso actualizado correctamente.');
+            return redirect()->route('egresos.index')->with('success', 'Ingreso actualizado correctamente.');
         }
 
-        return redirect()->route('ingresos.index')->with('error', 'Solo se puede editar ingresos reales desde este formulario.');
+        return redirect()->route('egresos.index')->with('error', 'Solo se puede editar ingresos reales desde este formulario.');
     }
 
     public function destroy($id)
     {
-        $ingreso = Ingreso::findOrFail($id);
-        $ingreso->delete();
+        $egreso = Egreso::findOrFail($id);
+        $egreso->delete();
 
-        return redirect()->route('ingresos.index')->with('success', 'Ingreso eliminado correctamente.');
+        return redirect()->route('egresos.index')->with('success', 'Ingreso eliminado correctamente.');
     }
 }

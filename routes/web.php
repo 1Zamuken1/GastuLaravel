@@ -3,7 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IngresoController;
 use App\Http\Controllers\ProyeccionIngresoController;
-use App\Http\Controllers\GastosController;
+use App\Http\Controllers\ProyeccionEgresoController;
+use App\Http\Controllers\EgresoController;
 use App\Http\Controllers\AhorroMetaController;
 use App\Http\Controllers\AutenticacionController;
 
@@ -17,7 +18,7 @@ Route::get('/', function () {
 }); **/
 
 //vistas protegidas
-Route::middleware('auth')->group(function () {
+//Route::middleware('auth')->group(function () {
 
     //Ingresos
     Route::get('/ingresos', [IngresoController::class, 'index'])->name('ingresos.index');
@@ -26,22 +27,34 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/ingresos/store', [IngresoController::class, 'store'])->name('ingresos.store');
     Route::post('/ingresos/update/{id}', [IngresoController::class, 'update'])->name('ingresos.update');
+    // Para ingresos reales
     Route::delete('/ingresos/destroy/{id}', [IngresoController::class, 'destroy'])->name('ingresos.destroy');
 
     //Proyecciones de Ingresos
     Route::post('/proyecciones', [ProyeccionIngresoController::class, 'store'])->name('proyecciones.store');
     Route::put('/proyecciones/{id}', [ProyeccionIngresoController::class, 'update'])->name('proyecciones.update');
+    // Para proyecciones
     Route::delete('/proyecciones/{id}', [ProyeccionIngresoController::class, 'destroy'])->name('proyecciones.destroy');
     Route::get('/proyecciones/{id}', [ProyeccionIngresoController::class, 'show'])->name('proyecciones.show');
     Route::get('/proyecciones/para-confirmar', [ProyeccionIngresoController::class, 'proyeccionesParaConfirmar']);
     Route::post('/proyecciones/confirmar', [ProyeccionIngresoController::class, 'confirmarRecurrencias']);
 
-    Route::get('/gastos', [App\Http\Controllers\GastosController::class, 'index'])->name('gastos.index');
-    Route::post('/gastos', [App\Http\Controllers\GastosController::class, 'store'])->name('gastos.store');
-    Route::get('/gastos/{id}', [App\Http\Controllers\GastosController::class, 'show'])->name('gastos.show');
-    Route::put('/gastos/{id}', [App\Http\Controllers\GastosController::class, 'update'])->name('gastos.update');
-    Route::delete('/gastos/{id}', [App\Http\Controllers\GastosController::class, 'destroy'])->name('gastos.destroy');
-    Route::resource('gastos', GastosController::class);
+   //Egresos
+    Route::get('/egresos', [EgresoController::class, 'index'])->name('egresos.index');
+    //Route::post('/ingresos', [IngresoController::class, 'store'])->name('ingresos.store');
+    Route::get('/egresos/create/{id?}', [EgresoController::class, 'create'])->name('egresos.create');
+
+    Route::post('/egresos/store', [EgresoController::class, 'store'])->name('egresos.store');
+    Route::post('/egresos/update/{id}', [EgresoController::class, 'update'])->name('egresos.update');
+    Route::delete('/egresos/destroy/{id}', [EgresoController::class, 'destroy'])->name('egresos.destroy');
+
+    //Proyecciones de Ingresos
+    Route::post('/proyecciones', [ProyeccionEgresoController::class, 'store'])->name('proyecciones.store');
+    Route::put('/proyecciones/{id}', [ProyeccionEgresoController::class, 'update'])->name('proyecciones.update');
+    Route::delete('/proyecciones/{id}', [ProyeccionEgresoController::class, 'destroy'])->name('proyecciones.destroy');
+    Route::get('/proyecciones/{id}', [ProyeccionEgresoController::class, 'show'])->name('proyecciones.show');
+    Route::get('/proyecciones/para-confirmar', [ProyeccionEgresoController::class, 'proyeccionesParaConfirmar']);
+    Route::post('/proyecciones/confirmar', [ProyeccionEgresoController::class, 'confirmarRecurrencias']);
 
     // ahorro meta
     Route::prefix('ahorros')->group(function () {
@@ -61,7 +74,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [AhorroMetaController::class, 'destroy'])->name('ahorros.destroy');
 
     });
-});
+//});
 
 //Formularios de autenticación
 Route::get('/registro', function () {

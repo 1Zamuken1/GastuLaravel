@@ -148,43 +148,10 @@ if (descripcionField) {
 // ===============================
 // Botones Ver
 // ===============================
-document.querySelectorAll(".view-btn").forEach((btn) => {
-    btn.addEventListener("click", function () {
-        const table = $("#incomeTable").DataTable();
-        const tr = btn.closest("tr");
-        const rowIdx = table.row(tr).index();
-        const data = table.row(rowIdx).data();
 
-        // data: 0: ID, 1: Concepto, 2: Monto, 3: Tipo, 4: Fecha, 5: Estado
-        const tipo = data[3];
-        const concepto = data[1];
-        const monto = data[2];
-        // Si la fecha viene como d/m/Y, conviértela a dd/mm/aaaa
-        let fecha = data[4];
-        if (fecha.includes("/")) {
-            const [d, m, y] = fecha.split("/");
-            fecha = `${d.padStart(2, "0")}/${m.padStart(2, "0")}/${y}`;
-        }
-        const estado = data[5];
-        const descripcion = tr.getAttribute("data-descripcion") || "";
-        const fecha_fin = tr.getAttribute("data-fecha_fin") || "";
 
-        document.getElementById("view_tipo").textContent = tipo;
-        document.getElementById("view_concepto").textContent = concepto;
-        document.getElementById("view_monto").textContent = monto;
-        document.getElementById("view_fecha").textContent = fecha;
-        document.getElementById("view_estado").textContent = estado;
-        document.getElementById("view_descripcion").textContent = descripcion;
-        document.getElementById("view_fecha_fin").textContent = fecha_fin ? fecha_fin.split("-").reverse().join("/") : "";
 
-        // Mostrar/ocultar recordatorio solo para proyección
-        const viewFechaFinGroup = document.getElementById("view_fecha_finGroup");
-        if (viewFechaFinGroup)
-            viewFechaFinGroup.style.display = tipo === "Proyección" ? "block" : "none";
 
-        openModal(document.getElementById("viewModal"));
-    });
-});
 
 // ===============================
 // Botones Editar
@@ -244,13 +211,9 @@ let deleteId = null;
 let tipo = null;
 document.querySelectorAll(".delete-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
-        const table = $("#incomeTable").DataTable();
-        const tr = btn.closest("tr");
-        const rowIdx = table.row(tr).index();
-        const data = table.row(rowIdx).data();
-
-        deleteId = data[0]; // <-- Esto es el ID real, aunque la columna esté oculta
-        tipo = data[3];     // <-- Tipo
+        const row = btn.closest("tr");
+        deleteId = row.children[0].textContent.trim();
+        tipo = row.children[3].textContent.trim(); // Detecta el tipo correctamente
         openModal(document.getElementById("deleteConfirmationModal"));
     });
 });
@@ -266,7 +229,7 @@ if (confirmDeleteBtn) {
         form.action =
             tipo === "Proyección"
                 ? `/proyecciones/${deleteId}`
-                : `/ingresos/destroy/${deleteId}`;
+                : `/egresos/destroy/${deleteId}`;
 
         const csrf = document.querySelector('meta[name="csrf-token"]').content;
         const tokenInput = document.createElement("input");
@@ -310,14 +273,4 @@ $("#miTabla").DataTable({
 if (tipoSelect) {
     tipoSelect.addEventListener("change", toggleFieldsByTipo);
     toggleFieldsByTipo();
-}
-
-// ===============================
-// Cerrar Modal de Vista (Botón "Cerrar")
-// ===============================
-const closeViewBtn = document.getElementById("closeViewModal");
-if (closeViewBtn) {
-    closeViewBtn.addEventListener("click", () => {
-        closeModal(document.getElementById("viewModal"));
-    });
 }
