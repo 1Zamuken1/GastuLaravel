@@ -6,6 +6,7 @@ use App\Http\Controllers\ProyeccionIngresoController;
 use App\Http\Controllers\ProyeccionEgresoController;
 use App\Http\Controllers\EgresoController;
 use App\Http\Controllers\AhorroMetaController;
+use App\Http\Controllers\AhorroProgramadoController;
 use App\Http\Controllers\AporteAhorroController;
 
 use App\Http\Controllers\AutenticacionController;
