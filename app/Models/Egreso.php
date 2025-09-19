@@ -43,8 +43,8 @@ class Egreso extends Model
 		'concepto_egreso_id'
 	];
 
-	public function concepto_egreso()
+	public function ConceptoEgreso()
 	{
-		return $this->belongsTo(ConceptoEgreso::class);
+		return $this->belongsTo(ConceptoEgreso::class, 'concepto_egreso_id', 'concepto_egreso_id');
 	}
 }

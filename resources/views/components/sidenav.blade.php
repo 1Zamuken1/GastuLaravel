@@ -33,7 +33,7 @@
           </a>
         </li>
         <li data-page="egresos">
-          <a href="{{ route('gastos.index') }}">
+          <a href="{{ route('egresos.index') }}">
             <span class="side-nav-icon"><img src="{{ asset('icons/egresos.svg') }}" alt="Egresos" /></span>
             <span class="side-nav-text">Egresos</span>
           </a>
