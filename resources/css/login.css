@@ -1,0 +1,48 @@
+body {
+    background-color: #121212; /* Fondo negro */
+    color: #f1f1f1;
+}
+
+.card {
+    background-color: #1e1e1e; /* Gris oscuro */
+    color: #f1f1f1;
+}
+
+.card-header {
+    background-color: #1e1e1e !important;
+}
+
+.card-footer {
+    background-color: #1e1e1e;
+    color: #ccc;
+}
+
+a {
+    color: #28a745 !important;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.form-control {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    color: #fff;
+}
+
+.form-control:focus {
+    background-color: #2a2a2a;
+    border-color: #28a745;
+    box-shadow: none;
+    color: #fff;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border: none;
+}
+
+.btn-success:hover {
+    background-color: #218838; /* Verde más oscuro en hover */
+}

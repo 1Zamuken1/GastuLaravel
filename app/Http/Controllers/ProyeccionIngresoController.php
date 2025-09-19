@@ -68,13 +68,23 @@ class ProyeccionIngresoController extends Controller
             return response()->json($data, 500);
         }
 
-        $data = [
-            'message' => 'Proyección de ingreso creada exitosamente',
-            'proyeccion' => $proyeccion,
-            'status' => 201,
-        ];
+        if ($request->has('original_id')) {
+            $original = ProyeccionIngreso::find($request->original_id);
+            if ($original) {
+                $original->fecha_fin = $request->fecha_fin; // O la fecha que corresponda
+                $original->save();
+            }
+        }
 
-        return response()->json($data, 201);
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'message' => 'Proyección de ingreso creada exitosamente',
+                'proyeccion' => $proyeccion,
+                'status' => 201,
+            ], 201);
+        }
+
+        return redirect()->route('ingresos.index')->with('success', 'Proyección creada correctamente.');
     }
 
     public function show($id)
@@ -234,5 +244,14 @@ class ProyeccionIngresoController extends Controller
         }
 
         return response()->json(['message' => 'Ingresos recurrentes registrados']);
+    }
+
+    public function proyeccionesRecordatorioHoy()
+    {
+        $hoy = now()->toDateString();
+        // Agrega with('conceptoIngreso')
+        $proyecciones = ProyeccionIngreso::with('conceptoIngreso')->whereDate('fecha_fin', $hoy)->get();
+
+        return response()->json(['proyecciones' => $proyecciones]);
     }
 }
