@@ -197,18 +197,13 @@ document.querySelectorAll(".edit-btn").forEach((btn) => {
         const rowIdx = table.row(tr).index();
         const data = table.row(rowIdx).data();
 
-        // data es un array con los valores de las columnas visibles y ocultas
-        // Según tu Blade:
-        // 0: ID (oculto), 1: Concepto, 2: Monto, 3: Tipo, 4: Fecha, 5: Estado
-
+        // data: 0: ID, 1: Concepto, 2: Monto, 3: Tipo, 4: Fecha, 5: Estado
         const id = data[0];
         const concepto = data[1];
         const monto = data[2].replace(/[^0-9.,-]/g, "").replace(",", ".").trim();
         const tipo = data[3];
-        // Fecha en formato d/m/Y, convertir a yyyy-mm-dd
         const fecha = data[4].split("/").reverse().join("-");
         const estado = data[6];
-        // Los atributos extra siguen igual
         const descripcion = tr.getAttribute("data-descripcion") || "";
         const conceptoId = tr.getAttribute("data-concepto-id") || "";
         const fecha_fin = tr.getAttribute("data-fecha_fin") || "";
@@ -227,6 +222,38 @@ document.querySelectorAll(".edit-btn").forEach((btn) => {
             document.getElementById("estado").value = estado === "Activo" ? "1" : "0";
         } else {
             document.getElementById("estado").value = "";
+        }
+
+        // Cambiar action y método del formulario según tipo
+        const form = document.getElementById("formIngreso");
+        const editId = document.getElementById("editId").value;
+        const tipoInput = document.getElementById("tipo");
+        const tipoValue = tipoInput ? tipoInput.value : "";
+
+        if (editId && tipoValue === "Ingreso") {
+            form.action = `/ingresos/update/${editId}`;
+            let methodInput = form.querySelector('input[name="_method"]');
+            if (!methodInput) {
+                methodInput = document.createElement("input");
+                methodInput.type = "hidden";
+                methodInput.name = "_method";
+                form.appendChild(methodInput);
+            }
+            methodInput.value = "POST";
+        } else if (editId && tipoValue === "Proyección") {
+            form.action = `/proyecciones_ingresos/${editId}`;
+            let methodInput = form.querySelector('input[name="_method"]');
+            if (!methodInput) {
+                methodInput = document.createElement("input");
+                methodInput.type = "hidden";
+                methodInput.name = "_method";
+                form.appendChild(methodInput);
+            }
+            methodInput.value = "PUT";
+        } else {
+            form.action = `/ingresos/store`;
+            let methodInput = form.querySelector('input[name="_method"]');
+            if (methodInput) methodInput.remove();
         }
 
         if (typeof toggleFieldsByTipo === "function") {
@@ -265,7 +292,7 @@ if (confirmDeleteBtn) {
         form.method = "POST";
         form.action =
             tipo === "Proyección"
-                ? `/proyecciones/${deleteId}`
+                ? `/proyecciones_ingresos/${deleteId}` // CAMBIO AQUÍ
                 : `/ingresos/destroy/${deleteId}`;
 
         const csrf = document.querySelector('meta[name="csrf-token"]').content;
@@ -320,4 +347,73 @@ if (closeViewBtn) {
     closeViewBtn.addEventListener("click", () => {
         closeModal(document.getElementById("viewModal"));
     });
+}
+
+// ===============================
+// Recordatorio de Proyección para Hoy
+// ===============================
+document.addEventListener("DOMContentLoaded", function () {
+    fetch('/proyecciones_ingresos/recordatorio-hoy') // CAMBIO AQUÍ
+        .then(res => res.json())
+        .then(data => {
+            if (data.proyecciones && data.proyecciones.length > 0) {
+                // Solo mostramos el primero, o puedes iterar si quieres mostrar varios
+                showRecordatorioModal(data.proyecciones[0]);
+            }
+        });
+});
+
+function showRecordatorioModal(proyeccion) {
+    document.getElementById("recordatorio_original_id").value = proyeccion.proyeccion_ingreso_id;
+    document.getElementById("recordatorio_concepto").value = proyeccion.concepto_ingreso.nombre;
+    document.getElementById("recordatorio_concepto_id").value = proyeccion.concepto_ingreso_id;
+    document.getElementById("recordatorio_monto").value = proyeccion.monto_programado;
+    document.getElementById("recordatorio_fecha").value = proyeccion.fecha_inicio;
+    document.getElementById("recordatorio_fecha_fin").value = ""; // El usuario debe elegir una nueva
+    document.getElementById("recordatorio_estado").value = proyeccion.activo ? "1" : "0";
+    document.getElementById("recordatorio_descripcion").value = proyeccion.descripcion || "";
+
+    openModal(document.getElementById("recordatorioModal"));
+}
+
+// Validación de fecha_fin
+document.getElementById("formRecordatorio").addEventListener("submit", function(e) {
+    const fechaFinInput = document.getElementById("recordatorio_fecha_fin");
+    const errorMsg = document.getElementById("recordatorio_fecha_fin_error");
+    const hoy = new Date();
+    const fechaFin = new Date(fechaFinInput.value);
+
+    hoy.setHours(0,0,0,0);
+
+    if (!fechaFinInput.value || fechaFin <= hoy) {
+        e.preventDefault();
+        errorMsg.style.display = "block";
+        fechaFinInput.focus();
+    } else {
+        errorMsg.style.display = "none";
+    }
+});
+
+const btnHoyRecordatorio = document.getElementById("btnHoyRecordatorio");
+const inputFechaRecordatorio = document.getElementById("recordatorio_fecha");
+if (btnHoyRecordatorio && inputFechaRecordatorio) {
+    btnHoyRecordatorio.addEventListener("click", () => {
+        const hoy = new Date();
+        const yyyy = hoy.getFullYear();
+        const mm = String(hoy.getMonth() + 1).padStart(2, "0");
+        const dd = String(hoy.getDate()).padStart(2, "0");
+        inputFechaRecordatorio.value = `${yyyy}-${mm}-${dd}`;
+    });
+}
+
+// Cerrar modal de recordatorio con la X o el botón Cancelar
+const recordatorioModal = document.getElementById("recordatorioModal");
+const closeRecordatorioModal = document.getElementById("closeRecordatorioModal");
+const cancelRecordatorioBtn = document.getElementById("cancelRecordatorio");
+
+if (closeRecordatorioModal) {
+    closeRecordatorioModal.addEventListener("click", () => closeModal(recordatorioModal));
+}
+if (cancelRecordatorioBtn) {
+    cancelRecordatorioBtn.addEventListener("click", () => closeModal(recordatorioModal));
 }
