@@ -68,41 +68,35 @@ Route::delete('/proyecciones-ingreso/{id}', [ProyeccionIngresoController::class,
 // Route::put('/conceptoEgresos/{conceptoEgreso}', [ConceptoEgresoController::class, 'update']);
 // Route::delete('/conceptoEgresos/{conceptoEgreso}', [ConceptoEgresoController::class, 'destroy']);
 
-// ============================= Rutas para Ahorro Meta =========================================================================================================================
-Route::get('/ahorro-meta', [AhorroMetaController::class, 'index']); // GET trae
 
-Route::get('/ahorro-meta/{id}', [AhorroMetaController::class, 'show']); // GET trae
 
-Route::post('/ahorro-meta', [AhorroMetaController::class, 'store']); // POST crea
 
-Route::put('/ahorro-meta/{id}', [AhorroMetaController::class, 'update']); // PUT actualiza
 
-Route::patch('/ahorro-meta/{id}', [AhorroMetaController::class, 'updatePartial']); // PATCH actualiza parcialmente
 
-Route::delete('/ahorro-meta/{id}', [AhorroMetaController::class, 'destroy']); // DELETE elimina
 
-// ============================= Rutas para Ahorro Programado =========================================================================================================================
-Route::get('/ahorro-programado', [AhorroProgramadoController::class, 'index']); 
 
-Route::get('/ahorro-programado/{id}', [AhorroProgramadoController::class, 'show']); 
 
-Route::post('/ahorro-programado', [AhorroProgramadoController::class, 'store']); 
 
-Route::put('/ahorro-programado/{id}', [AhorroProgramadoController::class, 'update']);
+// ================================== Rutas para Ahorros (AhorroMeta) =================================================
+Route::get('/ahorros', [AhorroMetaController::class, 'index']);
+Route::get('/ahorros/{id}', [AhorroMetaController::class, 'show']);
+Route::post('/ahorros', [AhorroMetaController::class, 'store']);
+Route::put('/ahorros/{id}', [AhorroMetaController::class, 'update']);
+Route::patch('/ahorros/{id}', [AhorroMetaController::class, 'updatePartial']);
+Route::delete('/ahorros/{id}', [AhorroMetaController::class, 'destroy']);
 
-Route::patch('/ahorro-programado/{id}', [AhorroProgramadoController::class, 'updatePartial']);
+// ============================= Rutas para Ahorros Programados ========================================================
+Route::get('/ahorros-programados', [AhorroProgramadoController::class, 'index']);
+Route::get('/ahorros-programados/{id}', [AhorroProgramadoController::class, 'show']);
+Route::post('/ahorros-programados', [AhorroProgramadoController::class, 'store']);
+Route::put('/ahorros-programados/{id}', [AhorroProgramadoController::class, 'update']);
+Route::patch('/ahorros-programados/{id}', [AhorroProgramadoController::class, 'updatePartial']);
+Route::delete('/ahorros-programados/{id}', [AhorroProgramadoController::class, 'destroy']);
 
-Route::delete('/ahorro-programado/{id}', [AhorroProgramadoController::class, 'destroy']);
-
-// ============================= Rutas para Aporte Ahorro =========================================================================================================================
-Route::get('aporte-ahorro', [AporteAhorroController::class, 'index']);
-
-Route::get('aporte-ahorro/{id}', [AporteAhorroController::class, 'show']);
-
-Route::post('aporte-ahorro', [AporteAhorroController::class, 'store']);
-
-Route::put('aporte-ahorro/{id}', [AporteAhorroController::class, 'update']);
-
-Route::patch('aporte-ahorro/{id}', [AporteAhorroController::class, 'updatePartial']);
-
-Route::delete('aporte-ahorro/{id}', [AporteAhorroController::class, 'destroy']);
+// ============================= Rutas para Aportes de Ahorro ==========================================================
+Route::get('/aportes-ahorro', [AporteAhorroController::class, 'index']);
+Route::get('/aportes-ahorro/{id}', [AporteAhorroController::class, 'show']);
+Route::post('/aportes-ahorro', [AporteAhorroController::class, 'store']);
+Route::put('/aportes-ahorro/{id}', [AporteAhorroController::class, 'update']);
+Route::patch('/aportes-ahorro/{id}', [AporteAhorroController::class, 'updatePartial']);
+Route::delete('/aportes-ahorro/{id}', [AporteAhorroController::class, 'destroy']);

@@ -2,230 +2,87 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\AhorroProgramado;
-use Illuminate\Support\Facades\Validator;
+use App\Models\AhorroMeta;
+use Illuminate\Http\Request;
 
 class AhorroProgramadoController extends Controller
 {
-    //si no hay ningun ahorro registrado->index
-    public function index(){
-        $ahorroProgramado = AhorroProgramado::all();
+    // Listar todos los programados de una meta de ahorro
+    public function index($ahorroMetaId)
+    {
+        $meta = AhorroMeta::with('ahorroProgramados')->findOrFail($ahorroMetaId);
+        $programados = $meta->ahorroProgramados;
 
-        if($ahorroProgramado->isEmpty()){
-            $data = [
-                'message' => 'No hay ahorros registrados',
-                "status" => 200
-            ];
-            return response()->json($data, 200);
-        }
-        $data=[
-            'ahorroProgramado'=> $ahorroProgramado,
-            'status'=>200
-        ];
-        return response()->json($data,200);
+        return view('programados.index', compact('meta', 'programados'));
     }
 
-    //crear registro de ahorro->store
-    public function store(Request $request){
-        $validator = Validator::make($request->all(),[
-            'monto_programado' => 'required|numeric',
+    // Mostrar formulario de creación de programado
+    public function create($ahorroMetaId)
+    {
+        $meta = AhorroMeta::findOrFail($ahorroMetaId);
+        return view('programados.create', compact('meta'));
+    }
+
+    // Guardar programado
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'ahorro_meta_id' => 'required|integer|exists:ahorro_meta,ahorro_meta_id',
+            'monto_programado' => 'required|numeric|min:1',
             'frecuencia' => 'required|string|max:30',
             'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'nullable|date',
-            'num_cuotas' => 'nullable|integer',
-            'ultimo_aporte_generado' => 'nullable|date',
-            'ahorro_meta_id' => 'required|integer'
+            'fecha_fin' => 'nullable|date|after:fecha_inicio',
+            'num_cuotas' => 'nullable|integer|min:1'
         ]);
 
-        if($validator->fails()){
-            $data = [
-                'message' => 'Error de validación',
-                'errors' => $validator->errors(),
-                'status' => 400
-            ];
-            return response()->json($data, 400);
-        }
+        AhorroProgramado::create($validated);
 
-        $ahorroProgramado = AhorroProgramado::create([
-            'monto_programado' => $request->monto_programado,
-            'frecuencia' => $request->frecuencia,
-            'fecha_inicio' => $request->fecha_inicio,
-            'fecha_fin' => $request->fecha_fin,
-            'num_cuotas' => $request->num_cuotas ?? 0,
-            'ultimo_aporte_generado' => $request->ultimo_aporte_generado,
-            'ahorro_meta_id' => $request->ahorro_meta_id
-        ]);
-
-        if(!$ahorroProgramado){
-            $data = [
-                'message' => 'Error al crear el ahorro',
-                'status' => 500
-            ];
-            return response()->json($data, 500);
-        }
-
-        $data = [
-            'message' => 'Ahorro creado exitosamente',
-            'ahorroProgramado' => $ahorroProgramado,
-            'status' => 201
-        ];
-        return response()->json($data, 201);
+        return redirect()->route('programados.index', $validated['ahorro_meta_id'])
+                         ->with('success', 'Ahorro programado creado correctamente.');
     }
 
-     //mostrar un solo ahorro en especifico por su id->show
-     public function show($id){
-        $ahorroProgramado = AhorroProgramado::find($id);
+    // Mostrar detalle de un programado
+    public function show($id)
+    {
+        $programado = AhorroProgramado::with('ahorro_meta')->findOrFail($id);
+        return view('programados.show', compact('programado'));
+    }
 
-        if(!$ahorroProgramado){
-            $data = [
-                'message' => 'Ahorro no encontrado',
-                'status' => 404
-            ];
-            return response()->json($data, 404);
-        }
-        $data = [
-            'ahorroProgramado' => $ahorroProgramado,
-            'status' => 200
-        ];
-        return response()->json($data, 200);
-     }
+    // Mostrar formulario de edición
+    public function edit($id)
+    {
+        $programado = AhorroProgramado::with('ahorro_meta')->findOrFail($id);
+        return view('programados.edit', compact('programado'));
+    }
 
-     //actualizar todos los registros de un ahorro-> update
+    // Actualizar programado
+    public function update(Request $request, $id)
+    {
+        $programado = AhorroProgramado::findOrFail($id);
 
-     public function update(Request $request, $id){
-        $ahorroProgramado = AhorroProgramado::find($id);
-
-        if(!$ahorroProgramado){
-            $data = [
-                'message' => 'Ahorro no encontrado',
-                'status' => 404
-            ];
-            return response()->json($data, 404);
-        }
-
-        $validator = Validator::make($request->all(),[
-            'monto_programado' => 'required|numeric',
+        $validated = $request->validate([
+            'monto_programado' => 'required|numeric|min:1',
             'frecuencia' => 'required|string|max:30',
             'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'nullable|date',
-            'num_cuotas' => 'nullable|integer',
-            'ultimo_aporte_generado' => 'nullable|date',
-            'ahorro_meta_id' => 'required|integer'
+            'fecha_fin' => 'nullable|date|after:fecha_inicio',
+            'num_cuotas' => 'nullable|integer|min:1'
         ]);
 
-        if($validator->fails()){
-            $data = [
-                'message' => 'Error de validación',
-                'errors' => $validator->errors(),
-                'status' => 400
-            ];
-            return response()->json($data, 400);
-        }
+        $programado->update($validated);
 
-        $ahorroProgramado->monto_programado = $request->monto_programado;
-        $ahorroProgramado->frecuencia = $request->frecuencia;
-        $ahorroProgramado->fecha_inicio = $request->fecha_inicio;
-        $ahorroProgramado->fecha_fin = $request->fecha_fin;
-        $ahorroProgramado->num_cuotas = $request->num_cuotas;
-        $ahorroProgramado->ultimo_aporte_generado = $request->ultimo_aporte_generado;
-        $ahorroProgramado->ahorro_meta_id = $request->ahorro_meta_id;
-
-        $ahorroProgramado->save();
-
-        $data = [
-            'message' => 'Ahorro actualizado exitosamente',
-            'ahorroProgramado' => $ahorroProgramado,
-            'status' => 200
-        ];
-        return response()->json($data, 200);
-     }
-
-     //actualizar solo un campo del registro de un ahorro-> updatePartial
-
-     public function updatePartial(Request $request, $id){
-        $ahorroProgramado = AhorroProgramado::find($id);
-
-        if(!$ahorroProgramado){
-            $data = [
-                'message' => 'Ahorro no encontrado',
-                'status' => 404
-            ];
-            return response()->json($data, 404);
-        }
-
-        $validator = Validator::make($request->all(),[
-            'monto_programado' => 'sometimes|numeric',
-            'frecuencia' => 'sometimes|string|max:30',
-            'fecha_inicio' => 'sometimes|date',
-            'fecha_fin' => 'sometimes|nullable|date',
-            'num_cuotas' => 'sometimes|nullable|integer',
-            'ultimo_aporte_generado' => 'sometimes|nullable|date',
-            'ahorro_meta_id' => 'sometimes|integer'
-        ]);
-
-        if($validator->fails()){
-            $data = [
-                'message' => 'Error de validación',
-                'errors' => $validator->errors(),
-                'status' => 400
-            ];
-            return response()->json($data, 400);
-        }
-
-        if($request->has('monto_programado')){
-            $ahorroProgramado->monto_programado = $request->monto_programado;
-        }
-        if($request->has('frecuencia')){
-            $ahorroProgramado->frecuencia = $request->frecuencia;
-        }
-        if($request->has('fecha_inicio')){
-            $ahorroProgramado->fecha_inicio = $request->fecha_inicio;
-        }
-        if($request->has('fecha_fin')){
-            $ahorroProgramado->fecha_fin = $request->fecha_fin;
-        }
-        if($request->has('num_cuotas')){
-            $ahorroProgramado->num_cuotas = $request->num_cuotas;
-        }
-        if($request->has('ultimo_aporte_generado')){
-            $ahorroProgramado->ultimo_aporte_generado = $request->ultimo_aporte_generado;
-        }
-        if($request->has('ahorro_meta_id')){
-            $ahorroProgramado->ahorro_meta_id = $request->ahorro_meta_id;
-        }
-
-        $ahorroProgramado->save();
-
-        $data = [
-            'message' => 'Ahorro actualizado exitosamente',
-            'ahorroProgramado' => $ahorroProgramado,
-            'status' => 200
-        ];
-        return response()->json($data, 200);
+        return redirect()->route('programados.index', $programado->ahorro_meta_id)
+                         ->with('success', 'Ahorro programado actualizado correctamente.');
     }
 
-    //eliminar un registro de ahorro-> destroy
+    // Eliminar programado
+    public function destroy($id)
+    {
+        $programado = AhorroProgramado::findOrFail($id);
+        $ahorroMetaId = $programado->ahorro_meta_id;
+        $programado->delete();
 
-    public function destroy($id){
-        $ahorroProgramado = AhorroProgramado::find($id);
-
-        if(!$ahorroProgramado){
-            $data = [
-                'message' => 'Ahorro no encontrado',
-                'status' => 404
-            ];
-            return response()->json($data, 404);
-        }
-
-        $ahorroProgramado->delete();
-
-        $data = [
-            'message' => 'Ahorro eliminado exitosamente',
-            'status' => 200
-        ];
-        return response()->json($data, 200);
+        return redirect()->route('programados.index', $ahorroMetaId)
+                         ->with('success', 'Ahorro programado eliminado correctamente.');
     }
-
 }
