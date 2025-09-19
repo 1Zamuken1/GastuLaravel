@@ -321,3 +321,72 @@ if (closeViewBtn) {
         closeModal(document.getElementById("viewModal"));
     });
 }
+
+// ===============================
+// Recordatorio de Proyección para Hoy
+// ===============================
+document.addEventListener("DOMContentLoaded", function () {
+    fetch('/proyecciones/recordatorio-hoy')
+        .then(res => res.json())
+        .then(data => {
+            if (data.proyecciones && data.proyecciones.length > 0) {
+                // Solo mostramos el primero, o puedes iterar si quieres mostrar varios
+                showRecordatorioModal(data.proyecciones[0]);
+            }
+        });
+});
+
+function showRecordatorioModal(proyeccion) {
+    document.getElementById("recordatorio_original_id").value = proyeccion.proyeccion_ingreso_id;
+    document.getElementById("recordatorio_concepto").value = proyeccion.concepto_ingreso.nombre;
+    document.getElementById("recordatorio_concepto_id").value = proyeccion.concepto_ingreso_id;
+    document.getElementById("recordatorio_monto").value = proyeccion.monto_programado;
+    document.getElementById("recordatorio_fecha").value = proyeccion.fecha_inicio;
+    document.getElementById("recordatorio_fecha_fin").value = ""; // El usuario debe elegir una nueva
+    document.getElementById("recordatorio_estado").value = proyeccion.activo ? "1" : "0";
+    document.getElementById("recordatorio_descripcion").value = proyeccion.descripcion || "";
+
+    openModal(document.getElementById("recordatorioModal"));
+}
+
+// Validación de fecha_fin
+document.getElementById("formRecordatorio").addEventListener("submit", function(e) {
+    const fechaFinInput = document.getElementById("recordatorio_fecha_fin");
+    const errorMsg = document.getElementById("recordatorio_fecha_fin_error");
+    const hoy = new Date();
+    const fechaFin = new Date(fechaFinInput.value);
+
+    hoy.setHours(0,0,0,0);
+
+    if (!fechaFinInput.value || fechaFin <= hoy) {
+        e.preventDefault();
+        errorMsg.style.display = "block";
+        fechaFinInput.focus();
+    } else {
+        errorMsg.style.display = "none";
+    }
+});
+
+const btnHoyRecordatorio = document.getElementById("btnHoyRecordatorio");
+const inputFechaRecordatorio = document.getElementById("recordatorio_fecha");
+if (btnHoyRecordatorio && inputFechaRecordatorio) {
+    btnHoyRecordatorio.addEventListener("click", () => {
+        const hoy = new Date();
+        const yyyy = hoy.getFullYear();
+        const mm = String(hoy.getMonth() + 1).padStart(2, "0");
+        const dd = String(hoy.getDate()).padStart(2, "0");
+        inputFechaRecordatorio.value = `${yyyy}-${mm}-${dd}`;
+    });
+}
+
+// Cerrar modal de recordatorio con la X o el botón Cancelar
+const recordatorioModal = document.getElementById("recordatorioModal");
+const closeRecordatorioModal = document.getElementById("closeRecordatorioModal");
+const cancelRecordatorioBtn = document.getElementById("cancelRecordatorio");
+
+if (closeRecordatorioModal) {
+    closeRecordatorioModal.addEventListener("click", () => closeModal(recordatorioModal));
+}
+if (cancelRecordatorioBtn) {
+    cancelRecordatorioBtn.addEventListener("click", () => closeModal(recordatorioModal));
+}

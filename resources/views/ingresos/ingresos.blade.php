@@ -111,6 +111,7 @@
     @include('ingresos.partials.concepto-modal', ['conceptoIngresos' => $conceptoIngresos])
     @include('ingresos.partials.delete-modal', ['conceptoIngresos' => $conceptoIngresos])
     @include('ingresos.partials.view-modal')
+    @include('ingresos.partials.recordatorio-modal')
 @endsection
 
 @push('scripts')

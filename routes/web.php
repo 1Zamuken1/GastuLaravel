@@ -5,6 +5,7 @@ use App\Http\Controllers\IngresoController;
 use App\Http\Controllers\ProyeccionIngresoController;
 use App\Http\Controllers\GastosController;
 use App\Http\Controllers\AhorroMetaController;
+
 use App\Http\Controllers\AutenticacionController;
 
 Route::get('/', function () {
@@ -34,9 +35,12 @@ Route::get('/', function () {
     Route::put('/proyecciones/{id}', [ProyeccionIngresoController::class, 'update'])->name('proyecciones.update');
     // Para proyecciones
     Route::delete('/proyecciones/{id}', [ProyeccionIngresoController::class, 'destroy'])->name('proyecciones.destroy');
-    Route::get('/proyecciones/{id}', [ProyeccionIngresoController::class, 'show'])->name('proyecciones.show');
+
+    Route::get('/proyecciones/recordatorio-hoy', [ProyeccionIngresoController::class, 'proyeccionesRecordatorioHoy']);
     Route::get('/proyecciones/para-confirmar', [ProyeccionIngresoController::class, 'proyeccionesParaConfirmar']);
     Route::post('/proyecciones/confirmar', [ProyeccionIngresoController::class, 'confirmarRecurrencias']);
+
+    Route::get('/proyecciones/{id}', [ProyeccionIngresoController::class, 'show'])->name('proyecciones.show');
 
     Route::get('/gastos', [App\Http\Controllers\GastosController::class, 'index'])->name('gastos.index');
     Route::post('/gastos', [App\Http\Controllers\GastosController::class, 'store'])->name('gastos.store');
