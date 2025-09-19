@@ -7,6 +7,7 @@ use App\Http\Controllers\ProyeccionEgresoController;
 use App\Http\Controllers\EgresoController;
 use App\Http\Controllers\AhorroMetaController;
 use App\Http\Controllers\AutenticacionController;
+use App\Http\Controllers\Admin\UsuarioController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -74,6 +75,11 @@ Route::get('/', function () {
         Route::delete('/{id}', [AhorroMetaController::class, 'destroy'])->name('ahorros.destroy');
 
     });
+        // CRUD de Usuario Admin
+        Route::resource('usuarios', UsuarioController::class)->names('usuarios');
+
+
+
 //});
 
 //Formularios de autenticación
@@ -89,11 +95,7 @@ Route::get('/login', function() {
 Route::post('/registrar',[AutenticacionController::class, 'registrar'])->name('registrar');
 Route::post('/login',[AutenticacionController::class, 'login'])->name('login');
 
-//Registro de usuario
-Route::post('/registrar', [AutenticacionController::class, 'registrar'])->name('registrar');
 
-// Login de usuario
-Route::post('/login', [AutenticacionController::class, 'login'])->name('login');
 
 // Logout de usuario
 Route::post('/logout', [AutenticacionController::class, 'logout'])->name('logout')->middleware('auth');
