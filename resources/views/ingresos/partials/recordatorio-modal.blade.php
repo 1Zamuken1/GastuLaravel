@@ -9,7 +9,7 @@
             <button class="close-modal" id="closeRecordatorioModal" type="button">&times;</button>
         </div>
         <div class="modal-body">
-            <form id="formRecordatorio" method="POST" action="/proyecciones">
+            <form id="formRecordatorio" method="POST" action="/proyecciones_ingresos">
                 @csrf
                 <input type="hidden" name="original_id" id="recordatorio_original_id" />
                 <div class="form-group">
@@ -73,8 +73,8 @@
         .then(res => res.json())
         .then(data => {
             if (data.status === 201) {
-                // Recarga la página para ver el nuevo registro
-                window.location.reload();
+                // Redirige a la vista principal de ingresos
+                window.location.href = "{{ route('ingresos.index') }}";
             } else if (data.errors) {
                 // Muestra errores si los hay
                 alert("Error: " + Object.values(data.errors).join("\n"));

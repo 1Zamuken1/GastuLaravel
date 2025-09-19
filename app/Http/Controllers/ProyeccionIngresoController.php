@@ -30,34 +30,28 @@ class ProyeccionIngresoController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'monto_programado' => 'required|numeric',
-            'descripcion' => 'required|string|max:200',
-            'fecha_inicio' => 'required|date',
-            'activo' => 'required|boolean',
-            'fecha_creacion' => 'nullable|date',
-            'concepto_ingreso_id' => 'required|integer',
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'monto_programado' => 'required|numeric',
+        'descripcion' => 'required|string|max:200',
+        'fecha' => 'required|date', // <-- Cambia a 'fecha'
+        'fecha_fin' => 'required|date|after_or_equal:fecha',
+        'activo' => 'required|boolean',
+        'concepto_ingreso_id' => 'required|integer',
+    ]);
 
-        if ($validator->fails()) {
-            $data = [
-                'message' => 'Error de validación',
-                'errors' => $validator->errors(),
-                'status' => 400,
-            ];
+    if ($validator->fails()) {
+        // ...
+    }
 
-            return response()->json($data, 400);
-        }
-
-        $proyeccion = ProyeccionIngreso::create([
-            'monto_programado' => $request->monto_programado,
-            'descripcion' => $request->descripcion,
-            'fecha_inicio' => $request->fecha_inicio,
-            'activo' => $request->activo,
-            'fecha_creacion' => $request->fecha_creacion,
-            'concepto_ingreso_id' => $request->concepto_ingreso_id,
-        ]);
+    $proyeccion = ProyeccionIngreso::create([
+        'monto_programado' => $request->monto_programado,
+        'descripcion' => $request->descripcion,
+        'fecha_creacion' => $request->input('fecha'), // <-- Aquí
+        'fecha_fin' => $request->fecha_fin,
+        'activo' => $request->activo,
+        'concepto_ingreso_id' => $request->concepto_ingreso_id,
+    ]);
 
         if (! $proyeccion) {
             $data = [
@@ -122,27 +116,30 @@ class ProyeccionIngresoController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
-            'monto' => 'required|numeric',
-            'fecha' => 'required|date',
-            'activo' => 'required|in:1,0',
-            'descripcion' => 'required|string|max:200',
-        ]);
+{
+    $validated = $request->validate([
+        'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
+        'monto' => 'required|numeric',
+        'fecha' => 'required|date',
+        'fecha_fin' => 'required|date|after_or_equal:fecha',
+        'activo' => 'required|in:1,0',
+        'descripcion' => 'required|string|max:200',
+    ]);
 
-        $proyeccion = ProyeccionIngreso::findOrFail($id);
+    $proyeccion = ProyeccionIngreso::findOrFail($id);
 
-        $proyeccion->update([
-            'monto_programado' => $validated['monto'],
-            'descripcion' => $validated['descripcion'],
-            'fecha_inicio' => $validated['fecha'],
-            'activo' => $validated['activo'],
-            'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
-        ]);
+    $proyeccion->update([
+        'monto_programado' => $validated['monto'],
+        'descripcion' => $validated['descripcion'],
+        'fecha_creacion' => $validated['fecha'],
+        'fecha_fin' => $validated['fecha_fin'],
+        'activo' => $validated['activo'] == "1" ? true : false,
+        'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
+    ]);
 
-        return redirect()->route('ingresos.index')->with('success', 'Proyección actualizada correctamente.');
-    }
+    return redirect()->route('ingresos.index')->with('success', 'Proyección actualizada correctamente.');
+}
+    
 
     public function updatePartial(Request $request, $id)
     {
@@ -246,12 +243,19 @@ class ProyeccionIngresoController extends Controller
         return response()->json(['message' => 'Ingresos recurrentes registrados']);
     }
 
-    public function proyeccionesRecordatorioHoy()
-    {
-        $hoy = now()->toDateString();
-        // Agrega with('conceptoIngreso')
-        $proyecciones = ProyeccionIngreso::with('conceptoIngreso')->whereDate('fecha_fin', $hoy)->get();
 
-        return response()->json(['proyecciones' => $proyecciones]);
-    }
+public function proyeccionesRecordatorioHoy()
+{
+    $hoy = now()->toDateString();
+    \Log::info('Fecha del sistema para recordatorio:', ['hoy' => $hoy]);
+
+    $proyecciones = ProyeccionIngreso::with('conceptoIngreso')
+        ->whereDate('fecha_fin', $hoy)
+        ->where('activo', 1)
+        ->get();
+
+    return response()->json([
+        'proyecciones' => $proyecciones
+    ]);
+}
 }

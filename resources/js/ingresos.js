@@ -197,18 +197,13 @@ document.querySelectorAll(".edit-btn").forEach((btn) => {
         const rowIdx = table.row(tr).index();
         const data = table.row(rowIdx).data();
 
-        // data es un array con los valores de las columnas visibles y ocultas
-        // Según tu Blade:
-        // 0: ID (oculto), 1: Concepto, 2: Monto, 3: Tipo, 4: Fecha, 5: Estado
-
+        // data: 0: ID, 1: Concepto, 2: Monto, 3: Tipo, 4: Fecha, 5: Estado
         const id = data[0];
         const concepto = data[1];
         const monto = data[2].replace(/[^0-9.,-]/g, "").replace(",", ".").trim();
         const tipo = data[3];
-        // Fecha en formato d/m/Y, convertir a yyyy-mm-dd
         const fecha = data[4].split("/").reverse().join("-");
         const estado = data[6];
-        // Los atributos extra siguen igual
         const descripcion = tr.getAttribute("data-descripcion") || "";
         const conceptoId = tr.getAttribute("data-concepto-id") || "";
         const fecha_fin = tr.getAttribute("data-fecha_fin") || "";
@@ -227,6 +222,38 @@ document.querySelectorAll(".edit-btn").forEach((btn) => {
             document.getElementById("estado").value = estado === "Activo" ? "1" : "0";
         } else {
             document.getElementById("estado").value = "";
+        }
+
+        // Cambiar action y método del formulario según tipo
+        const form = document.getElementById("formIngreso");
+        const editId = document.getElementById("editId").value;
+        const tipoInput = document.getElementById("tipo");
+        const tipoValue = tipoInput ? tipoInput.value : "";
+
+        if (editId && tipoValue === "Ingreso") {
+            form.action = `/ingresos/update/${editId}`;
+            let methodInput = form.querySelector('input[name="_method"]');
+            if (!methodInput) {
+                methodInput = document.createElement("input");
+                methodInput.type = "hidden";
+                methodInput.name = "_method";
+                form.appendChild(methodInput);
+            }
+            methodInput.value = "POST";
+        } else if (editId && tipoValue === "Proyección") {
+            form.action = `/proyecciones_ingresos/${editId}`;
+            let methodInput = form.querySelector('input[name="_method"]');
+            if (!methodInput) {
+                methodInput = document.createElement("input");
+                methodInput.type = "hidden";
+                methodInput.name = "_method";
+                form.appendChild(methodInput);
+            }
+            methodInput.value = "PUT";
+        } else {
+            form.action = `/ingresos/store`;
+            let methodInput = form.querySelector('input[name="_method"]');
+            if (methodInput) methodInput.remove();
         }
 
         if (typeof toggleFieldsByTipo === "function") {
@@ -265,7 +292,7 @@ if (confirmDeleteBtn) {
         form.method = "POST";
         form.action =
             tipo === "Proyección"
-                ? `/proyecciones/${deleteId}`
+                ? `/proyecciones_ingresos/${deleteId}` // CAMBIO AQUÍ
                 : `/ingresos/destroy/${deleteId}`;
 
         const csrf = document.querySelector('meta[name="csrf-token"]').content;
@@ -326,7 +353,7 @@ if (closeViewBtn) {
 // Recordatorio de Proyección para Hoy
 // ===============================
 document.addEventListener("DOMContentLoaded", function () {
-    fetch('/proyecciones/recordatorio-hoy')
+    fetch('/proyecciones_ingresos/recordatorio-hoy') // CAMBIO AQUÍ
         .then(res => res.json())
         .then(data => {
             if (data.proyecciones && data.proyecciones.length > 0) {

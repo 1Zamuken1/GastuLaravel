@@ -29,7 +29,7 @@ class AutenticacionController extends Controller
             'rol_id' => 3,
         ]);
 
-        auth::login($usuario);
+        Auth::login($usuario);
 
         return response()->json([
             'mensaje' => 'usuario registrado y autentucado con éxito',
@@ -46,25 +46,29 @@ class AutenticacionController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (Auth::attempt(['correo' => $request->correo, 'password' => $request->password])) {
-            $request->session()->regenerate();
+         if (Auth::attempt(['correo' => $request->correo, 'password' => $request->password])) {
+        $request->session()->regenerate();
 
-            return response()->json([
-                'mensaje' => 'Login exitoso',
-                'usuario' => auth::user()
-            ]);
+        $usuario = Auth::user();
+        
+         // Redirección según rol
+        if ($usuario->rol_id == 1) { // Admin
+            return redirect()->route('usuarios.index');
+        } else {
+            return redirect()->route('ingresos.index');
+        }
         }
 
-        return response()->json([
-            'mensaje' => 'credenciales incorrectas'
-        ], 401);
+        return back()->withErrors([
+        'correo' => 'Las credenciales no son correctas.',
+    ])->onlyInput('correo');
     }
 
     //logout de usuario
 
     public function logout(Request $request){
         
-        auth::logout();
+        Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

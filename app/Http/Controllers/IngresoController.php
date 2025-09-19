@@ -121,7 +121,7 @@ class IngresoController extends Controller
             $validated = $request->validate([
                 'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
                 'monto'               => 'required|numeric',
-                'fecha'               => 'required|date',
+                'fecha'               => 'required|date', // Esta es la fecha de creación
                 'fecha_fin'           => 'required|date|after_or_equal:fecha',
                 'activo'              => 'required|in:1,0',
                 'descripcion'         => 'required|string|max:200',
@@ -130,7 +130,7 @@ class IngresoController extends Controller
             ProyeccionIngreso::create([
                 'monto_programado'    => $validated['monto'],
                 'descripcion'         => $validated['descripcion'],
-                'fecha_inicio'        => $validated['fecha'],
+                'fecha_creacion'      => $validated['fecha'], // <-- Aquí
                 'fecha_fin'           => $validated['fecha_fin'],
                 'activo'              => $validated['activo'],
                 'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
@@ -188,6 +188,29 @@ class IngresoController extends Controller
             ]);
 
             return redirect()->route('ingresos.index')->with('success', 'Ingreso actualizado correctamente.');
+        }
+
+        if ($tipo === 'Proyección') {
+            $validated = $request->validate([
+                'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
+                'monto'               => 'required|numeric',
+                'fecha'               => 'required|date',
+                'fecha_fin'           => 'required|date|after_or_equal:fecha',
+                'activo'              => 'required|in:1,0',
+                'descripcion'         => 'required|string|max:200',
+            ]);
+
+            $proyeccion = ProyeccionIngreso::findOrFail($id);
+            $proyeccion->update([
+                'monto_programado'    => $validated['monto'],
+                'descripcion'         => $validated['descripcion'],
+                'fecha_creacion'      => $validated['fecha'], // <-- Aquí
+                'fecha_fin'           => $validated['fecha_fin'],
+                'activo'              => $validated['activo'],
+                'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
+            ]);
+
+            return redirect()->route('ingresos.index')->with('success', 'Proyección actualizada correctamente.');
         }
 
         return redirect()->route('ingresos.index')->with('error', 'Solo se puede editar ingresos reales desde este formulario.');
