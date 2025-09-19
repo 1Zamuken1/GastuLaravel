@@ -32,25 +32,15 @@ Route::get('/', function () {
     Route::delete('/ingresos/destroy/{id}', [IngresoController::class, 'destroy'])->name('ingresos.destroy');
 
     //Proyecciones de Ingresos
-    Route::post('/proyecciones', [ProyeccionIngresoController::class, 'store'])->name('proyecciones.store');
-    Route::put('/proyecciones/{id}', [ProyeccionIngresoController::class, 'update'])->name('proyecciones.update');
+    Route::post('/proyecciones_ingresos', [ProyeccionIngresoController::class, 'store'])->name('proyecciones_ingresos.store');
+    Route::put('/proyecciones_ingresos/{id}', [ProyeccionIngresoController::class, 'update'])->name('proyecciones_ingresos.update');
     // Para proyecciones
-    Route::delete('/proyecciones/{id}', [ProyeccionIngresoController::class, 'destroy'])->name('proyecciones.destroy');
+    Route::delete('/proyecciones_ingresos/{id}', [ProyeccionIngresoController::class, 'destroy'])->name('proyecciones_ingresos.destroy');
 
-    Route::get('/proyecciones/recordatorio-hoy', [ProyeccionIngresoController::class, 'proyeccionesRecordatorioHoy']);
-    Route::get('/proyecciones/para-confirmar', [ProyeccionIngresoController::class, 'proyeccionesParaConfirmar']);
-    Route::post('/proyecciones/confirmar', [ProyeccionIngresoController::class, 'confirmarRecurrencias']);
+    Route::get('/proyecciones_ingresos/recordatorio-hoy', [ProyeccionIngresoController::class, 'proyeccionesRecordatorioHoy']);
+    Route::get('/proyecciones_ingresos/para-confirmar', [ProyeccionIngresoController::class, 'proyeccionesParaConfirmar']);
+    Route::post('/proyecciones_ingresos/confirmar', [ProyeccionIngresoController::class, 'confirmarRecurrencias']);
 
-<<<<<<< HEAD
-    Route::get('/proyecciones/{id}', [ProyeccionIngresoController::class, 'show'])->name('proyecciones.show');
-
-    Route::get('/gastos', [App\Http\Controllers\GastosController::class, 'index'])->name('gastos.index');
-    Route::post('/gastos', [App\Http\Controllers\GastosController::class, 'store'])->name('gastos.store');
-    Route::get('/gastos/{id}', [App\Http\Controllers\GastosController::class, 'show'])->name('gastos.show');
-    Route::put('/gastos/{id}', [App\Http\Controllers\GastosController::class, 'update'])->name('gastos.update');
-    Route::delete('/gastos/{id}', [App\Http\Controllers\GastosController::class, 'destroy'])->name('gastos.destroy');
-    Route::resource('gastos', GastosController::class);
-=======
    //Egresos
     Route::get('/egresos', [EgresoController::class, 'index'])->name('egresos.index');
     //Route::post('/ingresos', [IngresoController::class, 'store'])->name('ingresos.store');
@@ -67,7 +57,6 @@ Route::get('/', function () {
     Route::get('/proyecciones/{id}', [ProyeccionEgresoController::class, 'show'])->name('proyecciones.show');
     Route::get('/proyecciones/para-confirmar', [ProyeccionEgresoController::class, 'proyeccionesParaConfirmar']);
     Route::post('/proyecciones/confirmar', [ProyeccionEgresoController::class, 'confirmarRecurrencias']);
->>>>>>> 1f4ead15caf88484020e4ee56a0e6a0f854ed219
 
     // ahorro meta
     Route::prefix('ahorros')->group(function () {
