@@ -6,20 +6,14 @@ use App\Http\Controllers\ProyeccionIngresoController;
 use App\Http\Controllers\ProyeccionEgresoController;
 use App\Http\Controllers\EgresoController;
 use App\Http\Controllers\AhorroMetaController;
+use App\Http\Controllers\AporteAhorroController;
 
 use App\Http\Controllers\AutenticacionController;
+use App\Http\Controllers\Admin\UsuarioController;
 
 Route::get('/', function () {
     return view('welcome');
 });
-
-
-/**Route::get('/ahorros', function () {
-    return view('ahorros.AhorroMeta');
-}); **/
-
-//vistas protegidas
-//Route::middleware('auth')->group(function () {
 
     //Ingresos
     Route::get('/ingresos', [IngresoController::class, 'index'])->name('ingresos.index');
@@ -58,25 +52,30 @@ Route::get('/', function () {
     Route::get('/proyecciones/para-confirmar', [ProyeccionEgresoController::class, 'proyeccionesParaConfirmar']);
     Route::post('/proyecciones/confirmar', [ProyeccionEgresoController::class, 'confirmarRecurrencias']);
 
-    // ahorro meta
-    Route::prefix('ahorros')->group(function () {
-        // Mostrar todos los ahorros (index)
-        Route::get('/', [AhorroMetaController::class, 'index'])->name('ahorros.index');
+    // AhorroMeta
+    Route::get('/ahorros', [AhorroMetaController::class, 'index'])->name('ahorros.index');
+    Route::get('/ahorros/create', [AhorroMetaController::class, 'create'])->name('ahorros.create');
+    Route::post('/ahorros/store', [AhorroMetaController::class, 'store'])->name('ahorros.store');
+    Route::get('/ahorros/{id}', [AhorroMetaController::class, 'show'])->name('ahorros.show');
+    Route::get('/ahorros/{id}/edit', [AhorroMetaController::class, 'edit'])->name('ahorros.edit');
+    Route::put('/ahorros/update/{id}', [AhorroMetaController::class, 'update'])->name('ahorros.update');
+    Route::delete('/ahorros/destroy/{id}', [AhorroMetaController::class, 'destroy'])->name('ahorros.destroy');
 
-        // Formulario para crear nuevo ahorro
-        Route::get('/create', [AhorroMetaController::class, 'create'])->name('ahorros.create');
+    //AhorroProgramado
+    Route::get('/ahorros/{ahorroMetaId}/programados', [AhorroProgramadoController::class, 'index'])->name('programados.index');
+    Route::get('/programados/{id}', [AhorroProgramadoController::class, 'show'])->name('programados.show');
+    Route::post('/programados/store', [AhorroProgramadoController::class, 'store'])->name('programados.store');
+    Route::put('/programados/update/{id}', [AhorroProgramadoController::class, 'update'])->name('programados.update');
+    Route::delete('/programados/destroy/{id}', [AhorroProgramadoController::class, 'destroy'])->name('programados.destroy');
 
-        // Guardar nuevo ahorro
-        Route::post('/', [AhorroMetaController::class, 'store'])->name('ahorros.store');
+    // AporteAhorro
+    Route::get('/ahorros/{ahorroMetaId}/aportes', [AporteAhorroController::class, 'index'])->name('aportes.index');
+    Route::get('/aportes/{id}', [AporteAhorroController::class, 'show'])->name('aportes.show');
+    Route::get('/aportes/{id}/edit', [AporteAhorroController::class, 'edit'])->name('aportes.edit');
+    Route::put('/aportes/update/{id}', [AporteAhorroController::class, 'update'])->name('aportes.update');
+    Route::put('/aportes/{id}/pagar-cuota', [AporteAhorroController::class, 'pagarCuota'])->name('aportes.pagarCuota');
+    Route::delete('/aportes/destroy/{id}', [AporteAhorroController::class, 'destroy'])->name('aportes.destroy');
 
-        // Ver detalle de un ahorro
-        Route::get('/{id}', [AhorroMetaController::class, 'show'])->name('ahorros.show');
-
-        // Eliminar ahorro
-        Route::delete('/{id}', [AhorroMetaController::class, 'destroy'])->name('ahorros.destroy');
-
-    });
-//});
 
 //Formularios de autenticación
 Route::get('/registro', function () {
@@ -91,11 +90,10 @@ Route::get('/login', function() {
 Route::post('/registrar',[AutenticacionController::class, 'registrar'])->name('registrar');
 Route::post('/login',[AutenticacionController::class, 'login'])->name('login');
 
-//Registro de usuario
-Route::post('/registrar', [AutenticacionController::class, 'registrar'])->name('registrar');
 
-// Login de usuario
-Route::post('/login', [AutenticacionController::class, 'login'])->name('login');
 
 // Logout de usuario
 Route::post('/logout', [AutenticacionController::class, 'logout'])->name('logout')->middleware('auth');
+
+
+

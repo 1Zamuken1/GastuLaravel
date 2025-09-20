@@ -2,202 +2,87 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\AporteAhorro;
-use Illuminate\Support\Facades\Validator;
+use App\Models\AhorroMeta;
+use Illuminate\Http\Request;
 
 class AporteAhorroController extends Controller
 {
-    //si no hay ningun aporte registrado->index
-    public function index(){
-        $aporteAhorro = AporteAhorro::all();
+    // Mostrar todos los aportes de un ahorro
+    public function index($ahorroMetaId)
+    {
+        $meta = AhorroMeta::with('aporteAhorros')->findOrFail($ahorroMetaId);
+        $aportes = $meta->aporteAhorros;
 
-        if($aporteAhorro->isEmpty()){
-            $data = [
-                'message' => 'No hay aportes registrados',
-                "status" => 200
-            ];
-            return response()->json($data, 200);
-        }
-        $data=[
-            'aporteAhorro'=> $aporteAhorro,
-            'status'=>200
-        ];
-        return response()->json($data,200);
+        return view('ahorros.aportes.indexAporte', compact('meta', 'aportes'));
     }
 
-    //crear registro de aporte->store
-    public function store(Request $request){
-        $validator = Validator::make($request->all(),[
-            'monto' => 'required|numeric',
-            'fecha_registro' => 'required|date',
-            'ahorro_meta_id' => 'required|integer'
+    // Mostrar detalle de un aporte
+    public function show($id)
+    {
+        $aporte = AporteAhorro::with('ahorro_meta')->findOrFail($id);
+        return view('ahorros.aportes.showAporte', compact('aporte'));
+    }
+
+    // Mostrar formulario de edición de un aporte
+    public function edit($id)
+    {
+        $aporte = AporteAhorro::with('ahorro_meta')->findOrFail($id);
+        return view('ahorros.aportes.editAporte', compact('aporte'));
+    }
+
+    // Actualizar un aporte
+    public function update(Request $request, $id)
+    {
+        $aporte = AporteAhorro::findOrFail($id);
+
+        $validated = $request->validate([
+            'monto' => 'required|numeric|min:1',
+            'fecha_registro' => 'required|date'
         ]);
 
-        if($validator->fails()){
-            $data = [
-                'message' => 'Error de validación',
-                'errors' => $validator->errors(),
-                'status' => 400
-            ];
-            return response()->json($data, 400);
-        }
+        $aporte->update($validated);
 
-        $aporteAhorro = AporteAhorro::create([
-            'monto' => $request->monto,
-            'fecha_registro' => $request->fecha_registro,
-            'ahorro_meta_id' => $request->ahorro_meta_id
+        // Recalcular total acumulado de la meta
+        $meta = $aporte->ahorro_meta;
+        $meta->update([
+            'total_acumulado' => $meta->aporteAhorros()->sum('monto')
         ]);
 
-        if(!$aporteAhorro){
-            $data = [
-                'message' => 'Error al crear el aporte',
-                'status' => 500
-            ];
-            return response()->json($data, 500);
-        }
-
-        //
-        $this->recalcularMeta($aporteAhorro->ahorro_meta_id);
-
-        $data = [
-            'message' => 'Aporte creado exitosamente',
-            'aporteAhorro' => $aporteAhorro,
-            'status' => 201
-        ];
-        return response()->json($data, 201); 
+        return redirect()->route('aportes.index', $aporte->ahorro_meta_id)
+                         ->with('success', 'Aporte actualizado correctamente.');
     }
 
-    //ver un aporte por id->show
-    public function show($id){
-        $aporteAhorro = AporteAhorro::find($id);
+    // Eliminar un aporte
+    public function destroy($id)
+    {
+        $aporte = AporteAhorro::findOrFail($id);
+        $ahorroMetaId = $aporte->ahorro_meta_id;
+        $aporte->delete();
 
-        if(!$aporteAhorro){
-            $data = [
-                'message' => 'Aporte no encontrado',
-                'status' => 404
-            ];
-            return response()->json($data, 404);
-        }
-
-        $data = [
-            'aporteAhorro' => $aporteAhorro,
-            'status' => 200
-        ];
-        return response()->json($data, 200);
-    }
-
-    //actualizar un aporte por id->update
-    public function update(Request $request, $id){
-        $aporteAhorro = AporteAhorro::find($id);
-
-        if(!$aporteAhorro){
-            $data = [
-                'message' => 'Aporte no encontrado',
-                'status' => 404
-            ];
-            return response()->json($data, 404);
-        }
-
-        $validator = Validator::make($request->all(),[
-            'monto' => 'required|numeric',
-            'fecha_registro' => 'required|date',
-            'ahorro_meta_id' => 'required|integer'
+        // Recalcular total acumulado de la meta
+        $meta = AhorroMeta::find($ahorroMetaId);
+        $meta->update([
+            'total_acumulado' => $meta->aporteAhorros()->sum('monto')
         ]);
 
-        if($validator->fails()){
-            $data = [
-                'message' => 'Error de validación',
-                'errors' => $validator->errors(),
-                'status' => 400
-            ];
-            return response()->json($data, 400);
-        }
-
-        $aporteAhorro->monto = $request->monto;
-        $aporteAhorro->fecha_registro = $request->fecha_registro;
-        $aporteAhorro->ahorro_meta_id = $request->ahorro_meta_id;
-        $aporteAhorro->save();
-
-        //
-
-        $data = [
-            'message' => 'Aporte actualizado exitosamente',
-            'aporteAhorro' => $aporteAhorro,
-            'status' => 200
-        ];
-        return response()->json($data, 200);
+        return redirect()->route('aportes.index', $ahorroMetaId)
+                         ->with('success', 'Aporte eliminado correctamente.');
     }
 
-    //actualizar solo un campo del registro de un aporte-> updatePartial
-    public function updatePartial(Request $request, $id){
-        $aporteAhorro = AporteAhorro::find($id);
+    // Función para aportar cuota desde el botón
+    public function pagarCuota($id)
+    {
+        $aporte = AporteAhorro::findOrFail($id);
 
-        if(!$aporteAhorro){
-            $data = [
-                'message' => 'Aporte no encontrado',
-                'status' => 404
-            ];
-            return response()->json($data, 404);
-        }
-
-        $validator = Validator::make($request->all(),[
-            'monto' => 'sometimes|numeric',
-            'fecha_registro' => 'sometimes|date',
-            'ahorro_meta_id' => 'sometimes|integer'
+        // Aquí se podría agregar lógica extra si fuera necesario
+        // Por ahora simplemente recalculamos el total acumulado
+        $meta = $aporte->ahorro_meta;
+        $meta->update([
+            'total_acumulado' => $meta->aporteAhorros()->sum('monto')
         ]);
 
-        if($validator->fails()){
-            $data = [
-                'message' => 'Error de validación',
-                'errors' => $validator->errors(),
-                'status' => 400
-            ];
-            return response()->json($data, 400);
-        }
-
-        if($request->has('monto')){
-            $aporteAhorro->monto = $request->monto;
-        }
-        if($request->has('fecha_registro')){
-            $aporteAhorro->fecha_registro = $request->fecha_registro;
-        }
-        if($request->has('ahorro_meta_id')){
-            $aporteAhorro->ahorro_meta_id = $request->ahorro_meta_id;
-        }
-        $aporteAhorro->save();
-
-        //
-
-        $data = [
-            'message' => 'Aporte actualizado exitosamente',
-            'aporteAhorro' => $aporteAhorro,
-            'status' => 200
-        ];
-        return response()->json($data, 200);
+        return redirect()->route('aportes.index', $meta->ahorro_meta_id)
+                         ->with('success', 'Se ha aportado la cuota correctamente.');
     }
-
-    //eliminar un aporte por id->destroy
-    public function destroy($id){
-        $aporteAhorro = AporteAhorro::find($id);
-
-        if(!$aporteAhorro){
-            $data = [
-                'message' => 'Aporte no encontrado',
-                'status' => 404
-            ];
-            return response()->json($data, 404);
-        }
-        $aporteAhorro->delete();
-
-        $data = [
-            'message' => 'Aporte eliminado exitosamente',
-            'status' => 200
-        ];
-        return response()->json($data, 200);
-    }
-
-    //
 }
-

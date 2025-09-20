@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('fecha_inicio');
             $table->date('fecha_fin')->nullable();
             $table->integer('num_cuotas')->nullable();
-            $table->dateTime('ultimo_aporte_generadao')->nullable();
+            $table->dateTime('ultimo_aporte_generado')->nullable();
         });
     }
 
