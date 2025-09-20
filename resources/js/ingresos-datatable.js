@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 searchable: false,
             },
         ],
+        order: [[4, "desc"]], // <-- Ordena por la columna Fecha (índice 4) descendente
         dom: "tip",
         autoWidth: false, // <-- Añade esto
     responsive: true,
