@@ -15,6 +15,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/dashboard', function () {
+    return view('Dashboard.dashboard');
+})->name('dashboard');
+
     //Ingresos
     Route::get('/ingresos', [IngresoController::class, 'index'])->name('ingresos.index');
     //Route::post('/ingresos', [IngresoController::class, 'store'])->name('ingresos.store');

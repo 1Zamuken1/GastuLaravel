@@ -20,12 +20,12 @@
       </button>
 
       <ul class="side-nav-list">
-        <!-- <li data-page="dashboard">
-          {{-- <a href="{{ route('dashboard') }}"> --}}
-            {{-- <span class="side-nav-icon"><img src="{{ asset('icons/casa.svg') }}" alt="dashboard" /></span> --}}
+        <li data-page="dashboard">
+          <a href="{{ route('dashboard') }}">
+            <span class="side-nav-icon"><img src="{{ asset('icons/casa.svg') }}" alt="dashboard" /></span>
             <span class="side-nav-text">Inicio</span>
           </a>
-        </li> -->
+        </li>
         <li data-page="ingresos">
           <a href="{{ route('ingresos.index') }}">
             <span class="side-nav-icon"><img src="{{ asset('icons/ingresos.svg') }}" alt="Ingresos" /></span>
