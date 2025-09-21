@@ -6,9 +6,11 @@ use App\Http\Controllers\ProyeccionIngresoController;
 use App\Http\Controllers\ProyeccionEgresoController;
 use App\Http\Controllers\EgresoController;
 use App\Http\Controllers\AhorroMetaController;
+use App\Http\Controllers\AhorroProgramadoController;
 use App\Http\Controllers\AporteAhorroController;
 
 use App\Http\Controllers\AutenticacionController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\Admin\UsuarioController;
 
 Route::get('/', function () {
@@ -56,14 +58,14 @@ Route::get('/dashboard', function () {
     Route::get('/proyecciones/para-confirmar', [ProyeccionEgresoController::class, 'proyeccionesParaConfirmar']);
     Route::post('/proyecciones/confirmar', [ProyeccionEgresoController::class, 'confirmarRecurrencias']);
 
-    // AhorroMeta
-    Route::get('/ahorros', [AhorroMetaController::class, 'index'])->name('ahorros.index');
-    Route::get('/ahorros/create', [AhorroMetaController::class, 'create'])->name('ahorros.create');
-    Route::post('/ahorros/store', [AhorroMetaController::class, 'store'])->name('ahorros.store');
-    Route::get('/ahorros/{id}', [AhorroMetaController::class, 'show'])->name('ahorros.show');
-    Route::get('/ahorros/{id}/edit', [AhorroMetaController::class, 'edit'])->name('ahorros.edit');
-    Route::put('/ahorros/update/{id}', [AhorroMetaController::class, 'update'])->name('ahorros.update');
-    Route::delete('/ahorros/destroy/{id}', [AhorroMetaController::class, 'destroy'])->name('ahorros.destroy');
+    // // AhorroMeta
+    // Route::get('/ahorros', [AhorroMetaController::class, 'index'])->name('ahorros.index');
+    // Route::get('/ahorros/create', [AhorroMetaController::class, 'create'])->name('ahorros.create');
+    // Route::post('/ahorros/store', [AhorroMetaController::class, 'store'])->name('ahorros.store');
+    // Route::get('/ahorros/{id}', [AhorroMetaController::class, 'show'])->name('ahorros.show');
+    // Route::get('/ahorros/{id}/edit', [AhorroMetaController::class, 'edit'])->name('ahorros.edit');
+    // Route::put('/ahorros/update/{id}', [AhorroMetaController::class, 'update'])->name('ahorros.update');
+    // Route::delete('/ahorros/destroy/{id}', [AhorroMetaController::class, 'destroy'])->name('ahorros.destroy');
 
     //AhorroProgramado
     Route::get('/ahorros/{ahorroMetaId}/programados', [AhorroProgramadoController::class, 'index'])->name('programados.index');
@@ -98,6 +100,7 @@ Route::post('/login',[AutenticacionController::class, 'login'])->name('login');
 
 // Logout de usuario
 Route::post('/logout', [AutenticacionController::class, 'logout'])->name('logout')->middleware('auth');
+
 
 
 

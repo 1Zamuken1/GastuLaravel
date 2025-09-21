@@ -75,16 +75,25 @@ class Usuario extends Authenticatable
 
 	public function ahorro_meta()
 	{
-		return $this->hasMany(AhorroMetum::class);
+		return $this->hasMany(AhorroMeta::class);
+	}
+	public function egresos()
+	{
+		return $this->hasMany(Egreso::class);
 	}
 
-	public function concepto_egresos()
+	public function ingresos()
 	{
-		return $this->hasMany(ConceptoEgreso::class);
+		return $this->hasMany(Ingreso::class);
 	}
 
-	public function concepto_ingresos()
+	public function proyeccion_egresos()
 	{
-		return $this->hasMany(ConceptoIngreso::class);
+		return $this->hasMany(ProyeccionEgreso::class);
+	}
+
+	public function proyeccion_ingresos()
+	{
+		return $this->hasMany(ProyeccionIngreso::class);
 	}
 }

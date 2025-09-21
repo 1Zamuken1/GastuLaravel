@@ -39,6 +39,7 @@
         </div>
 
         {{-- Tabla --}}
+        <div class="table-container">
         <div class="records-per-page">
             Mostrar
             <select id="recordsPerPage">
@@ -105,7 +106,7 @@
             Mostrando 0 de 0 registros
         </div>
     </div>
-
+    </div>
     {{-- Modales --}}
     @include('egresos.partials.income-modal', ['conceptoEgresos' => $conceptoEgresos])
     @include('egresos.partials.concepto-modal', ['conceptoEgresos' => $conceptoEgresos])

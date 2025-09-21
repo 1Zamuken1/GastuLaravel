@@ -15,9 +15,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $concepto_ingreso_id
  * @property string $nombre
  * @property string $descripcion
- * @property int $usuario_id
  * 
- * @property Usuario $usuario
  * @property Collection|Ingreso[] $ingresos
  * @property Collection|ProyeccionIngreso[] $proyeccion_ingresos
  *
@@ -29,20 +27,10 @@ class ConceptoIngreso extends Model
 	protected $primaryKey = 'concepto_ingreso_id';
 	public $timestamps = false;
 
-	protected $casts = [
-		'usuario_id' => 'int'
-	];
-
 	protected $fillable = [
 		'nombre',
-		'descripcion',
-		'usuario_id'
+		'descripcion'
 	];
-
-	public function usuario()
-	{
-		return $this->belongsTo(Usuario::class);
-	}
 
 	public function ingresos()
 	{

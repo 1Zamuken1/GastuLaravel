@@ -211,9 +211,13 @@ let deleteId = null;
 let tipo = null;
 document.querySelectorAll(".delete-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
-        const row = btn.closest("tr");
-        deleteId = row.children[0].textContent.trim();
-        tipo = row.children[3].textContent.trim(); // Detecta el tipo correctamente
+        const table = $("#incomeTable").DataTable();
+        const tr = btn.closest("tr");
+        const rowIdx = table.row(tr).index();
+        const data = table.row(rowIdx).data();
+
+        deleteId = data[0]; // <-- Esto es el ID real, aunque la columna esté oculta
+        tipo = data[3];     // <-- Tipo
         openModal(document.getElementById("deleteConfirmationModal"));
     });
 });
@@ -248,6 +252,7 @@ if (confirmDeleteBtn) {
         form.submit();
     });
 }
+
 
 // ===============================
 // Modal de Eliminar

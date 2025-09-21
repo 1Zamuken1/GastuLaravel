@@ -17,8 +17,9 @@ return new class extends Migration
             $table->string('descripcion', 100);
             $table->date('fecha_fin')->nullable();
             $table->boolean('activo')->nullable()->default(true);
-            $table->date('fecha_creacion')->nullable();
+            $table->timestamp('fecha_creacion')->useCurrent();
             $table->unsignedBigInteger('concepto_egreso_id')->index('concepto_egreso_id');
+            $table->unsignedBigInteger('usuario_id')->index('usuario_id');
         });
     }
 

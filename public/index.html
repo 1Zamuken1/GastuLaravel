@@ -1,0 +1,46 @@
+<!-- Botón flotante para abrir el chatbot -->
+<button class="chatbot-float-button" id="chatbotFloatBtn" title="Abrir Chat">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-chat-dots-fill" viewBox="0 0 16 16">
+    <path d="M16 8c0 3.866-3.582 7-8 7a9 9 0 0 1-2.347-.306c-.584.296-1.925.864-4.181 1.234-.2.032-.352-.176-.273-.362.354-.836.674-1.95.77-2.966C.744 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7M5 8a1 1 0 1 0-2 0 1 1 0 0 0 2 0m4 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0m3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+    </svg>
+</button>
+
+<!-- Modal del chatbot -->
+<div id="chatbotModal" class="chatbot-modal">
+    <div class="chatbot-container">
+        <!-- Header -->
+        <div class="chatbot-header">
+            <div class="chatbot-title">
+                Asistente financiero
+            </div>
+            <button class="chatbot-close" id="chatbotCloseBtn" title="Cerrar">
+                ×
+            </button>
+        </div>
+
+        <!-- Área de mensajes -->
+        <div id="chatbotMessages" class="chatbot-messages">
+            <div class="chatbot-message bot">
+                <div class="chatbot-message-sender">A.F</div>
+                <div class="chatbot-message-content">
+                    ¡Hola! Soy tu asistente Financiero. ¿En qué puedo ayudarte hoy?
+                </div>
+            </div>
+        </div>
+
+        <!-- Área de input -->
+        <div class="chatbot-input-area">
+            <input 
+                type="text" 
+                id="chatbotInput" 
+                class="chatbot-input" 
+                placeholder="Escribe tu mensaje aquí..."
+            >
+            <button id="chatbotSend" class="chatbot-send" title="Enviar">
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+                <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>

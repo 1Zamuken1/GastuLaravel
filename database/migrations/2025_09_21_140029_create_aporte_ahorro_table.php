@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('aporte_ahorro', function (Blueprint $table) {
             $table->bigIncrements('aporte_ahorro_id');
             $table->unsignedBigInteger('ahorro_meta_id')->index('ahorro_meta_id');
-            $table->decimal('monto', 12);
+            $table->decimal('aporte_asignado', 12)->nullable()->default(0);
+            $table->decimal('aporte', 12)->nullable()->default(0);
+            $table->date('fecha_limite')->nullable();
+            $table->string('estado', 30)->nullable();
             $table->timestamp('fecha_registro')->useCurrent();
         });
     }
