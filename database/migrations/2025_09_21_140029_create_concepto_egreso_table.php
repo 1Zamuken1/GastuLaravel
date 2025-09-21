@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cache', function (Blueprint $table) {
-            $table->string('key')->primary();
-            $table->mediumText('value');
-            $table->integer('expiration');
+        Schema::create('concepto_egreso', function (Blueprint $table) {
+            $table->bigIncrements('concepto_egreso_id');
+            $table->string('nombre', 30);
+            $table->string('descripcion', 100);
         });
     }
 
@@ -23,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cache');
+        Schema::dropIfExists('concepto_egreso');
     }
 };

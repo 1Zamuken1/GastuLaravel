@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('proyeccion_ingreso', function (Blueprint $table) {
-            $table->foreign(['concepto_ingreso_id'], 'proyeccion_ingreso_ibfk_1')->references(['concepto_ingreso_id'])->on('concepto_ingreso')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign(['usuario_id'], 'proyeccion_ingreso_ibfk_1')->references(['usuario_id'])->on('usuario')->onUpdate('cascade')->onDelete('restrict');
+            $table->foreign(['concepto_ingreso_id'], 'proyeccion_ingreso_ibfk_2')->references(['concepto_ingreso_id'])->on('concepto_ingreso')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
@@ -23,6 +24,7 @@ return new class extends Migration
     {
         Schema::table('proyeccion_ingreso', function (Blueprint $table) {
             $table->dropForeign('proyeccion_ingreso_ibfk_1');
+            $table->dropForeign('proyeccion_ingreso_ibfk_2');
         });
     }
 };

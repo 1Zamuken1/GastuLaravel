@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Usuario;
 
 class UsuariosController extends Controller
 {
@@ -21,7 +22,7 @@ class UsuariosController extends Controller
      */
     public function create()
     {
-        $usuarios = Usuarios::all();
+        $usuarios = Usuario::all();
         return view('usuarios.create', compact('usuarios'));
     }
 

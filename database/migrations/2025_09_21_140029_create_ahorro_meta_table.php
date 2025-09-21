@@ -16,11 +16,13 @@ return new class extends Migration
             $table->unsignedBigInteger('usuario_id')->index('usuario_id');
             $table->string('concepto', 60);
             $table->string('descripcion', 100)->nullable();
-            $table->decimal('monto_meta', 12)->nullable();
+            $table->decimal('monto_meta', 12);
             $table->decimal('total_acumulado', 12)->nullable()->default(0);
+            $table->string('frecuencia', 30);
             $table->timestamp('fecha_creacion')->useCurrent();
-            $table->date('fecha_meta')->nullable();
-            $table->boolean('activa')->nullable()->default(true);
+            $table->date('fecha_meta');
+            $table->string('estado', 30)->nullable();
+            $table->integer('cantidad_cuotas')->nullable();
         });
     }
 

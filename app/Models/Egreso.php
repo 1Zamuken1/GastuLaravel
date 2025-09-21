@@ -18,7 +18,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $descripcion
  * @property Carbon $fecha_registro
  * @property int|null $concepto_egreso_id
+ * @property int $usuario_id
  * 
+ * @property Usuario $usuario
  * @property ConceptoEgreso|null $concepto_egreso
  *
  * @package App\Models
@@ -32,7 +34,8 @@ class Egreso extends Model
 	protected $casts = [
 		'monto' => 'float',
 		'fecha_registro' => 'datetime',
-		'concepto_egreso_id' => 'int'
+		'concepto_egreso_id' => 'int',
+		'usuario_id' => 'int'
 	];
 
 	protected $fillable = [
@@ -40,11 +43,17 @@ class Egreso extends Model
 		'monto',
 		'descripcion',
 		'fecha_registro',
-		'concepto_egreso_id'
+		'concepto_egreso_id',
+		'usuario_id'
 	];
 
-	public function ConceptoEgreso()
+	public function usuario()
 	{
-		return $this->belongsTo(ConceptoEgreso::class, 'concepto_egreso_id', 'concepto_egreso_id');
+		return $this->belongsTo(Usuario::class);
+	}
+
+	public function concepto_egreso()
+	{
+		return $this->belongsTo(ConceptoEgreso::class);
 	}
 }

@@ -10,7 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class proyeccionEgreso
+ * Class ProyeccionEgreso
  * 
  * @property int $proyeccion_egreso_id
  * @property float $monto_programado
@@ -19,7 +19,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property bool|null $activo
  * @property Carbon $fecha_creacion
  * @property int $concepto_egreso_id
+ * @property int $usuario_id
  * 
+ * @property Usuario $usuario
  * @property ConceptoEgreso $concepto_egreso
  *
  * @package App\Models
@@ -35,7 +37,8 @@ class ProyeccionEgreso extends Model
 		'fecha_fin' => 'datetime',
 		'activo' => 'bool',
 		'fecha_creacion' => 'datetime',
-		'concepto_egreso_id' => 'int'
+		'concepto_egreso_id' => 'int',
+		'usuario_id' => 'int'
 	];
 
 	protected $fillable = [
@@ -44,11 +47,17 @@ class ProyeccionEgreso extends Model
 		'fecha_fin',
 		'activo',
 		'fecha_creacion',
-		'concepto_egreso_id'
+		'concepto_egreso_id',
+		'usuario_id'
 	];
 
-	public function ConceptoEgreso()
+	public function usuario()
 	{
-		return $this->belongsTo(ConceptoEgreso::class, 'concepto_egreso_id', 'concepto_egreso_id');
+		return $this->belongsTo(Usuario::class);
+	}
+
+	public function concepto_egreso()
+	{
+		return $this->belongsTo(ConceptoEgreso::class);
 	}
 }

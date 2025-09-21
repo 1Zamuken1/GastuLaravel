@@ -24,7 +24,7 @@ use Illuminate\Notifications\Notifiable;
  * @property int $rol_id
  * 
  * @property Rol $rol
- * @property Collection|AhorroMeta[] $ahorro_meta
+ * @property Collection|AhorroMetum[] $ahorro_meta
  * @property Collection|ConceptoEgreso[] $concepto_egresos
  * @property Collection|ConceptoIngreso[] $concepto_ingresos
  *

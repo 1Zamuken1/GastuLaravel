@@ -54,14 +54,14 @@ Route::get('/', function () {
     Route::get('/proyecciones/para-confirmar', [ProyeccionEgresoController::class, 'proyeccionesParaConfirmar']);
     Route::post('/proyecciones/confirmar', [ProyeccionEgresoController::class, 'confirmarRecurrencias']);
 
-    // AhorroMeta
-    Route::get('/ahorros', [AhorroMetaController::class, 'index'])->name('ahorros.index');
-    Route::get('/ahorros/create', [AhorroMetaController::class, 'create'])->name('ahorros.create');
-    Route::post('/ahorros/store', [AhorroMetaController::class, 'store'])->name('ahorros.store');
-    Route::get('/ahorros/{id}', [AhorroMetaController::class, 'show'])->name('ahorros.show');
-    Route::get('/ahorros/{id}/edit', [AhorroMetaController::class, 'edit'])->name('ahorros.edit');
-    Route::put('/ahorros/update/{id}', [AhorroMetaController::class, 'update'])->name('ahorros.update');
-    Route::delete('/ahorros/destroy/{id}', [AhorroMetaController::class, 'destroy'])->name('ahorros.destroy');
+    // // AhorroMeta
+    // Route::get('/ahorros', [AhorroMetaController::class, 'index'])->name('ahorros.index');
+    // Route::get('/ahorros/create', [AhorroMetaController::class, 'create'])->name('ahorros.create');
+    // Route::post('/ahorros/store', [AhorroMetaController::class, 'store'])->name('ahorros.store');
+    // Route::get('/ahorros/{id}', [AhorroMetaController::class, 'show'])->name('ahorros.show');
+    // Route::get('/ahorros/{id}/edit', [AhorroMetaController::class, 'edit'])->name('ahorros.edit');
+    // Route::put('/ahorros/update/{id}', [AhorroMetaController::class, 'update'])->name('ahorros.update');
+    // Route::delete('/ahorros/destroy/{id}', [AhorroMetaController::class, 'destroy'])->name('ahorros.destroy');
 
     //AhorroProgramado
     Route::get('/ahorros/{ahorroMetaId}/programados', [AhorroProgramadoController::class, 'index'])->name('programados.index');
@@ -97,36 +97,6 @@ Route::post('/login',[AutenticacionController::class, 'login'])->name('login');
 // Logout de usuario
 Route::post('/logout', [AutenticacionController::class, 'logout'])->name('logout')->middleware('auth');
 
-
-// // Ruta para el chatbot
-// // Ruta para mostrar la vista del chatbot
-// Route::get('/asistente-financiero', function () {
-//     return view('chatbot-financiero');
-// })->middleware('auth')->name('chatbot.index');
-
-// // Ruta para el chat (POST)
-// Route::post('/chatbot/chat', [ChatbotController::class, 'chat'])
-//     ->middleware('auth')
-//     ->name('chatbot.chat');
-
-// // Ruta para estadísticas rápidas (GET)
-// Route::get('/chatbot/estadisticas', [ChatbotController::class, 'getEstadisticasRapidas'])
-//     ->middleware('auth')
-//     ->name('chatbot.estadisticas');
-// Mostrar vista del chatbot
-Route::get('/asistente-financiero', function () {
-    return view('chatbot-financiero');
-})->name('chatbot.index');
-
-// Procesar mensajes
-Route::post('/chatbot/chat', [ChatbotController::class, 'chat'])
-    ->name('chatbot.chat');
-
-// Obtener estadísticas rápidas
-
-// routes/web.php
-Route::get('/chatbot/estadisticas', [ChatbotController::class, 'getEstadisticasRapidas'])
-    ->name('chatbot.estadisticas');
 
 
 

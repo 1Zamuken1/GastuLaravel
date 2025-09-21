@@ -31,10 +31,7 @@ class AutenticacionController extends Controller
 
         Auth::login($usuario);
 
-        return response()->json([
-            'mensaje' => 'usuario registrado y autentucado con éxito',
-            'usuario' => $usuario
-        ]);
+        return redirect()->route('ingresos.index');
     }
 
     // login de usuario

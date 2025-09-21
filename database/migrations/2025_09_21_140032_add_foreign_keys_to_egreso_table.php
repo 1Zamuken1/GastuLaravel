@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('egreso', function (Blueprint $table) {
-            $table->foreign(['concepto_egreso_id'], 'egreso_ibfk_1')->references(['concepto_egreso_id'])->on('concepto_egreso')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign(['usuario_id'], 'egreso_ibfk_1')->references(['usuario_id'])->on('usuario')->onUpdate('cascade')->onDelete('restrict');
+            $table->foreign(['concepto_egreso_id'], 'egreso_ibfk_2')->references(['concepto_egreso_id'])->on('concepto_egreso')->onUpdate('cascade')->onDelete('set null');
         });
     }
 
@@ -23,6 +24,7 @@ return new class extends Migration
     {
         Schema::table('egreso', function (Blueprint $table) {
             $table->dropForeign('egreso_ibfk_1');
+            $table->dropForeign('egreso_ibfk_2');
         });
     }
 };

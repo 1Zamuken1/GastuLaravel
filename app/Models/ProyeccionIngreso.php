@@ -19,7 +19,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property bool|null $activo
  * @property Carbon $fecha_creacion
  * @property int $concepto_ingreso_id
+ * @property int $usuario_id
  * 
+ * @property Usuario $usuario
  * @property ConceptoIngreso $concepto_ingreso
  *
  * @package App\Models
@@ -35,7 +37,8 @@ class ProyeccionIngreso extends Model
 		'fecha_fin' => 'datetime',
 		'activo' => 'bool',
 		'fecha_creacion' => 'datetime',
-		'concepto_ingreso_id' => 'int'
+		'concepto_ingreso_id' => 'int',
+		'usuario_id' => 'int'
 	];
 
 	protected $fillable = [
@@ -44,11 +47,17 @@ class ProyeccionIngreso extends Model
 		'fecha_fin',
 		'activo',
 		'fecha_creacion',
-		'concepto_ingreso_id'
+		'concepto_ingreso_id',
+		'usuario_id'
 	];
 
-	public function ConceptoIngreso()
+	public function usuario()
 	{
-		return $this->belongsTo(ConceptoIngreso::class, 'concepto_ingreso_id', 'concepto_ingreso_id');
+		return $this->belongsTo(Usuario::class);
+	}
+
+	public function concepto_ingreso()
+	{
+		return $this->belongsTo(ConceptoIngreso::class);
 	}
 }

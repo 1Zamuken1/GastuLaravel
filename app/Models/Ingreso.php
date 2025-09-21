@@ -18,7 +18,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $descripcion
  * @property Carbon $fecha_registro
  * @property int|null $concepto_ingreso_id
+ * @property int $usuario_id
  * 
+ * @property Usuario $usuario
  * @property ConceptoIngreso|null $concepto_ingreso
  *
  * @package App\Models
@@ -32,7 +34,8 @@ class Ingreso extends Model
 	protected $casts = [
 		'monto' => 'float',
 		'fecha_registro' => 'datetime',
-		'concepto_ingreso_id' => 'int'
+		'concepto_ingreso_id' => 'int',
+		'usuario_id' => 'int'
 	];
 
 	protected $fillable = [
@@ -40,11 +43,17 @@ class Ingreso extends Model
 		'monto',
 		'descripcion',
 		'fecha_registro',
-		'concepto_ingreso_id'
+		'concepto_ingreso_id',
+		'usuario_id'
 	];
 
-	public function ConceptoIngreso()
+	public function usuario()
 	{
-		return $this->belongsTo(ConceptoIngreso::class, 'concepto_ingreso_id', 'concepto_ingreso_id');
+		return $this->belongsTo(Usuario::class);
+	}
+
+	public function concepto_ingreso()
+	{
+		return $this->belongsTo(ConceptoIngreso::class);
 	}
 }

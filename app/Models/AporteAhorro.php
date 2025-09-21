@@ -14,10 +14,13 @@ use Illuminate\Database\Eloquent\Model;
  * 
  * @property int $aporte_ahorro_id
  * @property int $ahorro_meta_id
- * @property float $monto
+ * @property float|null $aporte_asignado
+ * @property float|null $aporte
+ * @property Carbon|null $fecha_limite
+ * @property string|null $estado
  * @property Carbon $fecha_registro
  * 
- * @property AhorroMeta $ahorro_meta
+ * @property AhorroMetum $ahorro_metum
  *
  * @package App\Models
  */
@@ -29,18 +32,23 @@ class AporteAhorro extends Model
 
 	protected $casts = [
 		'ahorro_meta_id' => 'int',
-		'monto' => 'float',
+		'aporte_asignado' => 'float',
+		'aporte' => 'float',
+		'fecha_limite' => 'datetime',
 		'fecha_registro' => 'datetime'
 	];
 
 	protected $fillable = [
 		'ahorro_meta_id',
-		'monto',
+		'aporte_asignado',
+		'aporte',
+		'fecha_limite',
+		'estado',
 		'fecha_registro'
 	];
 
-	public function ahorro_meta()
+	public function ahorro_metum()
 	{
-		return $this->belongsTo(AhorroMeta::class, 'ahorro_meta_id');
+		return $this->belongsTo(AhorroMetum::class, 'ahorro_meta_id');
 	}
 }

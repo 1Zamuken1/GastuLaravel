@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ingreso', function (Blueprint $table) {
-            $table->bigIncrements('ingreso_id');
+        Schema::create('egreso', function (Blueprint $table) {
+            $table->bigIncrements('egreso_id');
             $table->string('tipo', 20)->nullable();
             $table->decimal('monto', 12);
             $table->string('descripcion', 100)->nullable();
             $table->timestamp('fecha_registro')->useCurrent();
-            $table->unsignedBigInteger('concepto_ingreso_id')->nullable()->index('concepto_ingreso_id');
+            $table->unsignedBigInteger('concepto_egreso_id')->nullable()->index('concepto_egreso_id');
+            $table->unsignedBigInteger('usuario_id')->index('usuario_id');
         });
     }
 
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ingreso');
+        Schema::dropIfExists('egreso');
     }
 };

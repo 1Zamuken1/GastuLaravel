@@ -76,14 +76,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function cargarEstadisticasRapidas() {
         const container = document.getElementById('estadisticasRapidas');
 
-        fetch('/chatbot/estadisticas', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json'
-            }
-        })
+       fetch('/chatbot/estadisticas', {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken,
+        'Accept': 'application/json'
+    },
+    credentials: 'same-origin' // 👈 para que Laravel sepa quién eres
+})
+    
         .then(response => {
             if (!response.ok) throw new Error('Error en la respuesta del servidor');
             return response.json();
