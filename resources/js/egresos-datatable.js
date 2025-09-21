@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
         dom: "tip",
         autoWidth: false, // <-- Añade esto
     responsive: true,
+ 
     });
 
     // =========================

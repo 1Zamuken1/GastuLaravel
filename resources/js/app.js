@@ -1,4 +1,9 @@
 import './bootstrap';
-import '../css/ingresos.css';
+import './chatbot.js';
 
 
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    }
+});

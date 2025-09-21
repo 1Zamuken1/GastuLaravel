@@ -1,0 +1,23 @@
+Guía completa para inicializar el chatbot
+1. Descargar Node.js
+
+Ir a https://nodejs.org/
+Descargar la versión LTS
+Instalar siguiendo el asistente
+4. Instalar dependencias
+npm install express node-fetch dotenv
+npm install node-fetch
+npm install
+8. Obtener API Key
+Ir a https://openrouter.ai/
+Crear cuenta
+Ir a Keys
+Generar nueva API key
+Copiar al archivo .env
+5. Crear archivo .env
+OPENAI_API_KEY=tu_clave_de_openrouter_aqui
+9. Ejecutar
+npm start
+10. Acceder
+
+Abrir navegador en http://localhost:5500

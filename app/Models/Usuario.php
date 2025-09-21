@@ -24,7 +24,7 @@ use Illuminate\Notifications\Notifiable;
  * @property int $rol_id
  * 
  * @property Rol $rol
- * @property Collection|AhorroMetum[] $ahorro_meta
+ * @property Collection|AhorroMeta[] $ahorro_meta
  * @property Collection|ConceptoEgreso[] $concepto_egresos
  * @property Collection|ConceptoIngreso[] $concepto_ingresos
  *
@@ -75,7 +75,7 @@ class Usuario extends Authenticatable
 
 	public function ahorro_meta()
 	{
-		return $this->hasMany(AhorroMetum::class);
+		return $this->hasMany(AhorroMeta::class);
 	}
 
 	public function concepto_egresos()

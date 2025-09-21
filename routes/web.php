@@ -10,6 +10,7 @@ use App\Http\Controllers\AhorroProgramadoController;
 use App\Http\Controllers\AporteAhorroController;
 
 use App\Http\Controllers\AutenticacionController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\Admin\UsuarioController;
 
 Route::get('/', function () {
@@ -95,6 +96,37 @@ Route::post('/login',[AutenticacionController::class, 'login'])->name('login');
 
 // Logout de usuario
 Route::post('/logout', [AutenticacionController::class, 'logout'])->name('logout')->middleware('auth');
+
+
+// // Ruta para el chatbot
+// // Ruta para mostrar la vista del chatbot
+// Route::get('/asistente-financiero', function () {
+//     return view('chatbot-financiero');
+// })->middleware('auth')->name('chatbot.index');
+
+// // Ruta para el chat (POST)
+// Route::post('/chatbot/chat', [ChatbotController::class, 'chat'])
+//     ->middleware('auth')
+//     ->name('chatbot.chat');
+
+// // Ruta para estadísticas rápidas (GET)
+// Route::get('/chatbot/estadisticas', [ChatbotController::class, 'getEstadisticasRapidas'])
+//     ->middleware('auth')
+//     ->name('chatbot.estadisticas');
+// Mostrar vista del chatbot
+Route::get('/asistente-financiero', function () {
+    return view('chatbot-financiero');
+})->name('chatbot.index');
+
+// Procesar mensajes
+Route::post('/chatbot/chat', [ChatbotController::class, 'chat'])
+    ->name('chatbot.chat');
+
+// Obtener estadísticas rápidas
+
+// routes/web.php
+Route::get('/chatbot/estadisticas', [ChatbotController::class, 'getEstadisticasRapidas'])
+    ->name('chatbot.estadisticas');
 
 
 
