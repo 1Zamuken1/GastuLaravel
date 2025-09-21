@@ -12,10 +12,14 @@ class IngresoController extends Controller
 {
     public function index()
     {
+        $userId = 3;
+        //$userId = auth()->id();
+
         // ========================
         // Traer ingresos reales
         // ========================
         $ingresos = Ingreso::with('conceptoIngreso')
+            ->where('usuario_id', $userId)
             ->get()
             ->map(function ($ingreso) {
                 return [
@@ -34,6 +38,7 @@ class IngresoController extends Controller
         // Traer proyecciones
         // ========================
         $proyecciones = ProyeccionIngreso::with('conceptoIngreso')
+            ->where('usuario_id', $userId)
             ->get()
             ->map(function ($proyeccion) {
                 return [
@@ -52,7 +57,7 @@ class IngresoController extends Controller
         // ========================
         // Fusionar ingresos y proyecciones
         // ========================
-        $registros = $ingresos->merge($proyecciones);
+        $registros = $ingresos->concat($proyecciones)->values();
 
         // ========================
         // Calcular totales
@@ -86,6 +91,7 @@ class IngresoController extends Controller
 
     public function store(Request $request, $id = null)
     {
+        $userId = 3;
         //dd($request->all());
         if ($request->isMethod('get')) {
             // Mostrar formulario con el concepto precargado si hay id
@@ -112,6 +118,7 @@ class IngresoController extends Controller
                 'monto'               => $validated['monto'],
                 'fecha_registro'      => $validated['fecha'],
                 'descripcion'         => $validated['descripcion'] ?? '',
+                'usuario_id'          => $userId,//auth()->id(), // <-- Aquí
             ]);
 
             return redirect()->route('ingresos.index')->with('success', 'Ingreso creado correctamente.');
@@ -134,6 +141,7 @@ class IngresoController extends Controller
                 'fecha_fin'           => $validated['fecha_fin'],
                 'activo'              => $validated['activo'],
                 'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
+                'usuario_id'          => $userId,//auth()->id(), // <-- Aquí
             ]);
 
             return redirect()->route('ingresos.index')->with('success', 'Proyección creada correctamente.');
@@ -168,6 +176,10 @@ class IngresoController extends Controller
 
     public function update(Request $request, $id)
     {
+        $userId = 3;
+        //$userId = auth()->id();
+        $ingreso = Ingreso::where('usuario_id', $userId)->findOrFail($id);
+
         $tipo = $request->input('tipo');
 
         if ($tipo === 'Ingreso') {
@@ -178,7 +190,6 @@ class IngresoController extends Controller
                 'descripcion'         => 'nullable|string|max:200',
             ]);
 
-            $ingreso = Ingreso::findOrFail($id);
             $ingreso->update([
                 'tipo'                => $tipo,
                 'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
@@ -200,7 +211,7 @@ class IngresoController extends Controller
                 'descripcion'         => 'required|string|max:200',
             ]);
 
-            $proyeccion = ProyeccionIngreso::findOrFail($id);
+            $proyeccion = ProyeccionIngreso::where('usuario_id', $userId)->findOrFail($id);
             $proyeccion->update([
                 'monto_programado'    => $validated['monto'],
                 'descripcion'         => $validated['descripcion'],
@@ -218,7 +229,9 @@ class IngresoController extends Controller
 
     public function destroy($id)
     {
-        $ingreso = Ingreso::findOrFail($id);
+        $userId = 3;
+        //$userId = auth()->id();
+        $ingreso = Ingreso::where('usuario_id', $userId)->findOrFail($id);
         $ingreso->delete();
 
         return redirect()->route('ingresos.index')->with('success', 'Ingreso eliminado correctamente.');

@@ -49,11 +49,11 @@ class Ingreso extends Model
 
 	public function usuario()
 	{
-		return $this->belongsTo(Usuario::class);
+		return $this->belongsTo(Usuario::class, 'usuario_id');
 	}
 
-	public function concepto_ingreso()
+	public function conceptoIngreso()
 	{
-		return $this->belongsTo(ConceptoIngreso::class);
+		return $this->belongsTo(ConceptoIngreso::class, 'concepto_ingreso_id');
 	}
 }

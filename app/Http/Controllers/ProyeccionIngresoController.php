@@ -10,14 +10,15 @@ class ProyeccionIngresoController extends Controller
 {
     public function index()
     {
-        $proyecciones = ProyeccionIngreso::all();
+        $userId = 3;
+        //$userId = auth()->id();
+        $proyecciones = ProyeccionIngreso::where('usuario_id', $userId)->get();
 
         if ($proyecciones->isEmpty()) {
             $data = [
                 'message' => 'No hay proyecciones de ingresos registradas',
                 'status' => 200,
             ];
-
             return response()->json($data, 404);
         }
 
@@ -34,7 +35,7 @@ class ProyeccionIngresoController extends Controller
     $validator = Validator::make($request->all(), [
         'monto_programado' => 'required|numeric',
         'descripcion' => 'required|string|max:200',
-        'fecha' => 'required|date', // <-- Cambia a 'fecha'
+        'fecha' => 'required|date',
         'fecha_fin' => 'required|date|after_or_equal:fecha',
         'activo' => 'required|boolean',
         'concepto_ingreso_id' => 'required|integer',
@@ -47,10 +48,11 @@ class ProyeccionIngresoController extends Controller
     $proyeccion = ProyeccionIngreso::create([
         'monto_programado' => $request->monto_programado,
         'descripcion' => $request->descripcion,
-        'fecha_creacion' => $request->input('fecha'), // <-- Aquí
+        'fecha_creacion' => $request->input('fecha'),
         'fecha_fin' => $request->fecha_fin,
         'activo' => $request->activo,
         'concepto_ingreso_id' => $request->concepto_ingreso_id,
+        'usuario_id' => $userId, //auth()->id(), // <-- Aquí
     ]);
 
         if (! $proyeccion) {
@@ -83,14 +85,14 @@ class ProyeccionIngresoController extends Controller
 
     public function show($id)
     {
-        $proyeccion = ProyeccionIngreso::find($id);
+        $userId = 3;
+        $proyeccion = ProyeccionIngreso::where('usuario_id', $userId); //auth()->id())->find($id);
 
         if (! $proyeccion) {
             $data = [
                 'message' => 'Proyección de ingreso no encontrada',
                 'status' => 404,
             ];
-
             return response()->json($data, 404);
         }
 
@@ -104,7 +106,8 @@ class ProyeccionIngresoController extends Controller
 
     public function destroy($id)
     {
-        $proyeccion = ProyeccionIngreso::find($id);
+        $userId = 3;
+        $proyeccion = ProyeccionIngreso::where('usuario_id', $userId); //auth()->id())->find($id);
 
         if (! $proyeccion) {
             return redirect()->route('ingresos.index')->with('error', 'Proyección no encontrada.');
@@ -117,6 +120,7 @@ class ProyeccionIngresoController extends Controller
 
     public function update(Request $request, $id)
 {
+    $userId = 3;
     $validated = $request->validate([
         'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
         'monto' => 'required|numeric',
@@ -126,7 +130,7 @@ class ProyeccionIngresoController extends Controller
         'descripcion' => 'required|string|max:200',
     ]);
 
-    $proyeccion = ProyeccionIngreso::findOrFail($id);
+    $proyeccion = ProyeccionIngreso::where('usuario_id', $userId); //auth()->id())->findOrFail($id);
 
     $proyeccion->update([
         'monto_programado' => $validated['monto'],
@@ -143,6 +147,7 @@ class ProyeccionIngresoController extends Controller
 
     public function updatePartial(Request $request, $id)
     {
+        $userId = 3;
         $proyeccion = ProyeccionIngreso::find($id);
 
         if (! $proyeccion) {
@@ -205,6 +210,7 @@ class ProyeccionIngresoController extends Controller
 
     public function proyeccionesParaConfirmar()
     {
+        $userId = 3;
         $hoy = now()->toDateString();
 
         $proyecciones = ProyeccionIngreso::where('activo', 1)
@@ -220,6 +226,7 @@ class ProyeccionIngresoController extends Controller
 
     public function confirmarRecurrencias(Request $request)
     {
+        $userId = 3;
         $ids = $request->input('ids', []);
         $hoy = now()->toDateString();
 
@@ -247,9 +254,11 @@ class ProyeccionIngresoController extends Controller
 public function proyeccionesRecordatorioHoy()
 {
     $hoy = now()->toDateString();
-    \Log::info('Fecha del sistema para recordatorio:', ['hoy' => $hoy]);
+    $userId = 3;
+    //$userId = auth()->id();
 
     $proyecciones = ProyeccionIngreso::with('conceptoIngreso')
+        ->where('usuario_id', $userId)
         ->whereDate('fecha_fin', $hoy)
         ->where('activo', 1)
         ->get();

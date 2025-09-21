@@ -21,6 +21,7 @@ Route::get('/dashboard', function () {
     return view('Dashboard.dashboard');
 })->name('dashboard');
 
+//Route::middleware(['auth'])->group(function () { 
     //Ingresos
     Route::get('/ingresos', [IngresoController::class, 'index'])->name('ingresos.index');
     //Route::post('/ingresos', [IngresoController::class, 'store'])->name('ingresos.store');
@@ -41,15 +42,6 @@ Route::get('/dashboard', function () {
     Route::get('/proyecciones_ingresos/para-confirmar', [ProyeccionIngresoController::class, 'proyeccionesParaConfirmar']);
     Route::post('/proyecciones_ingresos/confirmar', [ProyeccionIngresoController::class, 'confirmarRecurrencias']);
 
-   //Egresos
-    Route::get('/egresos', [EgresoController::class, 'index'])->name('egresos.index');
-    //Route::post('/ingresos', [IngresoController::class, 'store'])->name('ingresos.store');
-    Route::get('/egresos/create/{id?}', [EgresoController::class, 'create'])->name('egresos.create');
-
-    Route::post('/egresos/store', [EgresoController::class, 'store'])->name('egresos.store');
-    Route::post('/egresos/update/{id}', [EgresoController::class, 'update'])->name('egresos.update');
-    Route::delete('/egresos/destroy/{id}', [EgresoController::class, 'destroy'])->name('egresos.destroy');
-
     //Proyecciones de Ingresos
     Route::post('/proyecciones', [ProyeccionEgresoController::class, 'store'])->name('proyecciones.store');
     Route::put('/proyecciones/{id}', [ProyeccionEgresoController::class, 'update'])->name('proyecciones.update');
@@ -57,6 +49,15 @@ Route::get('/dashboard', function () {
     Route::get('/proyecciones/{id}', [ProyeccionEgresoController::class, 'show'])->name('proyecciones.show');
     Route::get('/proyecciones/para-confirmar', [ProyeccionEgresoController::class, 'proyeccionesParaConfirmar']);
     Route::post('/proyecciones/confirmar', [ProyeccionEgresoController::class, 'confirmarRecurrencias']);
+//});
+    
+   //Egresos
+    Route::get('/egresos', [EgresoController::class, 'index'])->name('egresos.index');
+    Route::get('/egresos/create/{id?}', [EgresoController::class, 'create'])->name('egresos.create');
+
+    Route::post('/egresos/store', [EgresoController::class, 'store'])->name('egresos.store');
+    Route::post('/egresos/update/{id}', [EgresoController::class, 'update'])->name('egresos.update');
+    Route::delete('/egresos/destroy/{id}', [EgresoController::class, 'destroy'])->name('egresos.destroy');
 
     // // AhorroMeta
     // Route::get('/ahorros', [AhorroMetaController::class, 'index'])->name('ahorros.index');
