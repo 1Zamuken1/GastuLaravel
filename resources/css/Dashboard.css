@@ -1,4 +1,3 @@
-
 * {
     margin: 0;
     padding: 0;
@@ -7,9 +6,10 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%) !important;
+    background: linear-gradient(135deg, #fef7f7 0%, #fde8e8 100%) !important;
     color: #333;
     min-height: 100vh;
+    /* Elimina display: flex; */
 }
 
 /* HEADER */
@@ -54,8 +54,22 @@ body {
 
 /* MAIN CONTENT */
 .main-content {
-    padding: 30px;
-    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%) !important;
+    padding: 0 !important;
+    background: none !important;
+}
+
+/* Centrado y ancho máximo para el dashboard */
+.Principal {
+    max-width: 1700px;
+    margin: 40px auto 30px auto;
+    padding: 30px 24px 40px 24px;
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    min-height: calc(100vh - 80px); /* Ajusta para cubrir toda la pantalla menos los márgenes */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
 }
 
 /* STATS CARDS */
@@ -266,5 +280,12 @@ body {
 
     .main-content {
         padding: 15px;
+    }
+
+    .Principal {
+        padding: 12px 4px 20px 4px;
+        width: 100%;
+        max-width: 100%;
+        border-radius: 0;
     }
 }

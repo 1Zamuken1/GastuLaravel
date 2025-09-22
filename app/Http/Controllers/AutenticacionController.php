@@ -32,7 +32,7 @@ class AutenticacionController extends Controller
 
         Auth::login($usuario);
 
-        return redirect()->route('ingresos.index');
+        return redirect()->route('dashboard');
     }
 
     /**
@@ -56,7 +56,7 @@ class AutenticacionController extends Controller
             return redirect()->route('usuarios.index');
         }
 
-        return redirect()->route('ingresos.index');
+        return redirect()->route('dashboard');
     }
 
     return back()->withErrors([

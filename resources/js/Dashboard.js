@@ -1,155 +1,44 @@
 window.addEventListener("DOMContentLoaded", () => {
-    console.log("DOM completamente cargado");
+    let chartBalance;
 
-    // Variables globales para los gráficos
-    let chartAhorros, chartBalance, chartTreemap;
+    // Obtén los datos reales desde el blade
+    const ingresosMes = window.dashboardData?.ingresosMes || [];
+    const egresosMes = window.dashboardData?.egresosMes || [];
+    const totalIngresos = window.dashboardData?.totalIngresos || 0;
+    const totalEgresos = window.dashboardData?.totalEgresos || 0;
+    const saldoNeto = window.dashboardData?.saldoNeto || 0;
+    const totalAhorros = window.dashboardData?.totalAhorros || 0;
 
-    // Datos base para generar variaciones realistas
-    const ahorrosBase = [
-        { categoria: "Fondo de emergencia", base: 80000, min: 75000, max: 120000 },
-        { categoria: "Viaje", base: 70000, min: 60000, max: 90000 },
-        { categoria: "Educación", base: 60000, min: 50000, max: 80000 },
-        { categoria: "Salud", base: 50000, min: 40000, max: 70000 },
-        { categoria: "Tecnología", base: 40000, min: 30000, max: 60000 },
-    ];
-
-    const gastosBase = [
-        { categoria: "Transporte", base: 120000, min: 80000, max: 180000 },
-        { categoria: "Comida", base: 95000, min: 70000, max: 140000 },
-        { categoria: "Entretenimiento", base: 20000, min: 10000, max: 50000 },
-        { categoria: "Servicios", base: 30000, min: 25000, max: 45000 },
-        { categoria: "Salud", base: 15000, min: 10000, max: 30000 },
-    ];
-
-    const balanceBase = {
-        ingresos: [100000, 120000, 90000, 110000, 130000, 100000],
-        egresos: [40000, 50000, 35000, 45000, 60000, 55000]
-    };
-
-    // Función para generar variación realista
-    function generarVariacion(valor, min, max) {
-        const variacion = (Math.random()+ 0.1) * 0.1; // ±15% de variación
-        const nuevoValor = valor * (1 + variacion);
-        return Math.max(min, Math.min(max, Math.round(nuevoValor / 1000) * 1000));
+    // Actualizar estadísticas principales
+    function actualizarEstadisticas() {
+        document.getElementById("ingresos-stat").textContent = `$${Number(
+            totalIngresos
+        ).toLocaleString()}`;
+        document.getElementById("egresos-stat").textContent = `$${Number(
+            totalEgresos
+        ).toLocaleString()}`;
+        document.getElementById("saldo-stat").textContent = `$${Number(
+            saldoNeto
+        ).toLocaleString()}`;
+        document.getElementById("ahorros-stat").textContent = `$${Number(
+            totalAhorros
+        ).toLocaleString()}`;
     }
 
-    // Función para generar datos actualizados de ahorros
-    function generarDatosAhorros() {
-        return ahorrosBase.map(item => ({
-            categoria: item.categoria,
-            monto: generarVariacion(item.base, item.min, item.max)
-        }));
-    }
-
-    // Función para generar datos actualizados de gastos
-    function generarDatosGastos() {
-        return gastosBase.map(item => ({
-            categoria: item.categoria,
-            monto: generarVariacion(item.base, item.min, item.max)
-        }));
-    }
-
-    // Función para generar datos actualizados de balance
-    function generarDatosBalance() {
-        const nuevosIngresos = balanceBase.ingresos.map(valor => 
-            generarVariacion(valor, valor * 0.7, valor * 1.4)
-        );
-        const nuevosEgresos = balanceBase.egresos.map(valor => 
-            generarVariacion(valor, valor * 0.6, valor * 1.8)
-        );
-        
-        return {
-            ingresos: nuevosIngresos,
-            egresos: nuevosEgresos
-        };
-    }
-
-    // Función para actualizar estadísticas principales
-    function actualizarEstadisticas(ahorros, gastos, balance) {
-        const totalAhorros = ahorros.reduce((acc, a) => acc + a.monto, 0);
-        const totalEgresos = gastos.reduce((acc, g) => acc + g.monto, 0);
-        const ingresosActuales = balance.ingresos.reduce((acc, i) => acc + i, 0);
-        const saldoNeto = ingresosActuales - totalEgresos;
-
-        document.getElementById("ingresos-stat").textContent = `$${ingresosActuales.toLocaleString()}`;
-        document.getElementById("egresos-stat").textContent = `$${totalEgresos.toLocaleString()}`;
-        document.getElementById("saldo-stat").textContent = `$${saldoNeto.toLocaleString()}`;
-        document.getElementById("ahorros-stat").textContent = `$${totalAhorros.toLocaleString()}`;
-    }
-
-    // Función para inicializar los gráficos
+    // Inicializar gráfico de balance
     function inicializarGraficos() {
-        const ahorros = generarDatosAhorros();
-        const gastos = generarDatosGastos();
-        const balance = generarDatosBalance();
+        actualizarEstadisticas();
 
-        // Actualizar estadísticas
-        actualizarEstadisticas(ahorros, gastos, balance);
-
-        // Gráfico de Ahorros (Pie Chart)
-        chartAhorros = new ApexCharts(document.querySelector("#chartAhorros"), {
-            series: ahorros.map((a) => a.monto),
-            chart: {
-                width: 380,
-                type: "pie",
-                background: "#FFFFFF",
-                animations: {
-                    enabled: true,
-                    easing: 'easeinout',
-                    speed: 1500,
-                    animateGradually: {
-                        enabled: true,
-                        delay: 150
-                    },
-                    dynamicAnimation: {
-                        enabled: true,
-                        speed: 1000
-                    }
-                }
-            },
-            labels: ahorros.map((a) => a.categoria),
-            colors: ["#4CAF50", "#2196F3", "#FF9800", "#9C27B0", "#45a049"],
-            dataLabels: {
-                enabled: true,
-                style: {
-                    colors: ["#FFFFFF"],
-                    fontSize: "12px",
-                    fontWeight: "bold",
-                },
-                formatter: (val, opts) =>
-                    `$${ahorros[opts.seriesIndex].monto.toLocaleString()}`,
-            },
-            tooltip: {
-                theme: "light",
-                y: { formatter: (val) => `$${val.toLocaleString()}` },
-            },
-            legend: {
-                position: "bottom",
-                labels: {
-                    colors: "#333333",
-                    useSeriesColors: false,
-                },
-            },
-            responsive: [
-                {
-                    breakpoint: 480,
-                    options: {
-                        chart: { width: 250 },
-                        legend: { position: "bottom" },
-                    },
-                },
-            ],
-        });
-        chartAhorros.render();
-
-        // Gráfico de Balance (Line Chart)
         chartBalance = new ApexCharts(document.querySelector("#chartBalance"), {
             series: [
                 {
                     name: "Ingresos",
-                    data: balance.ingresos,
+                    data: ingresosMes,
                 },
-                { name: "Egresos", data: balance.egresos },
+                {
+                    name: "Egresos",
+                    data: egresosMes,
+                },
             ],
             chart: {
                 type: "line",
@@ -158,17 +47,17 @@ window.addEventListener("DOMContentLoaded", () => {
                 toolbar: { theme: "light" },
                 animations: {
                     enabled: true,
-                    easing: 'easeinout',
+                    easing: "easeinout",
                     speed: 1500,
                     animateGradually: {
                         enabled: true,
-                        delay: 150
+                        delay: 150,
                     },
                     dynamicAnimation: {
                         enabled: true,
-                        speed: 1000
-                    }
-                }
+                        speed: 1000,
+                    },
+                },
             },
             colors: ["#4CAF50", "#d72638"],
             stroke: {
@@ -182,7 +71,20 @@ window.addEventListener("DOMContentLoaded", () => {
                 strokeWidth: 2,
             },
             xaxis: {
-                categories: ["Ene", "Feb", "Mar", "Abr", "May", "Jun"],
+                categories: [
+                    "Ene",
+                    "Feb",
+                    "Mar",
+                    "Abr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Ago",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dic",
+                ],
                 labels: {
                     style: {
                         colors: "#333333",
@@ -216,7 +118,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 style: {
                     fontSize: "14px",
                     fontWeight: "bold",
-                    colors: ["#333333"]
+                    colors: ["#333333"],
                 },
                 x: {
                     show: true,
@@ -225,119 +127,27 @@ window.addEventListener("DOMContentLoaded", () => {
                 y: {
                     formatter: function (val, { seriesIndex, w }) {
                         try {
-                            const nombreSerie = w.globals.seriesNames[seriesIndex] || "Valor";
+                            const nombreSerie =
+                                w.globals.seriesNames[seriesIndex] || "Valor";
                             return `${nombreSerie}: $${val.toLocaleString()}`;
                         } catch (e) {
                             return `$${val.toLocaleString()}`;
                         }
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
         chartBalance.render();
-
-        // Gráfico Treemap
-        chartTreemap = new ApexCharts(
-            document.querySelector("#treemap-gastos"),
-            {
-                series: [
-                    { data: gastos.map((g) => ({ x: g.categoria, y: g.monto })) },
-                ],
-                chart: {
-                    type: "treemap",
-                    height: 300,
-                    background: "#FFFFFF",
-                    animations: {
-                        enabled: true,
-                        easing: 'easeinout',
-                        speed: 1500,
-                        animateGradually: {
-                            enabled: true,
-                            delay: 150
-                        },
-                        dynamicAnimation: {
-                            enabled: true,
-                            speed: 1000
-                        }
-                    }
-                },
-                colors: ["#4CAF50", "#2196F3", "#FF9800", "#9C27B0", "#1976D2"],
-                plotOptions: {
-                    treemap: {
-                        distributed: true,
-                        enableShades: false,
-                    },
-                },
-                dataLabels: {
-                    enabled: true,
-                    style: {
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                        colors: ["#FFFFFF"],
-                    },
-                    formatter: function (text, op) {
-                        const valor = op.value.toLocaleString("es-CO");
-                        return `${text}\n$${valor}`;
-                    },
-                },
-                tooltip: {
-                    theme: "light",
-                },
-            }
-        );
-        chartTreemap.render();
     }
 
-    // Función para actualizar todos los gráficos
-    function actualizarGraficos() {
-        console.log("Actualizando gráficos...");
-        
-        const nuevosAhorros = generarDatosAhorros();
-        const nuevosGastos = generarDatosGastos();
-        const nuevoBalance = generarDatosBalance();
-
-        // Actualizar estadísticas
-        actualizarEstadisticas(nuevosAhorros, nuevosGastos, nuevoBalance);
-
-        // Actualizar gráfico de ahorros
-        chartAhorros.updateSeries(nuevosAhorros.map(a => a.monto));
-
-        // Actualizar gráfico de balance
-        chartBalance.updateSeries([
-            {
-                name: "Ingresos",
-                data: nuevoBalance.ingresos,
-            },
-            { 
-                name: "Egresos", 
-                data: nuevoBalance.egresos 
-            },
-        ]);
-
-        // Actualizar gráfico treemap
-        chartTreemap.updateSeries([
-            { data: nuevosGastos.map((g) => ({ x: g.categoria, y: g.monto })) },
-        ]);
-    }
-
-    // Inicializar gráficos
     inicializarGraficos();
 
-    // Configurar actualización cada 3 minutos (180000 ms)
-    setInterval(actualizarGraficos, 5000);
-
-    // Lógica de alertas (sin cambios)
+    // Lógica de alertas (simulada, puedes personalizarla con tus propios criterios)
     const alertaDiv = document.getElementById("alerta");
     function actualizarAlerta() {
-        const gastosActuales = generarDatosGastos();
-        const mayorGasto = gastosActuales.reduce((max, gasto) =>
-            gasto.monto > max.monto ? gasto : max
-        );
-        const mensaje = `Estás gastando mucho en ${mayorGasto.categoria}. Revisa si puedes reducir ese gasto.`;
-        alertaDiv.textContent = mensaje;
+        alertaDiv.textContent = "¡Revisa tus gastos este mes!";
     }
     actualizarAlerta();
-    setInterval(actualizarAlerta, 10000);
 
     // Lógica de recomendaciones (sin cambios)
     const recordatorioDiv = document.getElementById("recordatorio");
@@ -400,4 +210,124 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     actualizarMensaje();
     setInterval(actualizarMensaje, 15000);
+
+    // Gráfico de distribución de ahorros
+    const ahorroLabels = window.dashboardData?.ahorroLabels || [];
+    const ahorroData = window.dashboardData?.ahorroData || [];
+    //const totalAhorros = window.dashboardData?.totalAhorros || 0;
+
+    // Mostrar el total de ahorros en la tarjeta
+    const ahorrosStat = document.getElementById("ahorros-stat");
+    if (ahorrosStat) {
+        ahorrosStat.textContent = `$${Number(totalAhorros).toLocaleString()}`;
+    }
+
+    // Renderizar el gráfico solo si hay datos
+    const chartAhorrosDiv = document.getElementById("chartAhorros");
+    if (chartAhorrosDiv) {
+        if (ahorroData.length > 0 && ahorroData.some((val) => val > 0)) {
+            const chartAhorros = new ApexCharts(chartAhorrosDiv, {
+                chart: {
+                    type: "donut",
+                    height: 320,
+                    background: "#fff",
+                },
+                series: ahorroData,
+                labels: ahorroLabels,
+                legend: {
+                    position: "bottom",
+                    labels: { colors: "#333" },
+                },
+                colors: [
+                    "#4CAF50",
+                    "#2196F3",
+                    "#FFC107",
+                    "#FF5722",
+                    "#9C27B0",
+                    "#00BCD4",
+                ],
+                dataLabels: {
+                    enabled: true,
+                    formatter: function (val, opts) {
+                        return opts.w.config.series[opts.seriesIndex] > 0
+                            ? opts.w.config.series[opts.seriesIndex]
+                            : "";
+                    },
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (val) {
+                            return `$${val.toLocaleString()}`;
+                        },
+                    },
+                },
+            });
+            chartAhorros.render();
+        } else {
+            chartAhorrosDiv.innerHTML = `<div style="text-align:center;color:#888;padding:40px 0;">No tienes ahorros acumulados aún.</div>`;
+        }
+    }
+
+    // Gráfico de gastos por categoría (treemap) con colores por rango de gravedad
+    const treemapData = window.dashboardData?.treemapData || [];
+
+// Define los colores por rango
+function getColorByPorcentaje(p) {
+    if (p >= 1.0)   return "#b71c1c"; // Rojo muy oscuro (100%+)
+    if (p >= 0.9)   return "#d72638"; // Rojo fuerte (90-99%)
+    if (p >= 0.7)   return "#ff9800"; // Naranja (70-89%)
+    if (p >= 0.5)   return "#ffc107"; // Amarillo (50-69%)
+    if (p >= 0.3)   return "#4caf50"; // Verde (30-49%)
+    if (p >= 0.1)   return "#2196f3"; // Azul (10-29%)
+    return "#90caf9";                 // Azul claro (<10%)
+}
+
+// Agrega el color a cada dato
+const treemapDataWithColors = treemapData.map((item) => {
+    const porcentaje = totalIngresos > 0 ? item.y / totalIngresos : 0;
+    return {
+        ...item,
+        fillColor: getColorByPorcentaje(porcentaje),
+    };
+});
+
+if (document.getElementById("treemap-gastos")) {
+    const chartTreemap = new ApexCharts(
+        document.querySelector("#treemap-gastos"),
+        {
+            chart: {
+                type: "treemap",
+                height: 350,
+                background: "#fff",
+            },
+            series: [
+                {
+                    data: treemapDataWithColors,
+                },
+            ],
+            legend: { show: false },
+            title: { text: "" },
+            // colors: treemapColors, // Ya no es necesario
+            dataLabels: {
+                enabled: true,
+                style: {
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    colors: ["#333"],
+                },
+                formatter: function (text, op) {
+                    return text + ": $" + op.value.toLocaleString();
+                },
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return `$${val.toLocaleString()}`;
+                    },
+                },
+            },
+        }
+    );
+    chartTreemap.render();
+}
 });

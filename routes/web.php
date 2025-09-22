@@ -14,8 +14,11 @@ use App\Http\Controllers\AporteAhorroController;
 use App\Http\Controllers\Admin\UsuarioController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('landing.landing');
 });
+
+Route::get('/funciones', fn() => view('landing.funciones'));
+Route::get('/uso', fn() => view('landing.uso'));
 
 //Route::middleware(['auth'])->get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
