@@ -8,25 +8,26 @@ use Illuminate\Support\Facades\Auth;
 
 class AutenticacionController extends Controller
 {
-    //Registro de Usuarios 
-
+    /**
+     * Registro de usuario
+     */
     public function registrar(Request $request)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
-            'correo' => 'required|string|email|max:255|unique:usuario,correo',
+            'nombre'   => 'required|string|max:255',
+            'correo'   => 'required|string|email|max:255|unique:usuario,correo',
             'telefono' => 'required|string|max:20',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         $usuario = Usuario::create([
-            'nombre' => $request->nombre,
-            'correo' => $request->correo,
-            'telefono' => $request->telefono,
-            'password' => $request->password, //se encripta automáticamente en el modelo
+            'nombre'         => $request->nombre,
+            'correo'         => $request->correo,
+            'telefono'       => $request->telefono,
+            'password'       => $request->password, // el mutator lo encripta
             'fecha_registro' => now(),
-            'activo' => true,
-            'rol_id' => 3,
+            'activo'         => true,
+            'rol_id'         => 3,
         ]);
 
         Auth::login($usuario);
@@ -34,44 +35,45 @@ class AutenticacionController extends Controller
         return redirect()->route('ingresos.index');
     }
 
-    // login de usuario
-
+    /**
+     * Login de usuario
+     */
     public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'correo' => 'required|email',
-            'password' => 'required|string',
-        ]);
+{
+    $credentials = $request->validate([
+        'correo'   => 'required|email',
+        'password' => 'required|string',
+    ]);
 
-         if (Auth::attempt(['correo' => $request->correo, 'password' => $request->password])) {
+    // Especifica el campo de identificación
+    if (Auth::attempt(['correo' => $credentials['correo'], 'password' => $credentials['password']])) {
         $request->session()->regenerate();
 
         $usuario = Auth::user();
-        
-         // Redirección según rol
+
+        // Redirección según rol
         if ($usuario->rol_id == 1) { // Admin
             return redirect()->route('usuarios.index');
-        } else {
-            return redirect()->route('ingresos.index');
-        }
         }
 
-        return back()->withErrors([
-        'correo' => 'Las credenciales no son correctas.',
-    ])->onlyInput('correo');
+        return redirect()->route('ingresos.index');
     }
 
-    //logout de usuario
+    return back()->withErrors([
+        'correo' => 'Las credenciales no son correctas.',
+    ])->onlyInput('correo');
+}
 
-    public function logout(Request $request){
-        
+    /**
+     * Logout de usuario
+     */
+    public function logout(Request $request)
+    {
         Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json([
-            'mensaje'=> 'Sesion cerrada con éxito'
-        ]);
+        return redirect()->route('login.form');
     }
 }

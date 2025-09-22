@@ -6,13 +6,14 @@ use App\Models\AhorroMeta;
 use App\Models\AporteAhorro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class AhorroMetaController extends Controller
 {
     public function index()
     {
-        $userId = 2; // auth()->id();
+        $userId = Auth::id();
         $ahorros = AhorroMeta::where('usuario_id', $userId)->get();
 
         foreach ($ahorros as $ahorro) {
@@ -24,7 +25,7 @@ class AhorroMetaController extends Controller
 
     public function show($id)
     {
-        $userId = 2;
+        $userId = Auth::id();
         $ahorro = AhorroMeta::where('usuario_id', $userId)->findOrFail($id);
         $ahorro->porcentaje_avance = $this->calcularPorcentaje($ahorro);
 
@@ -46,7 +47,7 @@ class AhorroMetaController extends Controller
         }
 
         $meta = AhorroMeta::create([
-            'usuario_id' => 2, // auth()->id()
+            'usuario_id' => Auth::id(),
             'concepto' => $request->concepto,
             'descripcion' => $request->descripcion,
             'monto_meta' => $request->monto_meta,
@@ -64,7 +65,7 @@ class AhorroMetaController extends Controller
 
     public function update(Request $request, $id)
     {
-        $userId = 2;
+        $userId = Auth::id();
         $ahorro = AhorroMeta::where('usuario_id', $userId)->findOrFail($id);
 
         $validator = Validator::make($request->all(), [
@@ -89,7 +90,7 @@ class AhorroMetaController extends Controller
 
     public function destroy($id)
     {
-        $userId = 2;
+        $userId = Auth::id();
         $ahorro = AhorroMeta::where('usuario_id', $userId)->findOrFail($id);
 
         $ahorro->delete();

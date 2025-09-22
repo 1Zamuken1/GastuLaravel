@@ -24,7 +24,7 @@ use Illuminate\Notifications\Notifiable;
  * @property int $rol_id
  * 
  * @property Rol $rol
- * @property Collection|AhorroMetum[] $ahorro_meta
+ * @property Collection|AhorroMeta[] $ahorro_meta
  * @property Collection|ConceptoEgreso[] $concepto_egresos
  * @property Collection|ConceptoIngreso[] $concepto_ingresos
  *
@@ -63,11 +63,16 @@ class Usuario extends Authenticatable
 		$this->attributes['password'] = bcrypt($value);
 	}
 
-	public function getAuthIdentifierName()
-	{
-		return 'correo';
-	}
+	// En tu modelo Usuario
+		public function getAuthIdentifier()
+		{
+			return $this->getAttribute('usuario_id');
+		}
 
+		public function getAuthIdentifierName()
+		{
+			return 'usuario_id'; // Cambia esto
+		}
 	public function rol()
 	{
 		return $this->belongsTo(Rol::class,'rol_id', 'rol_id');
