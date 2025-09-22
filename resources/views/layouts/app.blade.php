@@ -17,7 +17,6 @@
     @vite('resources/css/app.css')
     @vite('resources/js/app.js')
     @vite('resources/css/header.css')
-    @vite('resources/css/chatbot.css')
 
     {{-- Espacio para estilos específicos de cada vista --}}
     @stack('styles')
@@ -42,7 +41,7 @@
 
     {{-- Script global --}}
     @vite('resources/js/nav-bar.js')
-    @vite('resources/js/chatbot.js')
+
 
     {{-- Scripts específicos de cada vista --}}
     @stack('scripts')

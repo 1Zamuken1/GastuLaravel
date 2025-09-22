@@ -71,7 +71,7 @@ class Usuario extends Authenticatable
 
 		public function getAuthIdentifierName()
 		{
-			return 'usuario_id'; // Cambia esto
+			return 'usuario_id'; 
 		}
 	public function rol()
 	{

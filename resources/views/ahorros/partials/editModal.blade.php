@@ -5,7 +5,7 @@
                 <h5 class="modal-title">Editar Ahorro</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="formEditAhorro" method="POST">
+            <form id="formEditAhorro" method="POST" action="{{ route('ahorros.update', ['ahorro' => 0]) }}">
                 @csrf
                 @method('PUT')
                 <div class="modal-body">

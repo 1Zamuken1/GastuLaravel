@@ -7,13 +7,13 @@ use App\Models\Ingreso;
 use App\Models\ConceptoIngreso;
 use App\Models\ProyeccionIngreso;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class IngresoController extends Controller
 {
     public function index()
     {
-        $userId = 3;
-        //$userId = auth()->id();
+        $userId = Auth::id();
 
         // ========================
         // Traer ingresos reales
@@ -26,9 +26,9 @@ class IngresoController extends Controller
                     'id'          => $ingreso->ingreso_id,
                     'concepto'    => $ingreso->conceptoIngreso->nombre ?? 'Sin concepto',
                     'monto'       => $ingreso->monto,
-                    'tipo'        => $ingreso->tipo ?? 'Ingreso', // ahora existe en la tabla
+                    'tipo'        => $ingreso->tipo ?? 'Ingreso',
                     'fecha'       => $ingreso->fecha_registro,
-                    'estado'      => 'Activo', // la tabla ingreso no tiene estado
+                    'estado'      => 'Activo', // no existe campo estado en ingresos
                     'descripcion' => $ingreso->descripcion ?? '',
                     'concepto_id' => $ingreso->concepto_ingreso_id,
                 ];
@@ -60,15 +60,16 @@ class IngresoController extends Controller
         $registros = $ingresos->concat($proyecciones)->values();
 
         // ========================
-        // Calcular totales
+        // Calcular totales solo del usuario logueado
         // ========================
-        $totalIngresos = Ingreso::sum('monto');
-        $totalProyecciones = ProyeccionIngreso::sum('monto_programado');
+        $totalIngresos = Ingreso::where('usuario_id', $userId)->sum('monto');
+        $totalProyecciones = ProyeccionIngreso::where('usuario_id', $userId)->sum('monto_programado');
 
         $mesActual = Carbon::now()->month;
         $anioActual = Carbon::now()->year;
 
-        $ingresosMes = Ingreso::whereYear('fecha_registro', $anioActual)
+        $ingresosMes = Ingreso::where('usuario_id', $userId)
+            ->whereYear('fecha_registro', $anioActual)
             ->whereMonth('fecha_registro', $mesActual)
             ->sum('monto');
 
@@ -91,10 +92,9 @@ class IngresoController extends Controller
 
     public function store(Request $request, $id = null)
     {
-        $userId = 3;
-        //dd($request->all());
+        $userId = Auth::id();
+
         if ($request->isMethod('get')) {
-            // Mostrar formulario con el concepto precargado si hay id
             $concepto = null;
             if ($id) {
                 $concepto = ConceptoIngreso::find($id);
@@ -118,7 +118,7 @@ class IngresoController extends Controller
                 'monto'               => $validated['monto'],
                 'fecha_registro'      => $validated['fecha'],
                 'descripcion'         => $validated['descripcion'] ?? '',
-                'usuario_id'          => $userId,//auth()->id(), // <-- Aquí
+                'usuario_id'          => $userId,
             ]);
 
             return redirect()->route('ingresos.index')->with('success', 'Ingreso creado correctamente.');
@@ -128,7 +128,7 @@ class IngresoController extends Controller
             $validated = $request->validate([
                 'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
                 'monto'               => 'required|numeric',
-                'fecha'               => 'required|date', // Esta es la fecha de creación
+                'fecha'               => 'required|date',
                 'fecha_fin'           => 'required|date|after_or_equal:fecha',
                 'activo'              => 'required|in:1,0',
                 'descripcion'         => 'required|string|max:200',
@@ -137,11 +137,11 @@ class IngresoController extends Controller
             ProyeccionIngreso::create([
                 'monto_programado'    => $validated['monto'],
                 'descripcion'         => $validated['descripcion'],
-                'fecha_creacion'      => $validated['fecha'], // <-- Aquí
+                'fecha_creacion'      => $validated['fecha'],
                 'fecha_fin'           => $validated['fecha_fin'],
                 'activo'              => $validated['activo'],
                 'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
-                'usuario_id'          => $userId,//auth()->id(), // <-- Aquí
+                'usuario_id'          => $userId,
             ]);
 
             return redirect()->route('ingresos.index')->with('success', 'Proyección creada correctamente.');
@@ -150,39 +150,15 @@ class IngresoController extends Controller
         return redirect()->route('ingresos.index')->with('error', 'Tipo inválido.');
     }
 
-    private function calcularDiaRecurrencia(Carbon $fecha, string $frecuencia): ?int
-    {
-        switch ($frecuencia) {
-            case 'mensual':
-            case 'trimestral':
-            case 'semestral':
-            case 'anual':
-                return (int) $fecha->day;
-            default:
-                return null;
-        }
-    }
-
-    private function calcularFechaFin(Carbon $fecha, string $frecuencia): ?string
-    {
-        switch ($frecuencia) {
-            case 'mensual':     return $fecha->copy()->addYear()->toDateString();
-            case 'trimestral':  return $fecha->copy()->addYears(2)->toDateString();
-            case 'semestral':   return $fecha->copy()->addYears(3)->toDateString();
-            case 'anual':       return $fecha->copy()->addYears(5)->toDateString();
-            default:            return null;
-        }
-    }
-
     public function update(Request $request, $id)
     {
-        $userId = 3;
-        //$userId = auth()->id();
-        $ingreso = Ingreso::where('usuario_id', $userId)->findOrFail($id);
+        $userId = Auth::id();
 
         $tipo = $request->input('tipo');
 
         if ($tipo === 'Ingreso') {
+            $ingreso = Ingreso::where('usuario_id', $userId)->findOrFail($id);
+
             $validated = $request->validate([
                 'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
                 'monto'               => 'required|numeric',
@@ -202,6 +178,8 @@ class IngresoController extends Controller
         }
 
         if ($tipo === 'Proyección') {
+            $proyeccion = ProyeccionIngreso::where('usuario_id', $userId)->findOrFail($id);
+
             $validated = $request->validate([
                 'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
                 'monto'               => 'required|numeric',
@@ -211,11 +189,10 @@ class IngresoController extends Controller
                 'descripcion'         => 'required|string|max:200',
             ]);
 
-            $proyeccion = ProyeccionIngreso::where('usuario_id', $userId)->findOrFail($id);
             $proyeccion->update([
                 'monto_programado'    => $validated['monto'],
                 'descripcion'         => $validated['descripcion'],
-                'fecha_creacion'      => $validated['fecha'], // <-- Aquí
+                'fecha_creacion'      => $validated['fecha'],
                 'fecha_fin'           => $validated['fecha_fin'],
                 'activo'              => $validated['activo'],
                 'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
@@ -229,8 +206,8 @@ class IngresoController extends Controller
 
     public function destroy($id)
     {
-        $userId = 3;
-        //$userId = auth()->id();
+        $userId = Auth::id();
+
         $ingreso = Ingreso::where('usuario_id', $userId)->findOrFail($id);
         $ingreso->delete();
 

@@ -34,33 +34,64 @@ class AhorroMetaController extends Controller
 
     public function store(Request $request)
     {
+        // Validación con mensajes personalizados
         $validator = Validator::make($request->all(), [
             'concepto' => 'required|string|max:60',
             'descripcion' => 'nullable|string|max:100',
-            'monto_meta' => 'required|numeric|min:1',
-            'frecuencia' => 'required|string|max:30',
+            'monto_meta' => 'required|numeric|min:0.01',
+            'frecuencia' => 'required|string|in:Diario,Semanal,Quincenal,Mensual',
             'fecha_meta' => 'required|date|after:today',
+            'estado' => 'required|string|in:Activo,Inactivo,Completado'
+        ], [
+            'concepto.required' => 'El concepto es obligatorio',
+            'monto_meta.required' => 'El monto meta es obligatorio',
+            'monto_meta.min' => 'El monto meta debe ser mayor a 0',
+            'frecuencia.required' => 'La frecuencia es obligatoria',
+            'fecha_meta.required' => 'La fecha meta es obligatoria',
+            'fecha_meta.after' => 'La fecha meta debe ser posterior a hoy',
+            'estado.required' => 'El estado es obligatorio'
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('error', 'Por favor corrige los errores del formulario');
         }
 
-        $meta = AhorroMeta::create([
-            'usuario_id' => Auth::id(),
-            'concepto' => $request->concepto,
-            'descripcion' => $request->descripcion,
-            'monto_meta' => $request->monto_meta,
-            'frecuencia' => $request->frecuencia,
-            'fecha_meta' => $request->fecha_meta,
-            'estado' => 'Activo',
-            'total_acumulado' => 0,
-        ]);
+        try {
+            // Crear la meta de ahorro
+            $meta = AhorroMeta::create([
+                'usuario_id' => Auth::id(),
+                'concepto' => trim($request->concepto),
+                'descripcion' => $request->descripcion ? trim($request->descripcion) : null,
+                'monto_meta' => (float) $request->monto_meta,
+                'frecuencia' => $request->frecuencia,
+                'fecha_creacion' => Carbon::now(),
+                'fecha_meta' => Carbon::parse($request->fecha_meta),
+                'estado' => $request->estado,
+                'total_acumulado' => 0,
+                'cantidad_cuotas' => 0
+            ]);
 
-        // Generar automáticamente los aportes
-        $this->generarAportes($meta);
+            // Verificar que se haya creado correctamente
+            if ($meta && $meta->ahorro_meta_id) {
+                // Generar automáticamente los aportes
+                $this->generarAportes($meta);
+                
+                return redirect()->route('ahorros.index')
+                    ->with('success', 'Ahorro creado correctamente');
+            } else {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'No se pudo crear el ahorro. Intenta nuevamente');
+            }
 
-        return redirect()->route('ahorros.index')->with('success', 'Ahorro creado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Error al crear el ahorro: ' . $e->getMessage());
+        }
     }
 
     public function update(Request $request, $id)
@@ -71,8 +102,8 @@ class AhorroMetaController extends Controller
         $validator = Validator::make($request->all(), [
             'concepto' => 'required|string|max:60',
             'descripcion' => 'nullable|string|max:100',
-            'monto_meta' => 'required|numeric|min:1',
-            'frecuencia' => 'required|string|max:30',
+            'monto_meta' => 'required|numeric|min:0.01',
+            'frecuencia' => 'required|string|in:Diario,Semanal,Quincenal,Mensual',
             'fecha_meta' => 'required|date|after:today',
         ]);
 
@@ -80,22 +111,47 @@ class AhorroMetaController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $ahorro->update($request->only(['concepto','descripcion','monto_meta','frecuencia','fecha_meta']));
+        try {
+            $ahorro->update([
+                'concepto' => trim($request->concepto),
+                'descripcion' => $request->descripcion ? trim($request->descripcion) : null,
+                'monto_meta' => (float) $request->monto_meta,
+                'frecuencia' => $request->frecuencia,
+                'fecha_meta' => Carbon::parse($request->fecha_meta)
+            ]);
 
-        // Recalcular aportes pendientes (no tocar los ya pagados)
-        $this->recalcularAportes($ahorro);
+            // Recalcular aportes pendientes (no tocar los ya pagados)
+            $this->recalcularAportes($ahorro);
 
-        return redirect()->route('ahorros.index')->with('success', 'Ahorro actualizado correctamente.');
+            return redirect()->route('ahorros.index')
+                ->with('success', 'Ahorro actualizado correctamente');
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Error al actualizar el ahorro: ' . $e->getMessage());
+        }
     }
 
     public function destroy($id)
     {
-        $userId = Auth::id();
-        $ahorro = AhorroMeta::where('usuario_id', $userId)->findOrFail($id);
+        try {
+            $userId = Auth::id();
+            $ahorro = AhorroMeta::where('usuario_id', $userId)->findOrFail($id);
 
-        $ahorro->delete();
+            // Eliminar los aportes relacionados primero
+            AporteAhorro::where('ahorro_meta_id', $ahorro->ahorro_meta_id)->delete();
+            
+            // Eliminar el ahorro
+            $ahorro->delete();
 
-        return redirect()->route('ahorros.index')->with('success', 'Ahorro eliminado correctamente.');
+            return redirect()->route('ahorros.index')
+                ->with('success', 'Ahorro eliminado correctamente');
+
+        } catch (\Exception $e) {
+            return redirect()->route('ahorros.index')
+                ->with('error', 'Error al eliminar el ahorro: ' . $e->getMessage());
+        }
     }
 
     private function calcularPorcentaje($ahorro)
@@ -109,61 +165,82 @@ class AhorroMetaController extends Controller
 
     private function generarAportes(AhorroMeta $meta)
     {
-        $fechaInicio = Carbon::now();
-        $fechaFin = Carbon::parse($meta->fecha_meta);
+        try {
+            $fechaInicio = Carbon::now();
+            $fechaFin = Carbon::parse($meta->fecha_meta);
 
-        $cantidadCuotas = 0;
-        $periodo = null;
+            $cantidadCuotas = 0;
+            $periodo = null;
 
-        switch ($meta->frecuencia) {
-            case 'Diario':
-                $cantidadCuotas = $fechaInicio->diffInDays($fechaFin) + 1;
-                $periodo = 'day';
-                break;
-            case 'Semanal':
-                $cantidadCuotas = $fechaInicio->diffInWeeks($fechaFin) + 1;
-                $periodo = 'week';
-                break;
-            case 'Mensual':
-                $cantidadCuotas = $fechaInicio->diffInMonths($fechaFin) + 1;
-                $periodo = 'month';
-                break;
-        }
+            switch ($meta->frecuencia) {
+                case 'Diario':
+                    $cantidadCuotas = $fechaInicio->diffInDays($fechaFin) + 1;
+                    $periodo = 'day';
+                    break;
+                case 'Semanal':
+                    $cantidadCuotas = $fechaInicio->diffInWeeks($fechaFin) + 1;
+                    $periodo = 'week';
+                    break;
+                case 'Quincenal':
+                    $cantidadCuotas = ceil($fechaInicio->diffInDays($fechaFin) / 15) + 1;
+                    $periodo = 'days';
+                    $periodoDias = 15;
+                    break;
+                case 'Mensual':
+                    $cantidadCuotas = $fechaInicio->diffInMonths($fechaFin) + 1;
+                    $periodo = 'month';
+                    break;
+            }
 
-        $meta->cantidad_cuotas = $cantidadCuotas;
-        $meta->save();
+            // Actualizar cantidad de cuotas
+            $meta->cantidad_cuotas = $cantidadCuotas;
+            $meta->save();
 
-        $aporteAsignado = $meta->monto_meta / $cantidadCuotas;
-        $fecha = $fechaInicio->copy();
+            $aporteAsignado = $meta->monto_meta / $cantidadCuotas;
+            $fecha = $fechaInicio->copy();
 
-        for ($i = 0; $i < $cantidadCuotas; $i++) {
-            $fechaLimite = $fecha->copy()->endOfDay();
+            for ($i = 0; $i < $cantidadCuotas; $i++) {
+                $fechaLimite = $fecha->copy()->endOfDay();
 
-            AporteAhorro::create([
-                'ahorro_meta_id' => $meta->ahorro_meta_id,
-                'aporte_asignado' => $aporteAsignado,
-                'fecha_limite' => $fechaLimite,
-                'estado' => 'Pendiente',
-            ]);
+                AporteAhorro::create([
+                    'ahorro_meta_id' => $meta->ahorro_meta_id,
+                    'aporte_asignado' => $aporteAsignado,
+                    'fecha_limite' => $fechaLimite,
+                    'estado' => 'Pendiente',
+                ]);
 
-            $fecha->add(1, $periodo);
+                // Avanzar la fecha según la frecuencia
+                if ($meta->frecuencia == 'Quincenal') {
+                    $fecha->addDays($periodoDias);
+                } else {
+                    $fecha->add(1, $periodo);
+                }
+            }
+
+        } catch (\Exception $e) {
+            // En caso de error, no generar aportes pero mantener el ahorro
+            // Se puede manejar manualmente después
         }
     }
 
     private function recalcularAportes(AhorroMeta $meta)
     {
-        $restante = $meta->monto_meta - $meta->total_acumulado;
+        try {
+            $restante = $meta->monto_meta - $meta->total_acumulado;
 
-        $pendientes = AporteAhorro::where('ahorro_meta_id', $meta->ahorro_meta_id)
-            ->where('estado', 'Pendiente')
-            ->count();
-
-        if ($pendientes > 0 && $restante > 0) {
-            $nuevoMonto = $restante / $pendientes;
-
-            AporteAhorro::where('ahorro_meta_id', $meta->ahorro_meta_id)
+            $pendientes = AporteAhorro::where('ahorro_meta_id', $meta->ahorro_meta_id)
                 ->where('estado', 'Pendiente')
-                ->update(['aporte_asignado' => $nuevoMonto]);
+                ->count();
+
+            if ($pendientes > 0 && $restante > 0) {
+                $nuevoMonto = $restante / $pendientes;
+
+                AporteAhorro::where('ahorro_meta_id', $meta->ahorro_meta_id)
+                    ->where('estado', 'Pendiente')
+                    ->update(['aporte_asignado' => $nuevoMonto]);
+            }
+        } catch (\Exception $e) {
+            // Manejar error silenciosamente
         }
     }
 }

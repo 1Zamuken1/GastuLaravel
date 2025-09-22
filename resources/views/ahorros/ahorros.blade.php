@@ -94,6 +94,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Archivos JS -->
-    @vite(['resources/js/ahorros.js', 'resources/js/ahorros-database.js'])
+    @vite(['resources/js/ahorros.js', 'resources/js/ahorros-datatable.js'])
 @endpush
 @endsection

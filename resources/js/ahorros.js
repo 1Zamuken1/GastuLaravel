@@ -18,10 +18,24 @@ const createAhorroModal = document.getElementById("createAhorroModal");
 if (addAhorroBtn) {
     addAhorroBtn.addEventListener("click", () => {
         // Limpiar formulario
-        document.getElementById("formCreateAhorro").reset();
+        const form = document.getElementById("formCreateAhorro");
+        if (form) {
+            form.reset();
+            // Limpiar errores de validación previos
+            clearValidationErrors();
+        }
         const modalBootstrap = new bootstrap.Modal(createAhorroModal);
         modalBootstrap.show();
     });
+}
+
+// Función para limpiar errores de validación
+function clearValidationErrors() {
+    const errorElements = document.querySelectorAll('.invalid-feedback, .text-danger');
+    errorElements.forEach(el => el.remove());
+    
+    const invalidInputs = document.querySelectorAll('.is-invalid');
+    invalidInputs.forEach(input => input.classList.remove('is-invalid'));
 }
 
 // -------------------------------
@@ -41,18 +55,107 @@ const indexAporteModal = document.getElementById("indexAporteModal");
 const saveAportesBtn = document.getElementById("saveAportesBtn");
 
 // ===============================
-// Botón "Hoy" -> Poner fecha actual
+// Botón "Hoy" -> Poner fecha actual (corregido)
 // ===============================
-const btnHoy = document.getElementById("btnHoy");
-const inputFechaMeta = document.getElementById("fecha_meta");
-if (btnHoy && inputFechaMeta) {
-    btnHoy.addEventListener("click", () => {
+document.addEventListener('DOMContentLoaded', function() {
+    const btnHoy = document.getElementById("btnHoy");
+    const inputFechaMeta = document.getElementById("fecha_meta");
+    
+    if (btnHoy && inputFechaMeta) {
+        btnHoy.addEventListener("click", function(e) {
+            e.preventDefault(); // Evitar submit del formulario
+            const mañana = new Date();
+            mañana.setDate(mañana.getDate() + 1); // Fecha de mañana para cumplir con "after:today"
+            
+            const yyyy = mañana.getFullYear();
+            const mm = String(mañana.getMonth() + 1).padStart(2, "0");
+            const dd = String(mañana.getDate()).padStart(2, "0");
+            inputFechaMeta.value = `${yyyy}-${mm}-${dd}`;
+        });
+    }
+});
+
+// ===============================
+// Validación del formulario antes del envío
+// ===============================
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('formCreateAhorro');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const isValid = validateForm(this);
+            if (!isValid) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+    
+    const editForm = document.getElementById('formEditAhorro');
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            const isValid = validateForm(this);
+            if (!isValid) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+});
+
+function validateForm(form) {
+    clearValidationErrors();
+    let isValid = true;
+    
+    // Validar concepto
+    const concepto = form.querySelector('input[name="concepto"]');
+    if (!concepto.value.trim()) {
+        showFieldError(concepto, 'El concepto es obligatorio');
+        isValid = false;
+    } else if (concepto.value.trim().length > 60) {
+        showFieldError(concepto, 'El concepto no puede exceder 60 caracteres');
+        isValid = false;
+    }
+    
+    // Validar monto meta
+    const montoMeta = form.querySelector('input[name="monto_meta"]');
+    if (!montoMeta.value || parseFloat(montoMeta.value) <= 0) {
+        showFieldError(montoMeta, 'El monto meta debe ser mayor a 0');
+        isValid = false;
+    }
+    
+    // Validar frecuencia
+    const frecuencia = form.querySelector('select[name="frecuencia"]');
+    if (!frecuencia.value) {
+        showFieldError(frecuencia, 'La frecuencia es obligatoria');
+        isValid = false;
+    }
+    
+    // Validar fecha meta
+    const fechaMeta = form.querySelector('input[name="fecha_meta"]');
+    if (!fechaMeta.value) {
+        showFieldError(fechaMeta, 'La fecha meta es obligatoria');
+        isValid = false;
+    } else {
         const hoy = new Date();
-        const yyyy = hoy.getFullYear();
-        const mm = String(hoy.getMonth() + 1).padStart(2, "0");
-        const dd = String(hoy.getDate()).padStart(2, "0");
-        inputFechaMeta.value = `${yyyy}-${mm}-${dd}`;
-    });
+        const fechaSeleccionada = new Date(fechaMeta.value);
+        hoy.setHours(0, 0, 0, 0);
+        fechaSeleccionada.setHours(0, 0, 0, 0);
+        
+        if (fechaSeleccionada <= hoy) {
+            showFieldError(fechaMeta, 'La fecha meta debe ser posterior a hoy');
+            isValid = false;
+        }
+    }
+    
+    return isValid;
+}
+
+function showFieldError(field, message) {
+    field.classList.add('is-invalid');
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'invalid-feedback';
+    errorDiv.textContent = message;
+    field.parentNode.appendChild(errorDiv);
 }
 
 // ===============================
@@ -65,41 +168,48 @@ document.addEventListener("DOMContentLoaded", function() {
         savingTable.addEventListener("click", function(e) {
             if (e.target.closest('.view-ahorro-btn')) {
                 const btn = e.target.closest('.view-ahorro-btn');
-                const table = $("#savingTable").DataTable();
-                const tr = btn.closest("tr");
-                const rowIdx = table.row(tr).index();
-                const data = table.row(rowIdx).data();
+                
+                // Verificar si DataTable está inicializado
+                if ($.fn.DataTable.isDataTable('#savingTable')) {
+                    const table = $("#savingTable").DataTable();
+                    const tr = btn.closest("tr");
+                    const rowIdx = table.row(tr).index();
+                    const data = table.row(rowIdx).data();
 
-                // data: 0: ID, 1: Concepto, 2: Monto Meta, 3: Total Acumulado, 4: Avance, 5: Frecuencia, 6: Fecha Meta, 7: Estado
-                const id = data[0];
-                const concepto = data[1];
-                const montoMeta = data[2];
-                const totalAcumulado = data[3];
-                const avance = data[4];
-                const frecuencia = data[5];
-                let fechaMeta = data[6];
-                const estado = data[7];
-                const descripcion = tr.getAttribute("data-descripcion") || "";
+                    // data: 0: ID, 1: Concepto, 2: Monto Meta, 3: Total Acumulado, 4: Avance, 5: Frecuencia, 6: Fecha Meta, 7: Estado
+                    const id = data[0];
+                    const concepto = data[1];
+                    const montoMeta = data[2];
+                    const totalAcumulado = data[3];
+                    const avance = data[4];
+                    const frecuencia = data[5];
+                    let fechaMeta = data[6];
+                    const estado = data[7];
+                    const descripcion = tr.getAttribute("data-descripcion") || "";
 
-                // Convertir fecha si viene como d/m/Y
-                if (fechaMeta.includes("/")) {
-                    const [d, m, y] = fechaMeta.split("/");
-                    fechaMeta = `${d.padStart(2, "0")}/${m.padStart(2, "0")}/${y}`;
+                    // Convertir fecha si viene como d/m/Y
+                    if (fechaMeta.includes("/")) {
+                        const [d, m, y] = fechaMeta.split("/");
+                        fechaMeta = `${d.padStart(2, "0")}/${m.padStart(2, "0")}/${y}`;
+                    }
+
+                    document.getElementById("show_concepto").textContent = concepto;
+                    document.getElementById("show_descripcion").textContent = descripcion;
+                    document.getElementById("show_monto_meta").textContent = montoMeta;
+                    document.getElementById("show_total_acumulado").textContent = totalAcumulado;
+                    document.getElementById("show_frecuencia").textContent = frecuencia;
+                    document.getElementById("show_fecha_meta").textContent = fechaMeta;
+                    document.getElementById("show_estado").textContent = estado.replace(/<[^>]*>/g, ''); // Remover HTML del badge
+
+                    // Obtener próxima cuota
+                    obtenerProximaCuota(id);
+
+                    const modalBootstrap = new bootstrap.Modal(showAhorroModal);
+                    modalBootstrap.show();
+                } else {
+                    // Fallback si no hay DataTable
+                    console.warn('DataTable no está inicializado');
                 }
-
-                document.getElementById("show_concepto").textContent = concepto;
-                document.getElementById("show_descripcion").textContent = descripcion;
-                document.getElementById("show_monto_meta").textContent = montoMeta;
-                document.getElementById("show_total_acumulado").textContent = totalAcumulado;
-                document.getElementById("show_frecuencia").textContent = frecuencia;
-                document.getElementById("show_fecha_meta").textContent = fechaMeta;
-                document.getElementById("show_estado").textContent = estado.replace(/<[^>]*>/g, ''); // Remover HTML del badge
-
-                // Obtener próxima cuota
-                obtenerProximaCuota(id);
-
-                const modalBootstrap = new bootstrap.Modal(showAhorroModal);
-                modalBootstrap.show();
             }
 
             // ===============================
@@ -107,31 +217,36 @@ document.addEventListener("DOMContentLoaded", function() {
             // ===============================
             if (e.target.closest('.edit-ahorro-btn')) {
                 const btn = e.target.closest('.edit-ahorro-btn');
-                const table = $("#savingTable").DataTable();
-                const tr = btn.closest("tr");
-                const rowIdx = table.row(tr).index();
-                const data = table.row(rowIdx).data();
+                
+                if ($.fn.DataTable.isDataTable('#savingTable')) {
+                    const table = $("#savingTable").DataTable();
+                    const tr = btn.closest("tr");
+                    const rowIdx = table.row(tr).index();
+                    const data = table.row(rowIdx).data();
 
-                const id = data[0];
-                const concepto = data[1];
-                const montoMeta = data[2].replace(/[^0-9.,-]/g, "").replace(",", ".").trim();
-                const frecuencia = data[5];
-                const fechaMeta = data[6].split("/").reverse().join("-");
-                const descripcion = tr.getAttribute("data-descripcion") || "";
+                    const id = data[0];
+                    const concepto = data[1];
+                    const montoMeta = data[2].toString().replace(/[^0-9.,-]/g, "").replace(",", ".").trim();
+                    const frecuencia = data[5];
+                    const fechaMeta = data[6].split("/").reverse().join("-");
+                    const descripcion = tr.getAttribute("data-descripcion") || "";
 
-                document.getElementById("editId").value = id;
-                document.getElementById("edit_concepto").value = concepto;
-                document.getElementById("edit_monto_meta").value = montoMeta;
-                document.getElementById("edit_frecuencia").value = frecuencia;
-                document.getElementById("edit_fecha_meta").value = fechaMeta;
-                document.getElementById("edit_descripcion").value = descripcion;
+                    document.getElementById("editId").value = id;
+                    document.getElementById("edit_concepto").value = concepto;
+                    document.getElementById("edit_monto_meta").value = montoMeta;
+                    document.getElementById("edit_frecuencia").value = frecuencia;
+                    document.getElementById("edit_fecha_meta").value = fechaMeta;
+                    document.getElementById("edit_descripcion").value = descripcion;
 
-                // Cambiar action del formulario
-                const form = document.getElementById("formEditAhorro");
-                form.action = `/ahorros/${id}`;
+                    // Cambiar action del formulario
+                    const form = document.getElementById("formEditAhorro");
+                    form.action = `/ahorros/${id}`;
 
-                const modalBootstrap = new bootstrap.Modal(editAhorroModal);
-                modalBootstrap.show();
+
+
+                    const modalBootstrap = new bootstrap.Modal(editAhorroModal);
+                    modalBootstrap.show();
+                }
             }
 
             // ===============================
@@ -139,35 +254,38 @@ document.addEventListener("DOMContentLoaded", function() {
             // ===============================
             if (e.target.closest('.delete-ahorro-btn')) {
                 const btn = e.target.closest('.delete-ahorro-btn');
-                const table = $("#savingTable").DataTable();
-                const tr = btn.closest("tr");
-                const rowIdx = table.row(tr).index();
-                const data = table.row(rowIdx).data();
+                
+                if ($.fn.DataTable.isDataTable('#savingTable')) {
+                    const table = $("#savingTable").DataTable();
+                    const tr = btn.closest("tr");
+                    const rowIdx = table.row(tr).index();
+                    const data = table.row(rowIdx).data();
 
-                const id = data[0];
-                const concepto = data[1];
+                    const id = data[0];
+                    const concepto = data[1];
 
-                if (confirm(`¿Estás seguro de eliminar el ahorro "${concepto}"?`)) {
-                    // Crear formulario dinámico para eliminar
-                    const form = document.createElement("form");
-                    form.method = "POST";
-                    form.action = `/ahorros/${id}`;
+                    if (confirm(`¿Estás seguro de eliminar el ahorro "${concepto}"?`)) {
+                        // Crear formulario dinámico para eliminar
+                        const form = document.createElement("form");
+                        form.method = "POST";
+                        form.action = `/ahorros/${id}`;
 
-                    const csrf = document.querySelector('meta[name="csrf-token"]').content;
-                    const tokenInput = document.createElement("input");
-                    tokenInput.type = "hidden";
-                    tokenInput.name = "_token";
-                    tokenInput.value = csrf;
+                        const csrf = document.querySelector('meta[name="csrf-token"]').content;
+                        const tokenInput = document.createElement("input");
+                        tokenInput.type = "hidden";
+                        tokenInput.name = "_token";
+                        tokenInput.value = csrf;
 
-                    const methodInput = document.createElement("input");
-                    methodInput.type = "hidden";
-                    methodInput.name = "_method";
-                    methodInput.value = "DELETE";
+                        const methodInput = document.createElement("input");
+                        methodInput.type = "hidden";
+                        methodInput.name = "_method";
+                        methodInput.value = "DELETE";
 
-                    form.appendChild(tokenInput);
-                    form.appendChild(methodInput);
-                    document.body.appendChild(form);
-                    form.submit();
+                        form.appendChild(tokenInput);
+                        form.appendChild(methodInput);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
                 }
             }
 
@@ -176,28 +294,31 @@ document.addEventListener("DOMContentLoaded", function() {
             // ===============================
             if (e.target.closest('.aporte-btn')) {
                 const btn = e.target.closest('.aporte-btn');
-                const table = $("#savingTable").DataTable();
-                const tr = btn.closest("tr");
-                const rowIdx = table.row(tr).index();
-                const data = table.row(rowIdx).data();
+                
+                if ($.fn.DataTable.isDataTable('#savingTable')) {
+                    const table = $("#savingTable").DataTable();
+                    const tr = btn.closest("tr");
+                    const rowIdx = table.row(tr).index();
+                    const data = table.row(rowIdx).data();
 
-                const id = data[0];
-                const concepto = data[1];
-                const montoMeta = data[2];
-                const totalAcumulado = data[3];
-                const frecuencia = data[5];
+                    const id = data[0];
+                    const concepto = data[1];
+                    const montoMeta = data[2];
+                    const totalAcumulado = data[3];
+                    const frecuencia = data[5];
 
-                // Cargar información del ahorro en el modal
-                document.getElementById("aportes_concepto").textContent = concepto;
-                document.getElementById("aportes_monto_meta").textContent = montoMeta;
-                document.getElementById("aportes_total_acumulado").textContent = totalAcumulado;
-                document.getElementById("aportes_frecuencia").textContent = frecuencia;
+                    // Cargar información del ahorro en el modal
+                    document.getElementById("aportes_concepto").textContent = concepto;
+                    document.getElementById("aportes_monto_meta").textContent = montoMeta;
+                    document.getElementById("aportes_total_acumulado").textContent = totalAcumulado;
+                    document.getElementById("aportes_frecuencia").textContent = frecuencia;
 
-                // Cargar aportes
-                cargarAportes(id);
+                    // Cargar aportes
+                    cargarAportes(id);
 
-                const modalBootstrap = new bootstrap.Modal(indexAporteModal);
-                modalBootstrap.show();
+                    const modalBootstrap = new bootstrap.Modal(indexAporteModal);
+                    modalBootstrap.show();
+                }
             }
         });
     }
@@ -403,18 +524,21 @@ if (saveAportesBtn) {
 // ===============================
 // Auto-ajuste del textarea
 // ===============================
-const descripcionFields = document.querySelectorAll('textarea[name="descripcion"]');
-descripcionFields.forEach(field => {
-    const autoResize = () => {
-        field.style.height = "auto";
-        field.style.height = field.scrollHeight + "px";
-    };
-    field.addEventListener("input", autoResize);
-    autoResize();
+document.addEventListener('DOMContentLoaded', function() {
+    const descripcionFields = document.querySelectorAll('textarea[name="descripcion"]');
+    descripcionFields.forEach(field => {
+        const autoResize = () => {
+            field.style.height = "auto";
+            field.style.height = field.scrollHeight + "px";
+        };
+        field.addEventListener("input", autoResize);
+        // Ejecutar al cargar para ajustar contenido inicial
+        setTimeout(autoResize, 100);
+    });
 });
 
 // ===============================
-// Validación de fechas
+// Validación de fechas en tiempo real
 // ===============================
 document.addEventListener('DOMContentLoaded', function() {
     const fechaInputs = document.querySelectorAll('input[name="fecha_meta"]');
@@ -428,23 +552,157 @@ document.addEventListener('DOMContentLoaded', function() {
             fechaSeleccionada.setHours(0, 0, 0, 0);
             
             if (fechaSeleccionada <= hoy) {
-                alert('La fecha meta debe ser posterior a hoy');
+                this.classList.add('is-invalid');
+                
+                // Remover mensaje de error previo si existe
+                const existingError = this.parentNode.querySelector('.invalid-feedback');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Agregar nuevo mensaje de error
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback';
+                errorDiv.textContent = 'La fecha meta debe ser posterior a hoy';
+                this.parentNode.appendChild(errorDiv);
+                
                 this.value = '';
+            } else {
+                this.classList.remove('is-invalid');
+                const existingError = this.parentNode.querySelector('.invalid-feedback');
+                if (existingError) {
+                    existingError.remove();
+                }
             }
         });
     });
 });
 
 // ===============================
-// Manejar cambios en frecuencia para validaciones
+// Validación de monto en tiempo real
+// ===============================
+document.addEventListener('DOMContentLoaded', function() {
+    const montoInputs = document.querySelectorAll('input[name="monto_meta"]');
+    
+    montoInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            const valor = parseFloat(this.value);
+            
+            if (this.value && (isNaN(valor) || valor <= 0)) {
+                this.classList.add('is-invalid');
+                
+                // Remover mensaje de error previo si existe
+                const existingError = this.parentNode.querySelector('.invalid-feedback');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Agregar nuevo mensaje de error
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback';
+                errorDiv.textContent = 'El monto debe ser mayor a 0';
+                this.parentNode.appendChild(errorDiv);
+            } else {
+                this.classList.remove('is-invalid');
+                const existingError = this.parentNode.querySelector('.invalid-feedback');
+                if (existingError) {
+                    existingError.remove();
+                }
+            }
+        });
+    });
+});
+
+// ===============================
+// Manejar cambios en frecuencia
 // ===============================
 document.addEventListener('DOMContentLoaded', function() {
     const frecuenciaSelects = document.querySelectorAll('select[name="frecuencia"]');
     
     frecuenciaSelects.forEach(select => {
         select.addEventListener('change', function() {
-            // Aquí se puede agregar lógica adicional si es necesaria
-            // como ajustar automáticamente fechas según la frecuencia
+            // Remover cualquier error de validación previo
+            this.classList.remove('is-invalid');
+            const existingError = this.parentNode.querySelector('.invalid-feedback');
+            if (existingError) {
+                existingError.remove();
+            }
+        });
+    });
+});
+
+// ===============================
+// Prevenir envío múltiple del formulario
+// ===============================
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('form');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', function() {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
+                
+                // Rehabilitar botón después de 5 segundos por si hay error
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = submitBtn.getAttribute('data-original-text') || 'Guardar';
+                }, 5000);
+            }
+        });
+        
+        // Guardar texto original del botón
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.setAttribute('data-original-text', submitBtn.innerHTML);
+        }
+    });
+});
+
+// ===============================
+// Mostrar alertas de éxito/error
+// ===============================
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar si hay mensajes de sesión para mostrar
+    const successMessage = document.querySelector('.alert-success');
+    const errorMessage = document.querySelector('.alert-danger');
+    
+    if (successMessage) {
+        setTimeout(() => {
+            successMessage.style.transition = 'opacity 0.5s';
+            successMessage.style.opacity = '0';
+            setTimeout(() => {
+                successMessage.remove();
+            }, 500);
+        }, 5000);
+    }
+    
+    if (errorMessage) {
+        setTimeout(() => {
+            errorMessage.style.transition = 'opacity 0.5s';
+            errorMessage.style.opacity = '0';
+            setTimeout(() => {
+                errorMessage.remove();
+            }, 500);
+        }, 8000);
+    }
+});
+
+// ===============================
+// Formateo de números en inputs
+// ===============================
+document.addEventListener('DOMContentLoaded', function() {
+    const montoInputs = document.querySelectorAll('input[type="number"][step="0.01"]');
+    
+    montoInputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value) {
+                const valor = parseFloat(this.value);
+                if (!isNaN(valor)) {
+                    this.value = valor.toFixed(2);
+                }
+            }
         });
     });
 });
