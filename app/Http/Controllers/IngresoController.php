@@ -15,17 +15,16 @@ class IngresoController extends Controller
     {
         $userId = Auth::id();
 
-        // ========================
         // Traer ingresos reales
-        // ========================
         $ingresos = Ingreso::with('conceptoIngreso')
             ->where('usuario_id', $userId)
             ->get()
             ->map(function ($ingreso) {
                 return [
                     'id'          => $ingreso->ingreso_id,
-                    'concepto'    => $ingreso->conceptoIngreso->nombre ?? 'Sin concepto',
+                    'concepto'    => $ingreso->conceptoIngreso ? $ingreso->conceptoIngreso->nombre : 'Sin concepto',
                     'monto'       => $ingreso->monto,
+                    'tipo'        => $ingreso->tipo ?? 'Ingreso',
                     'tipo'        => $ingreso->tipo ?? 'Ingreso',
                     'fecha'       => $ingreso->fecha_registro,
                     'estado'      => 'Activo', // no existe campo estado en ingresos
@@ -34,19 +33,17 @@ class IngresoController extends Controller
                 ];
             });
 
-        // ========================
         // Traer proyecciones
-        // ========================
         $proyecciones = ProyeccionIngreso::with('conceptoIngreso')
             ->where('usuario_id', $userId)
             ->get()
             ->map(function ($proyeccion) {
                 return [
                     'id'          => $proyeccion->proyeccion_ingreso_id,
-                    'concepto'    => $proyeccion->conceptoIngreso->nombre ?? 'Sin concepto',
+                    'concepto'    => $proyeccion->conceptoIngreso ? $proyeccion->conceptoIngreso->nombre : 'Sin concepto',
                     'monto'       => $proyeccion->monto_programado,
                     'tipo'        => 'Proyección',
-                    'fecha'       => $proyeccion->fecha_inicio,
+                    'fecha'       => $proyeccion->fecha_creacion,
                     'fecha_fin'   => $proyeccion->fecha_fin ? $proyeccion->fecha_fin->format('Y-m-d') : '',
                     'estado'      => $proyeccion->activo ? 'Activo' : 'Inactivo',
                     'descripcion' => $proyeccion->descripcion ?? '',
@@ -54,9 +51,7 @@ class IngresoController extends Controller
                 ];
             });
 
-        // ========================
         // Fusionar ingresos y proyecciones
-        // ========================
         $registros = $ingresos->concat($proyecciones)->values();
 
         // ========================
@@ -70,17 +65,14 @@ class IngresoController extends Controller
 
         $ingresosMes = Ingreso::where('usuario_id', $userId)
             ->whereYear('fecha_registro', $anioActual)
+        $ingresosMes = Ingreso::where('usuario_id', $userId)
+            ->whereYear('fecha_registro', $anioActual)
             ->whereMonth('fecha_registro', $mesActual)
             ->sum('monto');
 
-        // ========================
         // Traer conceptos (para modal de selección)
-        // ========================
         $conceptoIngresos = ConceptoIngreso::all();
 
-        // ========================
-        // Enviar a la vista
-        // ========================
         return view('ingresos.ingresos', compact(
             'registros',
             'totalIngresos',
@@ -119,6 +111,7 @@ class IngresoController extends Controller
                 'fecha_registro'      => $validated['fecha'],
                 'descripcion'         => $validated['descripcion'] ?? '',
                 'usuario_id'          => $userId,
+                'usuario_id'          => $userId,
             ]);
 
             return redirect()->route('ingresos.index')->with('success', 'Ingreso creado correctamente.');
@@ -129,6 +122,7 @@ class IngresoController extends Controller
                 'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
                 'monto'               => 'required|numeric',
                 'fecha'               => 'required|date',
+                'fecha'               => 'required|date',
                 'fecha_fin'           => 'required|date|after_or_equal:fecha',
                 'activo'              => 'required|in:1,0',
                 'descripcion'         => 'required|string|max:200',
@@ -138,9 +132,11 @@ class IngresoController extends Controller
                 'monto_programado'    => $validated['monto'],
                 'descripcion'         => $validated['descripcion'],
                 'fecha_creacion'      => $validated['fecha'],
+                'fecha_creacion'      => $validated['fecha'],
                 'fecha_fin'           => $validated['fecha_fin'],
                 'activo'              => $validated['activo'],
                 'concepto_ingreso_id' => $validated['concepto_ingreso_id'],
+                'usuario_id'          => $userId,
                 'usuario_id'          => $userId,
             ]);
 
@@ -192,6 +188,7 @@ class IngresoController extends Controller
             $proyeccion->update([
                 'monto_programado'    => $validated['monto'],
                 'descripcion'         => $validated['descripcion'],
+                'fecha_creacion'      => $validated['fecha'],
                 'fecha_creacion'      => $validated['fecha'],
                 'fecha_fin'           => $validated['fecha_fin'],
                 'activo'              => $validated['activo'],
