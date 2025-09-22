@@ -1,95 +1,99 @@
 @extends('layouts.app')
 
 @push('styles')
-<!-- Bootstrap-->
+<!-- Bootstrap -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 @endpush
 
 @section('content')
 <div class="container">
-    <h2 class="mb-4">Gestión de Ahorros</h2>
+    <h1 class="mb-4">Ahorros</h1>
 
-    <!-- Botón para abrir modal de crear ahorro -->
-    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#createAhorroModal">
-        <i class="bi bi-plus-circle"></i> Nuevo Ahorro
-    </button>
+    <!-- Filtros -->
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <select id="statusFilter" class="form-select w-auto">
+            <option value="all">Todos</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+            <option value="Completado">Completado</option>
+        </select>
+        <input type="text" id="searchInput" class="form-control w-25" placeholder="Buscar...">
+        <div id="paginationInfo" class="ms-auto text-muted small"></div>
+        <button id="addAhorroBtn" class="btn btn-warning">
+            <i class="fa fa-plus"></i> Nuevo Ahorro
+        </button>
+    </div>
 
-    <!-- Tabla con DataTables -->
-    <table id="ahorrosTable" class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Concepto</th>
-                <th>Monto Meta</th>
-                <th>Total Acumulado</th>
-                <th>Porcentaje Avance</th>
-                <th>Fecha Creación</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($ahorros as $ahorro)
+    <!-- Tabla de Ahorros -->
+    <div class="table-responsive">
+        <table id="savingTable" class="table table-hover align-middle">
+            <thead class="table-warning">
                 <tr>
+                    <th>ID</th>
+                    <th>Concepto</th>
+                    <th>Monto Meta</th>
+                    <th>Total Acumulado</th>
+                    <th>Avance (%)</th>
+                    <th>Frecuencia</th>
+                    <th>Fecha Meta</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                    <th>Aportes</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($ahorros as $ahorro)
+                <tr 
+                    data-id="{{ $ahorro->id }}"
+                    data-descripcion="{{ $ahorro->descripcion }}"
+                    data-fecha_meta="{{ $ahorro->fecha_meta }}"
+                    data-concepto-id="{{ $ahorro->concepto_id }}">
                     <td>{{ $ahorro->id }}</td>
                     <td>{{ $ahorro->concepto }}</td>
                     <td>${{ number_format($ahorro->monto_meta, 2) }}</td>
-                    <td>${{ number_format($ahorro->total_acumulado, 2) }}</td>
+                    <td>${{ number_format($ahorro->total_acumulado ?? 0, 2) }}</td>
+                    <td>{{ $ahorro->avance ?? '0' }}%</td>
+                    <td>{{ $ahorro->frecuencia }}</td>
+                    <td>{{ $ahorro->fecha_meta->format('d/m/Y') }}</td>
                     <td>
-                        @php
-                            $porcentaje = $ahorro->monto_meta > 0 
-                                ? round(($ahorro->total_acumulado / $ahorro->monto_meta) * 100, 2)
-                                : 0;
-                        @endphp
-                        {{ $porcentaje }}%
+                        <span class="badge bg-{{ $ahorro->estado === 'Activo' ? 'success' : ($ahorro->estado === 'Inactivo' ? 'secondary' : 'warning') }}">
+                            {{ $ahorro->estado }}
+                        </span>
                     </td>
-                    <td>{{ $ahorro->created_at->format('d/m/Y') }}</td>
                     <td>
-                        <!-- Botón Ver -->
-                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#showAhorroModal{{ $ahorro->id }}">
-                            <i class="bi bi-eye"></i>
+                        <button class="btn btn-sm btn-outline-warning view-ahorro-btn">
+                            <i class="fa fa-eye"></i>
                         </button>
-
-                        <!-- Botón Editar -->
-                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editAhorroModal{{ $ahorro->id }}">
-                            <i class="bi bi-pencil"></i>
+                        <button class="btn btn-sm btn-warning edit-ahorro-btn">
+                            <i class="fa fa-edit"></i>
                         </button>
-
-                        <!-- Botón Eliminar -->
-                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteAhorroModal{{ $ahorro->id }}">
-                            <i class="bi bi-trash"></i>
+                        <button class="btn btn-sm btn-danger delete-ahorro-btn">
+                            <i class="fa fa-trash"></i>
                         </button>
-
-                        <!-- Botón Aportes -->
-                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#indexAporteModal{{ $ahorro->id }}">
-                            <i class="bi bi-wallet2"></i>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-warning aporte-btn">
+                            <i class="fa fa-coins"></i> Aportes
                         </button>
                     </td>
                 </tr>
-
-                <!-- Incluir modales de cada ahorro -->
-                @include('ahorros.partials.showModal', ['ahorro' => $ahorro])
-                @include('ahorros.partials.editModal', ['ahorro' => $ahorro])
-                @include('ahorros.partials.deleteModal', ['ahorro' => $ahorro])
-                @include('ahorros.indexAporteModal', ['ahorro' => $ahorro])
-            @endforeach
-        </tbody>
-    </table>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<!-- Modal de Crear Ahorro -->
+<!-- MODALES -->
 @include('ahorros.partials.createModal')
-
-@endsection
+@include('ahorros.partials.showModal')
+@include('ahorros.partials.editModal')
+@include('ahorros.partials.indexAporteModal')
 
 @push('scripts')
-<script>
-    $(document).ready(function() {
-        $('#ahorrosTable').DataTable({
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
-            },
-            responsive: true
-        });
-    });
-</script>
+    <!-- Bootstrap JS (bundle incluye Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Archivos JS -->
+    @vite(['resources/js/ahorros.js', 'resources/js/ahorros-database.js'])
 @endpush
+@endsection

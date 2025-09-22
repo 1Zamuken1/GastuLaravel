@@ -9,6 +9,8 @@ use App\Http\Controllers\EgresoController;
 
 use App\Http\Controllers\AutenticacionController;
 use App\Http\Controllers\IAController;
+use App\Http\Controllers\AhorroMetaController;
+use App\Http\Controllers\AporteAhorroController;
 use App\Http\Controllers\Admin\UsuarioController;
 
 Route::get('/', function () {
@@ -79,4 +81,20 @@ Route::middleware('groq.auth')->group(function () {
     Route::post('/ia/mensaje', [IAController::class, 'procesarMensaje'])->name('ia.mensaje');
     Route::get('/ia/estadisticas', [IAController::class, 'obtenerEstadisticas'])->name('ia.estadisticas');
     Route::post('/ia/consulta', [IAController::class, 'consultaPersonalizada'])->name('ia.consulta');
+});
+//rutas ahorros
+// Rutas para Ahorros (AhorroMeta)
+Route::prefix('ahorros')->name('ahorros.')->group(function () {
+    Route::get('/', [AhorroMetaController::class, 'index'])->name('index');
+    Route::get('/{id}', [AhorroMetaController::class, 'show'])->name('show');
+    Route::post('/store', [AhorroMetaController::class, 'store'])->name('store');
+    Route::put('/{id}', [AhorroMetaController::class, 'update'])->name('update');
+    Route::delete('/{id}', [AhorroMetaController::class, 'destroy'])->name('destroy');
+});
+
+// Rutas para Aportes (AporteAhorro)
+Route::prefix('aportes')->name('aportes.')->group(function () {
+    Route::get('/{ahorro_meta_id}', [AporteAhorroController::class, 'index'])->name('index');
+    Route::put('/{id}', [AporteAhorroController::class, 'update'])->name('update');
+    Route::post('/{id}/aportar-asignado', [AporteAhorroController::class, 'aportarAsignado'])->name('aportar-asignado');
 });
