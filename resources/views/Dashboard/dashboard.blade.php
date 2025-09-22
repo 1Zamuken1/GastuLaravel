@@ -15,7 +15,7 @@
                 <div class="stat-card">
                     <div class="stat-card-header">
                         <div>
-                            <div class="stat-number" id="ingresos-stat">$0</div>
+                            <div class="stat-number" id="ingresos-stat">${{ number_format($totalIngresos) }}</div>
                             <div class="stat-label">Total Ingresos</div>
                         </div>
                         <div class="stat-icon ingresos">
@@ -25,10 +25,10 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-card-header">
-                        <div>
-                            <div class="stat-number" id="egresos-stat">$0</div>
+                        {{-- <div>
+                            <div class="stat-number" id="egresos-stat">${{ number_format($totalEgresos) }}</div>
                             <div class="stat-label">Total Egresos</div>
-                        </div>
+                        </div> --}}
                         <div class="stat-icon egresos">
                             <i class="bi bi-arrow-down-circle"></i>
                         </div>
@@ -36,10 +36,10 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-card-header">
-                        <div>
-                            <div class="stat-number" id="saldo-stat">$0</div>
+                        {{-- <div>
+                            <div class="stat-number" id="saldo-stat">${{ number_format($saldoNeto) }}</div>
                             <div class="stat-label">Saldo Neto</div>
-                        </div>
+                        </div> --}}
                         <div class="stat-icon saldo">
                             <i class="bi bi-calculator"></i>
                         </div>
@@ -47,10 +47,10 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-card-header">
-                        <div>
-                            <div class="stat-number" id="ahorros-stat">$0</div>
+                        {{-- <div>
+                            <div class="stat-number" id="ahorros-stat">${{ number_format($totalAhorros) }}</div>
                             <div class="stat-label">Total Ahorros</div>
-                        </div>
+                        </div> --}}
                         <div class="stat-icon ahorros">
                             <i class="bi bi-piggy-bank"></i>
                         </div>
@@ -64,10 +64,10 @@
                     <div class="chart-title">Balance Mensual</div>
                     <div id="chartBalance"></div>
                 </div>
-                <div class="chart-container">
+                {{-- <div class="chart-container">
                     <div class="chart-title">Distribución de Ahorros</div>
                     <div id="chartAhorros"></div>
-                </div>
+                </div> --}}
             </div>
 
             <!-- BOTONES DE CONTROL -->
