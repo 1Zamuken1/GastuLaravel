@@ -14,7 +14,6 @@ class IngresoController extends Controller
     public function index()
     {
         $userId = Auth::id();
-
         // Traer ingresos reales
         $ingresos = Ingreso::with('conceptoIngreso')
             ->where('usuario_id', $userId)
@@ -64,7 +63,7 @@ class IngresoController extends Controller
         $anioActual = Carbon::now()->year;
 
         $ingresosMes = Ingreso::where('usuario_id', $userId)
-            ->whereYear('fecha_registro', $anioActual)
+            ->whereYear('fecha_registro', $anioActual);
         $ingresosMes = Ingreso::where('usuario_id', $userId)
             ->whereYear('fecha_registro', $anioActual)
             ->whereMonth('fecha_registro', $mesActual)

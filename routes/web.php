@@ -22,34 +22,6 @@ Route::get('/', function () {
 Route::middleware('groq.auth')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
-//Route::middleware(['auth'])->group(function () { 
-    //Ingresos
-    // Route::get('/ingresos', [IngresoController::class, 'index'])->name('ingresos.index');
-    // //Route::post('/ingresos', [IngresoController::class, 'store'])->name('ingresos.store');
-    // Route::get('/ingresos/create/{id?}', [IngresoController::class, 'create'])->name('ingresos.create');
-
-    // Route::post('/ingresos/store', [IngresoController::class, 'store'])->name('ingresos.store');
-    // Route::post('/ingresos/update/{id}', [IngresoController::class, 'update'])->name('ingresos.update');
-    // // Para ingresos reales
-    // Route::delete('/ingresos/destroy/{id}', [IngresoController::class, 'destroy'])->name('ingresos.destroy');
-
-    //Proyecciones de Ingresos
-    // Route::post('/proyecciones_ingresos', [ProyeccionIngresoController::class, 'store'])->name('proyecciones_ingresos.store');
-    // Route::put('/proyecciones_ingresos/{id}', [ProyeccionIngresoController::class, 'update'])->name('proyecciones_ingresos.update');
-    // // Para proyecciones
-    // Route::delete('/proyecciones_ingresos/{id}', [ProyeccionIngresoController::class, 'destroy'])->name('proyecciones_ingresos.destroy');
-
-    // Route::get('/proyecciones_ingresos/recordatorio-hoy', [ProyeccionIngresoController::class, 'proyeccionesRecordatorioHoy']);
-    // Route::get('/proyecciones_ingresos/para-confirmar', [ProyeccionIngresoController::class, 'proyeccionesParaConfirmar']);
-    // Route::post('/proyecciones_ingresos/confirmar', [ProyeccionIngresoController::class, 'confirmarRecurrencias']);
-
-    //Proyecciones de Ingresos
-    // Route::post('/proyecciones', [ProyeccionEgresoController::class, 'store'])->name('proyecciones.store');
-    // Route::put('/proyecciones/{id}', [ProyeccionEgresoController::class, 'update'])->name('proyecciones.update');
-    // Route::delete('/proyecciones/{id}', [ProyeccionEgresoController::class, 'destroy'])->name('proyecciones.destroy');
-    // Route::get('/proyecciones/{id}', [ProyeccionEgresoController::class, 'show'])->name('proyecciones.show');
-    // Route::get('/proyecciones/para-confirmar', [ProyeccionEgresoController::class, 'proyeccionesParaConfirmar']);
-    // Route::post('/proyecciones/confirmar', [ProyeccionEgresoController::class, 'confirmarRecurrencias']);
     
    //Egresos
     Route::get('/egresos', [EgresoController::class, 'index'])->name('egresos.index');
