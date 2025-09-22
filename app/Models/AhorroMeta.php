@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class AhorroMetum
+ * Class AhorroMeta
  * 
  * @property int $ahorro_meta_id
  * @property int $usuario_id

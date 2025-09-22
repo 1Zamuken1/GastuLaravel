@@ -5,84 +5,108 @@ namespace App\Http\Controllers;
 use App\Models\AporteAhorro;
 use App\Models\AhorroMeta;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class AporteAhorroController extends Controller
 {
-    // Mostrar todos los aportes de un ahorro
-    public function index($ahorroMetaId)
+    // Listar aportes de un ahorro en JSON (para el modal indexAporteModal)
+    public function index($ahorro_meta_id)
     {
-        $meta = AhorroMeta::with('aporteAhorros')->findOrFail($ahorroMetaId);
-        $aportes = $meta->aporteAhorros;
+        $aportes = AporteAhorro::where('ahorro_meta_id', $ahorro_meta_id)->get();
 
-        return view('ahorros.aportes.indexAporte', compact('meta', 'aportes'));
+        if ($aportes->isEmpty()) {
+            return response()->json([
+                'message' => 'No hay aportes registrados para este ahorro',
+                'status' => 200,
+            ], 200);
+        }
+
+        return response()->json([
+            'aportes' => $aportes,
+            'status' => 200,
+        ], 200);
     }
 
-    // Mostrar detalle de un aporte
-    public function show($id)
-    {
-        $aporte = AporteAhorro::with('ahorro_meta')->findOrFail($id);
-        return view('ahorros.aportes.showAporte', compact('aporte'));
-    }
-
-    // Mostrar formulario de edición de un aporte
-    public function edit($id)
-    {
-        $aporte = AporteAhorro::with('ahorro_meta')->findOrFail($id);
-        return view('ahorros.aportes.editAporte', compact('aporte'));
-    }
-
-    // Actualizar un aporte
+    // Actualizar el aporte (solo el campo "aporte" que llena el usuario)
     public function update(Request $request, $id)
     {
-        $aporte = AporteAhorro::findOrFail($id);
+        $aporte = AporteAhorro::find($id);
 
-        $validated = $request->validate([
-            'monto' => 'required|numeric|min:1',
-            'fecha_registro' => 'required|date'
+        if (! $aporte) {
+            return response()->json([
+                'message' => 'Aporte no encontrado',
+                'status' => 404,
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'aporte' => 'required|numeric|min:0',
         ]);
 
-        $aporte->update($validated);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $validator->errors(),
+                'status' => 400,
+            ], 400);
+        }
 
-        // Recalcular total acumulado de la meta
+        // Guardar el aporte del usuario
+        $aporte->aporte = $request->aporte;
+
+        // Validar fecha límite
+        $hoy = Carbon::now();
+        if ($hoy->lte($aporte->fecha_limite)) {
+            $aporte->estado = 'Completada';
+        } else {
+            $aporte->estado = 'Perdida';
+            $this->recalcularProximasCuotas($aporte->ahorro_meta_id);
+        }
+
+        $aporte->save();
+
+        // Actualizar total acumulado en ahorro_meta
         $meta = $aporte->ahorro_meta;
-        $meta->update([
-            'total_acumulado' => $meta->aporteAhorros()->sum('monto')
-        ]);
+        $meta->total_acumulado += $aporte->aporte;
+        $meta->save();
 
-        return redirect()->route('aportes.index', $aporte->ahorro_meta_id)
-                         ->with('success', 'Aporte actualizado correctamente.');
+        return response()->json([
+            'message' => 'Aporte actualizado correctamente',
+            'aporte' => $aporte,
+            'status' => 200,
+        ], 200);
     }
 
-    // Eliminar un aporte
-    public function destroy($id)
+    // 📌 Lógica para recalcular las siguientes cuotas si una se pierde
+    private function recalcularProximasCuotas($ahorro_meta_id)
     {
-        $aporte = AporteAhorro::findOrFail($id);
-        $ahorroMetaId = $aporte->ahorro_meta_id;
-        $aporte->delete();
+        $meta = AhorroMeta::find($ahorro_meta_id);
 
-        // Recalcular total acumulado de la meta
-        $meta = AhorroMeta::find($ahorroMetaId);
-        $meta->update([
-            'total_acumulado' => $meta->aporteAhorros()->sum('monto')
-        ]);
+        if (! $meta) return;
 
-        return redirect()->route('aportes.index', $ahorroMetaId)
-                         ->with('success', 'Aporte eliminado correctamente.');
-    }
+        // Contar aportes perdidos
+        $perdidas = AporteAhorro::where('ahorro_meta_id', $ahorro_meta_id)
+            ->where('estado', 'Perdida')
+            ->count();
 
-    // Función para aportar cuota desde el botón
-    public function pagarCuota($id)
-    {
-        $aporte = AporteAhorro::findOrFail($id);
+        if ($perdidas >= 5) {
+            $meta->estado = 'Inactivo';
+            $meta->save();
+            return;
+        }
 
-        // Aquí se podría agregar lógica extra si fuera necesario
-        // Por ahora simplemente recalculamos el total acumulado
-        $meta = $aporte->ahorro_meta;
-        $meta->update([
-            'total_acumulado' => $meta->aporteAhorros()->sum('monto')
-        ]);
+        // Reajustar montos de las cuotas futuras
+        $restante = $meta->monto_meta - $meta->total_acumulado;
+        $pendientes = AporteAhorro::where('ahorro_meta_id', $ahorro_meta_id)
+            ->whereNull('aporte')
+            ->count();
 
-        return redirect()->route('aportes.index', $meta->ahorro_meta_id)
-                         ->with('success', 'Se ha aportado la cuota correctamente.');
+        if ($pendientes > 0 && $restante > 0) {
+            $nuevoMonto = $restante / $pendientes;
+            AporteAhorro::where('ahorro_meta_id', $ahorro_meta_id)
+                ->whereNull('aporte')
+                ->update(['aporte_asignado' => $nuevoMonto]);
+        }
     }
 }

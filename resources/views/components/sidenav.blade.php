@@ -38,20 +38,12 @@
             <span class="side-nav-text">Egresos</span>
           </a>
         </li>
-        {{-- <li data-page="ahorros">
+        <li data-page="ahorros">
            <a href="{{ route('ahorros.index') }}">
             <span class="side-nav-icon"><img src="{{ asset('icons/ahorro.svg') }}" alt="Ahorro" /></span> 
-            <span class="side-nav-text">Ahorro</span>
+            <span class="side-nav-text">Ahorros</span>
           </a>
-        </li> --}}
-        {{-- <li data-page="ahorros">
-            <a class="nav-link" href="{{ route('chatbot.index') }}">
-            <span class="side-nav-icon"><img src="{{ asset('icons/gastu_logo.svg') }}" alt="Asistente virtual" /></span> 
-            <span class="side-nav-text"> Asistente</span>
-          </a>
-        </li> --}}
-        
-
+        </li> 
         <!-- <li data-page="reportes">
           {{-- <a href="{{ route('reportes.index') }}"> --}}
             {{-- <span class="side-nav-icon"><img src="{{ asset('icons/reportes.svg') }}" alt="Reportes" /></span> --}}
