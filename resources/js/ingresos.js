@@ -200,7 +200,7 @@ document.querySelectorAll(".edit-btn").forEach((btn) => {
         // data: 0: ID, 1: Concepto, 2: Monto, 3: Tipo, 4: Fecha, 5: Estado
         const id = data[0];
         const concepto = data[1];
-        const monto = data[2].replace(/[^0-9.,-]/g, "").replace(",", ".").trim();
+        const monto = data[2].replace(/,/g, '').replace(/\s/g, '').trim();
         const tipo = data[3];
         const fecha = data[4].split("/").reverse().join("-");
         const estado = data[6];
