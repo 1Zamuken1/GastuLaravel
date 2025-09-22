@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IngresoController;
 use App\Http\Controllers\ProyeccionIngresoController;
 use App\Http\Controllers\ProyeccionEgresoController;
@@ -14,9 +15,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('Dashboard.dashboard');
-})->name('dashboard');
+//Route::middleware(['auth'])->get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+
+Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 //Route::middleware(['auth'])->group(function () { 
     //Ingresos
@@ -46,7 +48,6 @@ Route::get('/dashboard', function () {
     Route::get('/proyecciones/{id}', [ProyeccionEgresoController::class, 'show'])->name('proyecciones.show');
     Route::get('/proyecciones/para-confirmar', [ProyeccionEgresoController::class, 'proyeccionesParaConfirmar']);
     Route::post('/proyecciones/confirmar', [ProyeccionEgresoController::class, 'confirmarRecurrencias']);
-//});
     
    //Egresos
     Route::get('/egresos', [EgresoController::class, 'index'])->name('egresos.index');

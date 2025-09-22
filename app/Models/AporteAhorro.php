@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $estado
  * @property Carbon $fecha_registro
  * 
- * @property AhorroMetum $ahorro_metum
+ * @property AhorroMeta $ahorro_meta
  *
  * @package App\Models
  */
@@ -47,8 +47,8 @@ class AporteAhorro extends Model
 		'fecha_registro'
 	];
 
-	public function ahorro_metum()
+	public function ahorro_meta()
 	{
-		return $this->belongsTo(AhorroMetum::class, 'ahorro_meta_id');
+		return $this->belongsTo(AhorroMeta::class, 'ahorro_meta_id');
 	}
 }

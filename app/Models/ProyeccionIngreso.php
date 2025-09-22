@@ -58,6 +58,6 @@ class ProyeccionIngreso extends Model
 
 	public function conceptoIngreso()
 	{
-		return $this->belongsTo(ConceptoIngreso::class);
+		return $this->belongsTo(ConceptoIngreso::class, 'concepto_ingreso_id');
 	}
 }

@@ -8,7 +8,6 @@ use App\Http\Controllers\ProyeccionIngresoController;
 use App\Http\Controllers\GastosController;  
 use App\Http\Controllers\ConceptoEgresoController;
 use App\Http\Controllers\AhorroMetaController;
-use App\Http\Controllers\AhorroProgramadoController;
 use App\Http\Controllers\AporteAhorroController;
 
 
@@ -68,35 +67,15 @@ Route::delete('/proyecciones-ingreso/{id}', [ProyeccionIngresoController::class,
 // Route::put('/conceptoEgresos/{conceptoEgreso}', [ConceptoEgresoController::class, 'update']);
 // Route::delete('/conceptoEgresos/{conceptoEgreso}', [ConceptoEgresoController::class, 'destroy']);
 
+// ========================================= AHORROS  =============================
 
-
-
-
-
-
-
-
-
-// ================================== Rutas para Ahorros (AhorroMeta) =================================================
-Route::get('/ahorros', [AhorroMetaController::class, 'index']);
-Route::get('/ahorros/{id}', [AhorroMetaController::class, 'show']);
+// AhorroMeta
+Route::get('/ahorros', [AhorroMetaController::class, 'index']); // lista todas las metas con % avance
+Route::get('/ahorros/{id}', [AhorroMetaController::class, 'show']); // detalle de una meta
 Route::post('/ahorros', [AhorroMetaController::class, 'store']);
 Route::put('/ahorros/{id}', [AhorroMetaController::class, 'update']);
-Route::patch('/ahorros/{id}', [AhorroMetaController::class, 'updatePartial']);
 Route::delete('/ahorros/{id}', [AhorroMetaController::class, 'destroy']);
 
-// ============================= Rutas para Ahorros Programados ========================================================
-Route::get('/ahorros-programados', [AhorroProgramadoController::class, 'index']);
-Route::get('/ahorros-programados/{id}', [AhorroProgramadoController::class, 'show']);
-Route::post('/ahorros-programados', [AhorroProgramadoController::class, 'store']);
-Route::put('/ahorros-programados/{id}', [AhorroProgramadoController::class, 'update']);
-Route::patch('/ahorros-programados/{id}', [AhorroProgramadoController::class, 'updatePartial']);
-Route::delete('/ahorros-programados/{id}', [AhorroProgramadoController::class, 'destroy']);
-
-// ============================= Rutas para Aportes de Ahorro ==========================================================
-Route::get('/aportes-ahorro', [AporteAhorroController::class, 'index']);
-Route::get('/aportes-ahorro/{id}', [AporteAhorroController::class, 'show']);
-Route::post('/aportes-ahorro', [AporteAhorroController::class, 'store']);
-Route::put('/aportes-ahorro/{id}', [AporteAhorroController::class, 'update']);
-Route::patch('/aportes-ahorro/{id}', [AporteAhorroController::class, 'updatePartial']);
-Route::delete('/aportes-ahorro/{id}', [AporteAhorroController::class, 'destroy']);
+// Aportes de Ahorro
+Route::get('/ahorros/{id}/aportes', [AporteAhorroController::class, 'index']); // JSON con todos los aportes de una meta
+Route::put('/aportes/{id}', [AporteAhorroController::class, 'update']); // actualizar aporte (monto/estado)
