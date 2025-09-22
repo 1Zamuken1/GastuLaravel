@@ -6,7 +6,6 @@ use App\Http\Controllers\ProyeccionIngresoController;
 use App\Http\Controllers\ProyeccionEgresoController;
 use App\Http\Controllers\EgresoController;
 use App\Http\Controllers\AhorroMetaController;
-use App\Http\Controllers\AhorroProgramadoController;
 use App\Http\Controllers\AporteAhorroController;
 
 use App\Http\Controllers\AutenticacionController;
@@ -49,7 +48,6 @@ Route::get('/dashboard', function () {
     Route::get('/proyecciones/{id}', [ProyeccionEgresoController::class, 'show'])->name('proyecciones.show');
     Route::get('/proyecciones/para-confirmar', [ProyeccionEgresoController::class, 'proyeccionesParaConfirmar']);
     Route::post('/proyecciones/confirmar', [ProyeccionEgresoController::class, 'confirmarRecurrencias']);
-//});
     
    //Egresos
     Route::get('/egresos', [EgresoController::class, 'index'])->name('egresos.index');
@@ -59,29 +57,23 @@ Route::get('/dashboard', function () {
     Route::post('/egresos/update/{id}', [EgresoController::class, 'update'])->name('egresos.update');
     Route::delete('/egresos/destroy/{id}', [EgresoController::class, 'destroy'])->name('egresos.destroy');
 
-    // // AhorroMeta
-    // Route::get('/ahorros', [AhorroMetaController::class, 'index'])->name('ahorros.index');
-    // Route::get('/ahorros/create', [AhorroMetaController::class, 'create'])->name('ahorros.create');
-    // Route::post('/ahorros/store', [AhorroMetaController::class, 'store'])->name('ahorros.store');
-    // Route::get('/ahorros/{id}', [AhorroMetaController::class, 'show'])->name('ahorros.show');
-    // Route::get('/ahorros/{id}/edit', [AhorroMetaController::class, 'edit'])->name('ahorros.edit');
-    // Route::put('/ahorros/update/{id}', [AhorroMetaController::class, 'update'])->name('ahorros.update');
-    // Route::delete('/ahorros/destroy/{id}', [AhorroMetaController::class, 'destroy'])->name('ahorros.destroy');
+ // Ahorros
 
-    //AhorroProgramado
-    Route::get('/ahorros/{ahorroMetaId}/programados', [AhorroProgramadoController::class, 'index'])->name('programados.index');
-    Route::get('/programados/{id}', [AhorroProgramadoController::class, 'show'])->name('programados.show');
-    Route::post('/programados/store', [AhorroProgramadoController::class, 'store'])->name('programados.store');
-    Route::put('/programados/update/{id}', [AhorroProgramadoController::class, 'update'])->name('programados.update');
-    Route::delete('/programados/destroy/{id}', [AhorroProgramadoController::class, 'destroy'])->name('programados.destroy');
+Route::get('/ahorros', [AhorroMetaController::class, 'index'])->name('ahorros.index');
+// Modal Crear AhorroMeta
+Route::get('/ahorros/create', [AhorroMetaController::class, 'create'])->name('ahorros.create');
+Route::post('/ahorros/store', [AhorroMetaController::class, 'store'])->name('ahorros.store');
+// Modal Editar AhorroMeta
+Route::post('/ahorros/update/{id}', [AhorroMetaController::class, 'update'])->name('ahorros.update');
+// Modal Eliminar AhorroMeta
+Route::delete('/ahorros/destroy/{id}', [AhorroMetaController::class, 'destroy'])->name('ahorros.destroy');
+// Modal Mostrar AhorroMeta (detalle con % avance y aportes)
+Route::get('/ahorros/show/{id}', [AhorroMetaController::class, 'show'])->name('ahorros.show');
+// Modal Index Aportes de un Ahorro
+Route::get('/ahorros/{id}/aportes', [AporteAhorroController::class, 'index'])->name('aportes.index');
+// Modal Editar Aporte
+Route::post('/ahorros/aportes/update/{id}', [AporteAhorroController::class, 'update'])->name('aportes.update');
 
-    // AporteAhorro
-    Route::get('/ahorros/{ahorroMetaId}/aportes', [AporteAhorroController::class, 'index'])->name('aportes.index');
-    Route::get('/aportes/{id}', [AporteAhorroController::class, 'show'])->name('aportes.show');
-    Route::get('/aportes/{id}/edit', [AporteAhorroController::class, 'edit'])->name('aportes.edit');
-    Route::put('/aportes/update/{id}', [AporteAhorroController::class, 'update'])->name('aportes.update');
-    Route::put('/aportes/{id}/pagar-cuota', [AporteAhorroController::class, 'pagarCuota'])->name('aportes.pagarCuota');
-    Route::delete('/aportes/destroy/{id}', [AporteAhorroController::class, 'destroy'])->name('aportes.destroy');
 
 
 //Formularios de autenticación
@@ -96,8 +88,6 @@ Route::get('/login', function() {
 //procesamiento de formularios
 Route::post('/registrar',[AutenticacionController::class, 'registrar'])->name('registrar');
 Route::post('/login',[AutenticacionController::class, 'login'])->name('login');
-
-
 
 // Logout de usuario
 Route::post('/logout', [AutenticacionController::class, 'logout'])->name('logout')->middleware('auth');
