@@ -36,6 +36,8 @@
                 <option value="Ingreso">Ingreso</option>
                 <option value="Proyección">Proyección</option>
             </select>
+            <button id="btnExportPDF" class="add-btn export-btn"><i class="fas fa-file-pdf"></i> PDF</button>
+            <button id="btnExportExcel" class="add-btn export-btn"><i class="fas fa-file-excel"></i> Excel</button>
         </div>
 
         {{-- Tabla --}}

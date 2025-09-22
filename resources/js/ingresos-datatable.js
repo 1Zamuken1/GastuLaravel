@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Inicializar DataTable una sola vez
+    // Inicializar DataTable con botones ocultos
     let table = $("#incomeTable").DataTable({
         pageLength: 10,
         language: {
@@ -7,20 +7,38 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         columnDefs: [
             {
-                targets: 0, // Columna ID
-                visible: false, // Oculta la columna ID
-                searchable: false, // Opcional: que no se busque por ID
+                targets: 0,
+                visible: false,
+                searchable: false,
             },
             {
-                targets: -1, // última columna (acciones)
+                targets: -1,
                 orderable: false,
                 searchable: false,
             },
         ],
-        order: [[4, "desc"]], // <-- Ordena por la columna Fecha (índice 4) descendente
-        dom: "tip",
-        autoWidth: false, // <-- Añade esto
-    responsive: true,
+        order: [[4, "desc"]],
+        dom: "tip", // No mostramos los botones aquí
+        autoWidth: false,
+        responsive: true,
+        buttons: [
+            {
+                extend: "excelHtml5",
+                title: "Ingresos y Proyecciones",
+                exportOptions: {
+                    columns: [1, 2, 3, 4, 5], // Excluye ID y Acciones
+                },
+            },
+            {
+                extend: "pdfHtml5",
+                title: "Ingresos y Proyecciones",
+                exportOptions: {
+                    columns: [1, 2, 3, 4, 5],
+                },
+                orientation: "landscape",
+                pageSize: "A4",
+            },
+        ],
     });
 
     // =========================
@@ -68,6 +86,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 info.recordsTotal
             } registros`
         );
+    });
+
+    // Botones personalizados para exportar
+    document.getElementById("btnExportPDF").addEventListener("click", function () {
+        table.button(1).trigger();
+    });
+    document.getElementById("btnExportExcel").addEventListener("click", function () {
+        table.button(0).trigger();
     });
 
     // Forzar la primera actualización
