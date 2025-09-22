@@ -51,7 +51,7 @@ class ProyeccionIngresoController extends Controller
         'fecha_creacion' => $request->input('fecha'),
         'fecha_fin' => $request->fecha_fin,
         'activo' => $request->activo,
-        'concepto_ingreso_id' => $request->concepto_ingreso_id,
+        'concepto_ingreso_id' => $request->input('concepto_ingreso_id', $proyeccion->concepto_ingreso_id),
         'usuario_id' => $userId, //auth()->id(), // <-- Aquí
     ]);
 
