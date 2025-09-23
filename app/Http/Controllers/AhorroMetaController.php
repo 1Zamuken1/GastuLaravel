@@ -13,7 +13,7 @@ class AhorroMetaController extends Controller
 {
     public function index()
     {
-        $userId = Auth::id();
+        $userId = Auth::id(); // solo modificar lo de la autenticacion, logica bien hecha
         $ahorros = AhorroMeta::where('usuario_id', $userId)->get();
 
         foreach ($ahorros as $ahorro) {
@@ -34,22 +34,19 @@ class AhorroMetaController extends Controller
 
     public function store(Request $request)
     {
-        // Validación con mensajes personalizados
         $validator = Validator::make($request->all(), [
             'concepto' => 'required|string|max:60',
             'descripcion' => 'nullable|string|max:100',
             'monto_meta' => 'required|numeric|min:0.01',
-            'frecuencia' => 'required|string|in:Diario,Semanal,Quincenal,Mensual',
-            'fecha_meta' => 'required|date|after:today',
-            'estado' => 'required|string|in:Activo,Inactivo,Completado'
+            'frecuencia' => 'required|string|in:Diario,Semanal,Quincenal,Mensual,Trimestral,Semestral,Anual',
+            'fecha_meta' => 'required|date|after:today'
         ], [
             'concepto.required' => 'El concepto es obligatorio',
             'monto_meta.required' => 'El monto meta es obligatorio',
             'monto_meta.min' => 'El monto meta debe ser mayor a 0',
             'frecuencia.required' => 'La frecuencia es obligatoria',
             'fecha_meta.required' => 'La fecha meta es obligatoria',
-            'fecha_meta.after' => 'La fecha meta debe ser posterior a hoy',
-            'estado.required' => 'El estado es obligatorio'
+            'fecha_meta.after' => 'La fecha meta debe ser posterior a hoy'
         ]);
 
         if ($validator->fails()) {
@@ -60,7 +57,6 @@ class AhorroMetaController extends Controller
         }
 
         try {
-            // Crear la meta de ahorro
             $meta = AhorroMeta::create([
                 'usuario_id' => Auth::id(),
                 'concepto' => trim($request->concepto),
@@ -69,16 +65,13 @@ class AhorroMetaController extends Controller
                 'frecuencia' => $request->frecuencia,
                 'fecha_creacion' => Carbon::now(),
                 'fecha_meta' => Carbon::parse($request->fecha_meta),
-                'estado' => $request->estado,
+                'estado' => 'Activo', // Estado por defecto
                 'total_acumulado' => 0,
                 'cantidad_cuotas' => 0
             ]);
 
-            // Verificar que se haya creado correctamente
             if ($meta && $meta->ahorro_meta_id) {
-                // Generar automáticamente los aportes
                 $this->generarAportes($meta);
-                
                 return redirect()->route('ahorros.index')
                     ->with('success', 'Ahorro creado correctamente');
             } else {
@@ -86,7 +79,6 @@ class AhorroMetaController extends Controller
                     ->withInput()
                     ->with('error', 'No se pudo crear el ahorro. Intenta nuevamente');
             }
-
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
@@ -103,7 +95,7 @@ class AhorroMetaController extends Controller
             'concepto' => 'required|string|max:60',
             'descripcion' => 'nullable|string|max:100',
             'monto_meta' => 'required|numeric|min:0.01',
-            'frecuencia' => 'required|string|in:Diario,Semanal,Quincenal,Mensual',
+            'frecuencia' => 'required|string|in:Diario,Semanal,Quincenal,Mensual,Trimestral,Semestral,Anual',
             'fecha_meta' => 'required|date|after:today',
         ]);
 
@@ -171,7 +163,7 @@ class AhorroMetaController extends Controller
 
             $cantidadCuotas = 0;
             $periodo = null;
-
+            
             switch ($meta->frecuencia) {
                 case 'Diario':
                     $cantidadCuotas = $fechaInicio->diffInDays($fechaFin) + 1;
@@ -187,11 +179,24 @@ class AhorroMetaController extends Controller
                     $periodoDias = 15;
                     break;
                 case 'Mensual':
-                    $cantidadCuotas = $fechaInicio->diffInMonths($fechaFin) + 1;
-                    $periodo = 'month';
-                    break;
-            }
-
+                   $cantidadCuotas = $fechaInicio->diffInMonths($fechaFin) + 1;
+                   $periodo = 'month';
+                   break;
+                case 'Trimestral':
+                   $cantidadCuotas = ceil($fechaInicio->diffInMonths($fechaFin) / 3) + 1;
+                   $periodo = 'months';
+                   $periodoMeses = 3;
+                   break;
+                case 'Semestral':
+                   $cantidadCuotas = ceil($fechaInicio->diffInMonths($fechaFin) / 6) + 1;
+                   $periodo = 'months';
+                   $periodoMeses = 6;
+                   break;
+                case 'Anual':
+                  $cantidadCuotas = ceil($fechaInicio->diffInYears($fechaFin)) + 1;
+                  $periodo = 'year';
+                  break;
+}
             // Actualizar cantidad de cuotas
             $meta->cantidad_cuotas = $cantidadCuotas;
             $meta->save();

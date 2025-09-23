@@ -11,21 +11,17 @@ use Carbon\Carbon;
 class AporteAhorroController extends Controller
 {
     public function index($ahorro_meta_id)
-    {
-        $aportes = AporteAhorro::where('ahorro_meta_id', $ahorro_meta_id)->get();
+{
+    $aportes = AporteAhorro::where('ahorro_meta_id', $ahorro_meta_id)
+        ->orderBy('fecha_limite')
+        ->get();
 
-        if ($aportes->isEmpty()) {
-            return response()->json([
-                'message' => 'No hay aportes registrados para este ahorro',
-                'status' => 200,
-            ], 200);
-        }
-
-        return response()->json([
-            'aportes' => $aportes,
-            'status' => 200,
-        ], 200);
-    }
+    return response()->json([
+        'aportes' => $aportes,
+        'status' => 200,
+        'message' => $aportes->isEmpty() ? 'No hay aportes registrados para este ahorro' : null,
+    ], 200);
+}
 
     // Registrar aporte real (cuando el usuario llena manualmente el campo "aporte")
     public function update(Request $request, $id)

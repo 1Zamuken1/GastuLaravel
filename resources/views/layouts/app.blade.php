@@ -17,6 +17,7 @@
     @vite('resources/css/app.css')
     @vite('resources/js/app.js')
     @vite('resources/css/header.css')
+    @vite('resources/css/chatbot-financiero.css')
 
     {{-- Espacio para estilos específicos de cada vista --}}
     @stack('styles')

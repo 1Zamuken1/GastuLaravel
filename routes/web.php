@@ -57,13 +57,21 @@ Route::middleware('groq.auth')->group(function () {
     Route::get('/ia/estadisticas', [IAController::class, 'obtenerEstadisticas'])->name('ia.estadisticas');
     Route::post('/ia/consulta', [IAController::class, 'consultaPersonalizada'])->name('ia.consulta');
 });
+// Rutas Ahorro Meta protegidas
 // Rutas Ahorros protegidas
 Route::middleware('groq.auth')->prefix('ahorros')->name('ahorros.')->group(function () {
+    Route::post('/store', [AhorroMetaController::class, 'store'])->name('store');
     Route::get('/', [AhorroMetaController::class, 'index'])->name('index');
     Route::get('/{id}', [AhorroMetaController::class, 'show'])->name('show');
-    Route::post('/store', [AhorroMetaController::class, 'store'])->name('store');
     Route::put('/{id}', [AhorroMetaController::class, 'update'])->name('update');
     Route::delete('/{id}', [AhorroMetaController::class, 'destroy'])->name('destroy');
+});
+
+// Rutas Aportes protegidas
+Route::middleware('groq.auth')->prefix('aportes')->name('aportes.')->group(function () {
+    Route::get('/{ahorro_meta_id}', [AporteAhorroController::class, 'index'])->name('index');
+    Route::put('/{id}', [AporteAhorroController::class, 'update'])->name('update');
+    Route::post('/{id}/aportar-asignado', [AporteAhorroController::class, 'aportarAsignado'])->name('aportar-asignado');
 });
 
 // Rutas Aportes protegidas

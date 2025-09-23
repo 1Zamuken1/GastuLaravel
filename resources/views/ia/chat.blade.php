@@ -1,69 +1,67 @@
-    {{-- resources/views/chatbot-financiero.blade.php --}}
+{{-- resources/views/chatbot-financiero.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Asistente Financiero IA')
 
 @push('styles')
-    {{-- Estilos específicos del chatbot --}}
-    <style>
-        .chatbot-container {
-            max-width: 800px;
-            margin: auto;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/chatbot-financiero.css') }}">
 @endpush
 
 @section('content')
-<div class="chatbot-container bg-white rounded-lg shadow-lg p-6">
-    <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">
-        Asistente Financiero IA
-    </h1>
+<div class="chatbot-container">
+    <!-- Header -->
+    <div class="chatbot-header">
+       
+        <h1 class="chatbot-title">Búho</h1>
+        <p class="chatbot-subtitle">Tu compañero inteligente para decisiones financieras</p>
+    </div>
     
     <!-- Área de chat -->
-    <div id="chatArea" class="h-96 overflow-y-auto border border-gray-300 rounded-lg p-4 mb-4 bg-gray-50">
-        <div class="message ia-message mb-3">
-            <div class="bg-blue-100 p-3 rounded-lg">
-                <strong>IA:</strong> ¡Hola {{ Auth::user()->nombre }}! 
-                Soy tu asistente financiero. Puedo ayudarte a analizar tus ingresos, egresos y ahorros. 
-                ¿En qué te puedo ayudar?
+    <div id="chatArea" class="chat-area">
+        <div class="message ia-message">
+            <div class="message-content">
+                <div class="message-author">Búho</div>
+                <div class="message-text">
+                    Hola {{ Auth::user()->nombre }}! Soy Búho, tu asistente financiero personal. 
+                    Puedo ayudarte a analizar tus ingresos, egresos y ahorros de forma precisa. 
+                    ¿En qué te puedo ayudar hoy?
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Formulario de mensaje -->
-    <div class="flex gap-2">
-        <input 
-            type="text" 
-            id="mensajeInput" 
-            placeholder="Escribe tu pregunta aquí..." 
-            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-        <button 
-            id="enviarBtn" 
-            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
+    <div class="chat-input-form">
+        <div class="input-wrapper">
+            <textarea 
+                id="mensajeInput" 
+                class="chat-input"
+                placeholder="Pregúntame sobre tus finanzas..."
+                rows="1"
+            ></textarea>
+        </div>
+        <button id="enviarBtn" class="send-button">
             Enviar
         </button>
     </div>
 
     <!-- Botones de acciones rápidas -->
-    <div class="mt-4 flex flex-wrap gap-2">
-        <button class="accion-rapida px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm hover:bg-green-200" 
-                data-mensaje="¿Cuál es mi balance actual?">
-            Balance Actual
-        </button>
-        <button class="accion-rapida px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200" 
-                data-mensaje="¿Cuáles son mis mayores gastos?">
-            Mayores Gastos
-        </button>
-        <button class="accion-rapida px-3 py-1 bg-purple-100 text-purple-700 rounded-lg text-sm hover:bg-purple-200" 
-                data-mensaje="¿Cómo van mis ahorros?">
-            Estado Ahorros
-        </button>
-        <button class="accion-rapida px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-sm hover:bg-yellow-200" 
-                data-mensaje="Dame consejos para mejorar mis finanzas">
-            Consejos
-        </button>
+    <div class="quick-actions">
+        <div class="quick-actions-title">Acciones Rápidas</div>
+        <div class="quick-actions-grid">
+            <button class="quick-action-btn balance" data-mensaje="¿Cuál es mi balance actual?">
+                <span>Balance Actual</span>
+            </button>
+            <button class="quick-action-btn gastos" data-mensaje="¿Cuáles son mis mayores gastos?">
+                <span>Mayores Gastos</span>
+            </button>
+            <button class="quick-action-btn ahorros" data-mensaje="¿Cómo van mis ahorros?">
+                <span>Estado Ahorros</span>
+            </button>
+            <button class="quick-action-btn consejos" data-mensaje="Dame consejos para mejorar mis finanzas">
+                <span>Consejos Financieros</span>
+            </button>
+        </div>
     </div>
 </div>
 @endsection
@@ -74,23 +72,72 @@
     const chatArea = document.getElementById('chatArea');
     const mensajeInput = document.getElementById('mensajeInput');
     const enviarBtn = document.getElementById('enviarBtn');
-    const accionesRapidas = document.querySelectorAll('.accion-rapida');
+    const accionesRapidas = document.querySelectorAll('.quick-action-btn');
+
+    // Función para formatear texto con markdown básico
+    function formatearMarkdown(texto) {
+        return texto
+            // Convertir **texto** a <strong>texto</strong>
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            // Convertir *texto* a <em>texto</em>
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            // Convertir saltos de línea a <br>
+            .replace(/\n/g, '<br>')
+            // Convertir números con formato de lista (1., 2., etc.) a lista HTML
+            .replace(/^\d+\.\s(.+)$/gm, '<li>$1</li>')
+            // Envolver listas en <ol>
+            .replace(/(<li>.*<\/li>)/gs, '<ol>$1</ol>')
+            // Convertir guiones de lista (-) a lista HTML
+            .replace(/^-\s(.+)$/gm, '<li>$1</li>')
+            // Convertir ### a h3, ## a h2, # a h1
+            .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+            .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+            .replace(/^# (.*$)/gm, '<h1>$1</h1>');
+    }
 
     function agregarMensaje(mensaje, esUsuario = false) {
         const div = document.createElement('div');
-        div.className = `message ${esUsuario ? 'usuario-message' : 'ia-message'} mb-3`;
+        div.className = `message ${esUsuario ? 'usuario-message' : 'ia-message'}`;
         
-        const bgColor = esUsuario ? 'bg-gray-100' : 'bg-blue-100';
-        const autor = esUsuario ? 'Tú' : 'IA';
+        const autor = esUsuario ? 'Tú' : 'Búho';
+        const mensajeFormateado = esUsuario ? mensaje : formatearMarkdown(mensaje);
         
         div.innerHTML = `
-            <div class="${bgColor} p-3 rounded-lg">
-                <strong>${autor}:</strong> ${mensaje}
+            <div class="message-content">
+                <div class="message-author">${autor}</div>
+                <div class="message-text">${mensajeFormateado}</div>
             </div>
         `;
         
         chatArea.appendChild(div);
         chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function mostrarIndicadorEscribiendo() {
+        const div = document.createElement('div');
+        div.className = 'message ia-message typing-message';
+        div.id = 'typing-indicator';
+        
+        div.innerHTML = `
+            <div class="message-content">
+                <div class="message-author">Búho</div>
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+        `;
+        
+        chatArea.appendChild(div);
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function quitarIndicadorEscribiendo() {
+        const indicator = document.getElementById('typing-indicator');
+        if (indicator) {
+            indicator.remove();
+        }
     }
 
     async function enviarMensaje(mensaje) {
@@ -100,6 +147,9 @@
         mensajeInput.value = '';
         enviarBtn.disabled = true;
         enviarBtn.textContent = 'Enviando...';
+        
+        // Mostrar indicador de que está escribiendo
+        mostrarIndicadorEscribiendo();
         
         try {
             const response = await fetch('/ia/mensaje', {
@@ -113,12 +163,16 @@
             
             const data = await response.json();
             
+            // Quitar indicador de escribiendo
+            quitarIndicadorEscribiendo();
+            
             if (data.success) {
                 agregarMensaje(data.respuesta);
             } else {
                 agregarMensaje('Error: ' + (data.error || 'No se pudo procesar el mensaje'));
             }
         } catch (error) {
+            quitarIndicadorEscribiendo();
             agregarMensaje('Error de conexión. Por favor intenta de nuevo.');
         } finally {
             enviarBtn.disabled = false;
@@ -127,10 +181,20 @@
         }
     }
 
+    // Auto-resize del textarea
+    mensajeInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+
     enviarBtn.addEventListener('click', () => enviarMensaje(mensajeInput.value));
     mensajeInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') enviarMensaje(mensajeInput.value);
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            enviarMensaje(mensajeInput.value);
+        }
     });
+    
     accionesRapidas.forEach(btn => {
         btn.addEventListener('click', () => enviarMensaje(btn.getAttribute('data-mensaje')));
     });

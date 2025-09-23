@@ -15,10 +15,10 @@
                 <p><strong>Fecha Meta:</strong> <span id="show_fecha_meta"></span></p>
                 <p><strong>Cantidad de Cuotas:</strong> <span id="show_cantidad_cuotas"></span></p>
                 <p><strong>Estado:</strong> <span id="show_estado"></span></p>
-                <div>
+            <!--<div>
                     <strong>Tu próxima cuota vence el:</strong>
                     <span id="show_proxima_cuota">--/--/----</span>
-                </div>
+                </div> --> 
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

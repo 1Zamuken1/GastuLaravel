@@ -50,7 +50,7 @@
           <span class="side-nav-icon">
             <img src="{{ asset('icons/gastu_logo.svg') }}" alt="Asistente" />
           </span>
-          <span class="side-nav-text">Asistente</span>
+          <span class="side-nav-text">Búho</span>
         </a>
       </li>
 

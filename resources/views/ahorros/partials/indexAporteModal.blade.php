@@ -2,15 +2,13 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-warning">
-                <h5 class="modal-title">Aportes de Ahorro: <span id="aportes_concepto"></span></h5>
+                <h5 class="modal-title">Aportes de Ahorro Meta: <span id="aportes_concepto"></span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
             <div class="modal-body">
-                <p><strong>Monto Meta:</strong> <span id="aportes_monto_meta"></span></p>
-                <p><strong>Total Acumulado:</strong> <span id="aportes_total_acumulado"></span></p>
-                <p><strong>Frecuencia:</strong> <span id="aportes_frecuencia"></span></p>
-                <p><strong>Próxima cuota vence el:</strong> <span id="proxima_cuota"></span></p>
+                <p><strong>Número de cuota:</strong> <span id="aportes_cuotas"></span></p>
+           <!-- <p><strong>Próxima cuota vence el:</strong> <span id="proxima_cuota"></span></p>-->
 
                 <div class="table-responsive">
                     <table class="table table-striped" id="aportesTable">
@@ -18,10 +16,9 @@
                             <tr>
                                 <th>#</th>
                                 <th>Aporte Asignado</th>
-                                <th>Aporte Usuario</th>
+                                <th>Aporte</th>
                                 <th>Fecha Límite</th>
                                 <th>Estado</th>
-                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="aportesTableBody">
