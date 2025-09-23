@@ -63,7 +63,7 @@ class Usuario extends Authenticatable
 		$this->attributes['password'] = bcrypt($value);
 	}
 
-	// En tu modelo Usuario
+	
 		public function getAuthIdentifier()
 		{
 			return $this->getAttribute('usuario_id');

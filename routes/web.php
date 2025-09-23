@@ -90,3 +90,24 @@ Route::middleware('groq.auth')->group(function () {
     Route::get('/proyecciones_ingresos/para-confirmar', [ProyeccionIngresoController::class, 'proyeccionesParaConfirmar']);
     Route::post('/proyecciones_ingresos/confirmar', [ProyeccionIngresoController::class, 'confirmarRecurrencias']);
 });
+// Rutas protegidas para egresos y proyecciones de egresos
+Route::middleware('groq.auth')->group(function () {
+    // Egresos
+    Route::get('/egresos', [EgresoController::class, 'index'])->name('egresos.index');
+    Route::get('/egresos/create/{id?}', [EgresoController::class, 'create'])->name('egresos.create');
+    Route::post('/egresos/store', [EgresoController::class, 'store'])->name('egresos.store');
+    Route::post('/egresos/update/{id}', [EgresoController::class, 'update'])->name('egresos.update');
+    Route::delete('/egresos/destroy/{id}', [EgresoController::class, 'destroy'])->name('egresos.destroy');
+
+    // Proyecciones de Egresos
+    Route::post('/proyecciones_egresos', [ProyeccionEgresoController::class, 'store'])->name('proyecciones_egresos.store');
+    Route::put('/proyecciones_egresos/{id}', [ProyeccionEgresoController::class, 'update'])->name('proyecciones_egresos.update');
+    Route::delete('/proyecciones_egresos/{id}', [ProyeccionEgresoController::class, 'destroy'])->name('proyecciones_egresos.destroy');
+    Route::get('/proyecciones_egresos/recordatorio-hoy', [ProyeccionEgresoController::class, 'proyeccionesRecordatorioHoy']);
+    Route::get('/proyecciones_egresos/para-confirmar', [ProyeccionEgresoController::class, 'proyeccionesParaConfirmar']);
+    Route::post('/proyecciones_egresos/confirmar', [ProyeccionEgresoController::class, 'confirmarRecurrencias']);
+});
+
+Route::middleware('groq.auth')->group(function () {
+    Route::resource('usuarios', UsuarioController::class);
+});

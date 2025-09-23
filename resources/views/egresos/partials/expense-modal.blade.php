@@ -1,4 +1,4 @@
-<div class="modal" id="incomeModal">
+<div class="modal" id="expenseModal">
     <div class="modal-backdrop"></div>
     <div class="modal-content">
         <div class="modal-header">

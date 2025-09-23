@@ -15,14 +15,14 @@ class ConceptoEgresoController extends Controller
 
         if($conceptosEgreso->isEmpty()){
             $data = [
-                'message' => 'No hay conceptos de ingreso registrados',
+                'message' => 'No hay conceptos de egreso registrados',
                 'status' => 200
             ];
             return response()->json($conceptosEgreso, 404);
         }
 
         $data=[
-            'conceptosIngreso' => $conceptosEgreso,
+            'conceptosEgreso' => $conceptosEgreso,
             'status' => 200
         ];
 
@@ -53,14 +53,14 @@ class ConceptoEgresoController extends Controller
 
         if(!$conceptoEgreso){
             $data = [
-                'message' => 'Error al crear el concepto de ingreso',
+                'message' => 'Error al crear el concepto de egreso',
                 'status' => 500
             ];
             return response()->json($data, 500);
         }
 
         $data = [
-            'message' => 'Concepto de ingreso creado exitosamente',
+            'message' => 'Concepto de egreso creado exitosamente',
             'conceptoEgreso' => $conceptoEgreso,
             'status' => 201
         ];
@@ -73,7 +73,7 @@ class ConceptoEgresoController extends Controller
 
         if(!$conceptoEgreso){
             $data = [
-                'message' => 'Concepto de ingreso no encontrado',
+                'message' => 'Concepto de egreso no encontrado',
                 'status' => 404
             ];
             return response()->json($data, 404);
@@ -92,7 +92,7 @@ class ConceptoEgresoController extends Controller
 
         if(!$conceptoEgreso){
             $data = [
-                'message' => 'Concepto de ingreso no encontrado',
+                'message' => 'Concepto de egreso no encontrado',
                 'status' => 404
             ];
             return response()->json($data, 404);
@@ -101,7 +101,7 @@ class ConceptoEgresoController extends Controller
         $conceptoEgreso->delete();
 
         $data = [
-            'message' => 'Concepto de ingreso eliminado exitosamente',
+            'message' => 'Concepto de egreso eliminado exitosamente',
             'conceptoEgreso' => $conceptoEgreso,
             'status' => 200
         ];
@@ -114,7 +114,7 @@ class ConceptoEgresoController extends Controller
 
         if(!$conceptoEgreso){
             $data = [
-                'message' => 'Concepto de ingreso no encontrado',
+                'message' => 'Concepto de egreso no encontrado',
                 'status' => 404
             ];
             return response()->json($data, 404);
@@ -140,7 +140,7 @@ class ConceptoEgresoController extends Controller
         $conceptoEgreso->save();
 
         $data = [
-            'message' => 'Concepto de ingreso actualizado exitosamente',
+            'message' => 'Concepto de egreso actualizado exitosamente',
             'conceptoEgreso' => $conceptoEgreso,
             'status' => 200
         ];
@@ -153,7 +153,7 @@ class ConceptoEgresoController extends Controller
 
         if(!$conceptoEgreso){
             $data = [
-                'message' => 'Concepto de ingreso no encontrado',
+                'message' => 'Concepto de egreso no encontrado',
                 'status' => 404
             ];
             return response()->json($data, 404);
@@ -187,8 +187,8 @@ class ConceptoEgresoController extends Controller
         $conceptoEgreso->save();
 
         $data = [
-            'message' => 'Concepto de ingreso actualizado parcialmente exitosamente',
-            'conceptoIngreso' => $conceptoEgreso,
+            'message' => 'Concepto de egreso actualizado parcialmente exitosamente',
+            'conceptoEgreso' => $conceptoEgreso,
             'status' => 200
         ];
 

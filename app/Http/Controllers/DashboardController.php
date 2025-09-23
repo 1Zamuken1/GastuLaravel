@@ -7,12 +7,12 @@ use App\Models\Egreso;
 use App\Models\ProyeccionIngreso;
 use App\Models\AhorroMeta;
 use App\Models\ConceptoEgreso;
-
+use Illuminate\Support\Facades\Auth;
 class DashboardController extends Controller
 {
     public function index()
     {
-        $userId = auth()->id();
+        $userId = Auth::id();
         $mesActual = now()->month;
         $anioActual = now()->year;
 

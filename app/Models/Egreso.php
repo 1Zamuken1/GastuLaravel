@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $usuario_id
  * 
  * @property Usuario $usuario
- * @property ConceptoEgreso|null $concepto_egreso
+ * @property ConceptoIngreso|null $concepto_egreso
  *
  * @package App\Models
  */
@@ -49,11 +49,11 @@ class Egreso extends Model
 
 	public function usuario()
 	{
-		return $this->belongsTo(Usuario::class);
+		return $this->belongsTo(Usuario::class, 'usuario_id');
 	}
 
-	public function concepto_egreso()
+	public function conceptoEgreso()
 	{
-		return $this->belongsTo(ConceptoEgreso::class);
+		return $this->belongsTo(ConceptoEgreso::class, 'concepto_egreso_id');
 	}
 }

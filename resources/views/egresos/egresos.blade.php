@@ -14,7 +14,7 @@
                 <span id="section-title">Egresos y Proyecciones</span>
             </div>
             <div class="controls">
-                <button class="add-btn" id="addIncome">
+                <button class="add-btn" id="addExpense">
                     <i class="fas fa-plus"></i> Añadir nuevo
                 </button>
             </div>
@@ -36,10 +36,11 @@
                 <option value="Egreso">Egreso</option>
                 <option value="Proyección">Proyección</option>
             </select>
+            <button id="btnExportPDF" class="add-btn export-btn"><i class="fas fa-file-pdf"></i> PDF</button>
+            <button id="btnExportExcel" class="add-btn export-btn"><i class="fas fa-file-excel"></i> Excel</button>
         </div>
 
         {{-- Tabla --}}
-        <div class="table-container">
         <div class="records-per-page">
             Mostrar
             <select id="recordsPerPage">
@@ -50,7 +51,7 @@
             </select>
             registros
         </div>
-        <table id="incomeTable" class="display">
+        <table id="expenseTable" class="display">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -106,12 +107,13 @@
             Mostrando 0 de 0 registros
         </div>
     </div>
-    </div>
+
     {{-- Modales --}}
-    @include('egresos.partials.income-modal', ['conceptoEgresos' => $conceptoEgresos])
+    @include('egresos.partials.expense-modal', ['conceptoEgresos' => $conceptoEgresos])
     @include('egresos.partials.concepto-modal', ['conceptoEgresos' => $conceptoEgresos])
     @include('egresos.partials.delete-modal', ['conceptoEgresos' => $conceptoEgresos])
-    @include('egresos.partials.view-modal', ['conceptoEgresos' => $conceptoEgresos])
+    @include('egresos.partials.view-modal')
+    @include('egresos.partials.recordatorio-modal')
 @endsection
 
 @push('scripts')

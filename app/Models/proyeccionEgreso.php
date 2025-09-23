@@ -58,6 +58,6 @@ class ProyeccionEgreso extends Model
 
 	public function concepto_egreso()
 	{
-		return $this->belongsTo(ConceptoEgreso::class);
+		return $this->belongsTo(ConceptoEgreso::class, 'concepto_egreso_id');
 	}
 }

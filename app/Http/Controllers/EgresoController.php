@@ -7,42 +7,41 @@ use App\Models\Egreso;
 use App\Models\ConceptoEgreso;
 use App\Models\ProyeccionEgreso;
 use Carbon\Carbon;
-
+use Illuminate\Support\Facades\Auth;
 
 class EgresoController extends Controller
 {
     public function index()
     {
-        // ========================
-        // Traer ingresos reales
-        // ========================
+        $userId = Auth::id();
+        // Traer egresos reales
         $egresos = Egreso::with('conceptoEgreso')
+            ->where('usuario_id', $userId)
             ->get()
             ->map(function ($egreso) {
                 return [
                     'id'          => $egreso->egreso_id,
-                    'concepto'    => $egreso->conceptoEgreso->nombre ?? 'Sin concepto',
+                    'concepto'    => $egreso->conceptoEgreso ? $egreso->conceptoEgreso->nombre : 'Sin concepto',
                     'monto'       => $egreso->monto,
-                    'tipo'        => $egreso->tipo ?? 'Egreso', // ahora existe en la tabla
+                    'tipo'        => $egreso->tipo ?? 'Egreso',
                     'fecha'       => $egreso->fecha_registro,
-                    'estado'      => 'Activo', // la tabla ingreso no tiene estado
+                    'estado'      => 'Activo', // no existe campo estado en egresos
                     'descripcion' => $egreso->descripcion ?? '',
                     'concepto_id' => $egreso->concepto_egreso_id,
                 ];
             });
 
-        // ========================
         // Traer proyecciones
-        // ========================
         $proyecciones = ProyeccionEgreso::with('conceptoEgreso')
+            ->where('usuario_id', $userId)
             ->get()
             ->map(function ($proyeccion) {
                 return [
                     'id'          => $proyeccion->proyeccion_egreso_id,
-                    'concepto'    => $proyeccion->conceptoEgreso->nombre ?? 'Sin concepto',
+                    'concepto'    => $proyeccion->conceptoEgreso ? $proyeccion->conceptoEgreso->nombre : 'Sin concepto',
                     'monto'       => $proyeccion->monto_programado,
                     'tipo'        => 'Proyección',
-                    'fecha'       => $proyeccion->fecha_inicio,
+                    'fecha'       => $proyeccion->fecha_creacion,
                     'fecha_fin'   => $proyeccion->fecha_fin ? $proyeccion->fecha_fin->format('Y-m-d') : '',
                     'estado'      => $proyeccion->activo ? 'Activo' : 'Inactivo',
                     'descripcion' => $proyeccion->descripcion ?? '',
@@ -50,51 +49,45 @@ class EgresoController extends Controller
                 ];
             });
 
-        // ========================
-        // Fusionar ingresos y proyecciones
-        // ========================
-        $registros = $egresos->merge($proyecciones);
+        // Fusionar egresos y proyecciones
+        $registros = $egresos->concat($proyecciones)->values();
 
         // ========================
-        // Calcular totales
+        // Calcular totales solo del usuario logueado
         // ========================
-        $totalEgresos = Egreso::sum('monto');
-        $totalProyecciones = ProyeccionEgreso::sum('monto_programado');
+        $totalEgresos = Egreso::where('usuario_id', $userId)->sum('monto');
+        $totalProyecciones = ProyeccionEgreso::where('usuario_id', $userId)->sum('monto_programado');
 
         $mesActual = Carbon::now()->month;
         $anioActual = Carbon::now()->year;
 
-        $egresoMes = Egreso::whereYear('fecha_registro', $anioActual)
+        $egresosMes = Egreso::where('usuario_id', $userId)
+            ->whereYear('fecha_registro', $anioActual)
             ->whereMonth('fecha_registro', $mesActual)
             ->sum('monto');
 
-        // ========================
         // Traer conceptos (para modal de selección)
-        // ========================
         $conceptoEgresos = ConceptoEgreso::all();
 
-        // ========================
-        // Enviar a la vista
-        // ========================
         return view('egresos.egresos', compact(
             'registros',
             'totalEgresos',
             'totalProyecciones',
-            'egresoMes',
+            'egresosMes',
             'conceptoEgresos'
         ));
     }
 
     public function store(Request $request, $id = null)
     {
-        //dd($request->all());
+        $userId = Auth::id();
+
         if ($request->isMethod('get')) {
-            // Mostrar formulario con el concepto precargado si hay id
             $concepto = null;
             if ($id) {
                 $concepto = ConceptoEgreso::find($id);
             }
-            return view('egresos.partials.income-modal', compact('concepto'));
+            return view('egresos.partials.expense-modal', compact('concepto'));
         }
 
         $tipo = $request->input('tipo');
@@ -102,39 +95,41 @@ class EgresoController extends Controller
         if ($tipo === 'Egreso') {
             $validated = $request->validate([
                 'concepto_egreso_id' => 'required|integer|exists:concepto_egreso,concepto_egreso_id',
-                'monto'               => 'required|numeric',
-                'fecha'               => 'required|date',
-                'descripcion'         => 'nullable|string|max:200',
+                'monto'              => 'required|numeric',
+                'fecha'              => 'required|date',
+                'descripcion'        => 'nullable|string|max:200',
             ]);
 
             Egreso::create([
-                'tipo'                => $tipo,
+                'tipo'               => $tipo,
                 'concepto_egreso_id' => $validated['concepto_egreso_id'],
-                'monto'               => $validated['monto'],
-                'fecha_registro'      => $validated['fecha'],
-                'descripcion'         => $validated['descripcion'] ?? '',
+                'monto'              => $validated['monto'],
+                'fecha_registro'     => $validated['fecha'],
+                'descripcion'        => $validated['descripcion'] ?? '',
+                'usuario_id'         => $userId,
             ]);
 
-            return redirect()->route('egresos.index')->with('success', 'Ingreso creado correctamente.');
+            return redirect()->route('egresos.index')->with('success', 'Egreso creado correctamente.');
         }
 
         if ($tipo === 'Proyección') {
             $validated = $request->validate([
                 'concepto_egreso_id' => 'required|integer|exists:concepto_egreso,concepto_egreso_id',
-                'monto'               => 'required|numeric',
-                'fecha'               => 'required|date',
-                'fecha_fin'           => 'required|date|after_or_equal:fecha',
-                'activo'              => 'required|in:1,0',
-                'descripcion'         => 'required|string|max:200',
+                'monto'              => 'required|numeric',
+                'fecha'              => 'required|date',
+                'fecha_fin'          => 'required|date|after_or_equal:fecha',
+                'activo'             => 'required|in:1,0',
+                'descripcion'        => 'required|string|max:200',
             ]);
 
             ProyeccionEgreso::create([
-                'monto_programado'    => $validated['monto'],
-                'descripcion'         => $validated['descripcion'],
-                'fecha_inicio'        => $validated['fecha'],
-                'fecha_fin'           => $validated['fecha_fin'],
-                'activo'              => $validated['activo'],
+                'monto_programado'   => $validated['monto'],
+                'descripcion'        => $validated['descripcion'],
+                'fecha_creacion'     => $validated['fecha'],
+                'fecha_fin'          => $validated['fecha_fin'],
+                'activo'             => $validated['activo'],
                 'concepto_egreso_id' => $validated['concepto_egreso_id'],
+                'usuario_id'         => $userId,
             ]);
 
             return redirect()->route('egresos.index')->with('success', 'Proyección creada correctamente.');
@@ -143,62 +138,67 @@ class EgresoController extends Controller
         return redirect()->route('egresos.index')->with('error', 'Tipo inválido.');
     }
 
-    // private function calcularDiaRecurrencia(Carbon $fecha, string $frecuencia): ?int
-    // {
-    //     switch ($frecuencia) {
-    //         case 'mensual':
-    //         case 'trimestral':
-    //         case 'semestral':
-    //         case 'anual':
-    //             return (int) $fecha->day;
-    //         default:
-    //             return null;
-    //     }
-    // }
-
-    // private function calcularFechaFin(Carbon $fecha, string $frecuencia): ?string
-    // {
-    //     switch ($frecuencia) {
-    //         case 'mensual':     return $fecha->copy()->addYear()->toDateString();
-    //         case 'trimestral':  return $fecha->copy()->addYears(2)->toDateString();
-    //         case 'semestral':   return $fecha->copy()->addYears(3)->toDateString();
-    //         case 'anual':       return $fecha->copy()->addYears(5)->toDateString();
-    //         default:            return null;
-    //     }
-    // }
-
     public function update(Request $request, $id)
     {
+        $userId = Auth::id();
+
         $tipo = $request->input('tipo');
 
         if ($tipo === 'Egreso') {
+            $egreso = Egreso::where('usuario_id', $userId)->findOrFail($id);
+
             $validated = $request->validate([
                 'concepto_egreso_id' => 'required|integer|exists:concepto_egreso,concepto_egreso_id',
-                'monto'               => 'required|numeric',
-                'fecha'               => 'required|date',
-                'descripcion'         => 'nullable|string|max:200',
+                'monto'              => 'required|numeric',
+                'fecha'              => 'required|date',
+                'descripcion'        => 'nullable|string|max:200',
             ]);
 
-            $egreso = Egreso::findOrFail($id);
             $egreso->update([
-                'tipo'                => $tipo,
+                'tipo'               => $tipo,
                 'concepto_egreso_id' => $validated['concepto_egreso_id'],
-                'monto'               => $validated['monto'],
-                'fecha_registro'      => $validated['fecha'],
-                'descripcion'         => $validated['descripcion'] ?? '',
+                'monto'              => $validated['monto'],
+                'fecha_registro'     => $validated['fecha'],
+                'descripcion'        => $validated['descripcion'] ?? '',
             ]);
 
-            return redirect()->route('egresos.index')->with('success', 'Ingreso actualizado correctamente.');
+            return redirect()->route('egresos.index')->with('success', 'Egreso actualizado correctamente.');
         }
 
-        return redirect()->route('egresos.index')->with('error', 'Solo se puede editar ingresos reales desde este formulario.');
+        if ($tipo === 'Proyección') {
+            $proyeccion = ProyeccionEgreso::where('usuario_id', $userId)->findOrFail($id);
+
+            $validated = $request->validate([
+                'concepto_egreso_id' => 'required|integer|exists:concepto_egreso,concepto_egreso_id',
+                'monto'              => 'required|numeric',
+                'fecha'              => 'required|date',
+                'fecha_fin'          => 'required|date|after_or_equal:fecha',
+                'activo'             => 'required|in:1,0',
+                'descripcion'        => 'required|string|max:200',
+            ]);
+
+            $proyeccion->update([
+                'monto_programado'   => $validated['monto'],
+                'descripcion'        => $validated['descripcion'],
+                'fecha_creacion'     => $validated['fecha'],
+                'fecha_fin'          => $validated['fecha_fin'],
+                'activo'             => $validated['activo'],
+                'concepto_egreso_id' => $validated['concepto_egreso_id'],
+            ]);
+
+            return redirect()->route('egresos.index')->with('success', 'Proyección actualizada correctamente.');
+        }
+
+        return redirect()->route('egresos.index')->with('error', 'Solo se puede editar egresos reales desde este formulario.');
     }
 
     public function destroy($id)
     {
-        $egreso = Egreso::findOrFail($id);
+        $userId = Auth::id();
+
+        $egreso = Egreso::where('usuario_id', $userId)->findOrFail($id);
         $egreso->delete();
 
-        return redirect()->route('egresos.index')->with('success', 'Ingreso eliminado correctamente.');
+        return redirect()->route('egresos.index')->with('success', 'Egreso eliminado correctamente.');
     }
 }

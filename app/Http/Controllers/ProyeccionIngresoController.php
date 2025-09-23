@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\ProyeccionIngreso;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class ProyeccionIngresoController extends Controller
 {
     public function index()
     {
-        $userId = auth()->id();
+        $userId = Auth::id();
         $proyecciones = ProyeccionIngreso::with('conceptoIngreso')
             ->where('usuario_id', $userId)
             ->get();
@@ -30,7 +31,7 @@ class ProyeccionIngresoController extends Controller
 
     public function store(Request $request)
     {
-        $userId = auth()->id();
+        $userId = Auth::id();
         $validator = Validator::make($request->all(), [
             'monto_programado' => 'required|numeric',
             'descripcion' => 'required|string|max:200',
@@ -86,7 +87,7 @@ class ProyeccionIngresoController extends Controller
 
     public function show($id)
     {
-        $userId = auth()->id();
+        $userId = Auth::id();
         $proyeccion = ProyeccionIngreso::with('conceptoIngreso')
             ->where('usuario_id', $userId)
             ->find($id);
@@ -106,7 +107,7 @@ class ProyeccionIngresoController extends Controller
 
     public function destroy($id)
     {
-        $userId = auth()->id();
+        $userId = Auth::id();
         $proyeccion = ProyeccionIngreso::where('usuario_id', $userId)->find($id);
 
         if (! $proyeccion) {
@@ -120,7 +121,7 @@ class ProyeccionIngresoController extends Controller
 
     public function update(Request $request, $id)
     {
-        $userId = auth()->id();
+        $userId = Auth::id();
         $validated = $request->validate([
             'concepto_ingreso_id' => 'required|integer|exists:concepto_ingreso,concepto_ingreso_id',
             'monto' => 'required|numeric',
@@ -146,7 +147,7 @@ class ProyeccionIngresoController extends Controller
 
     public function updatePartial(Request $request, $id)
     {
-        $userId = auth()->id();
+        $userId = Auth::id();
         $proyeccion = ProyeccionIngreso::where('usuario_id', $userId)->find($id);
 
         if (! $proyeccion) {
@@ -203,7 +204,7 @@ class ProyeccionIngresoController extends Controller
 
     public function proyeccionesParaConfirmar()
     {
-        $userId = auth()->id();
+        $userId = Auth::id();
         $hoy = now()->toDateString();
 
         $proyecciones = ProyeccionIngreso::where('usuario_id', $userId)
@@ -220,7 +221,7 @@ class ProyeccionIngresoController extends Controller
 
     public function confirmarRecurrencias(Request $request)
     {
-        $userId = auth()->id();
+        $userId = Auth::id();
         $ids = $request->input('ids', []);
         $hoy = now()->toDateString();
 
@@ -248,7 +249,7 @@ class ProyeccionIngresoController extends Controller
     public function proyeccionesRecordatorioHoy()
     {
         $hoy = now()->toDateString();
-        $userId = auth()->id();
+        $userId = Auth::id();
 
         $proyecciones = ProyeccionIngreso::with('conceptoIngreso')
             ->where('usuario_id', $userId)
