@@ -1,3 +1,22 @@
+
+<header class="admin-header bg-white shadow-sm py-2 px-4 d-flex align-items-center justify-content-between">
+  <div class="d-flex align-items-center">
+    <span class="fw-bold text-primary fs-4">Panel de Administración</span>
+  </div>
+  <div class="d-flex align-items-center">
+    <span class="me-3 text-secondary fw-bold">
+      <i class="fa fa-user-circle me-1"></i>
+      {{ Auth::user()->nombre ?? '' }}
+    </span>
+    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+      @csrf
+      <button type="submit" class="btn btn-outline-danger btn-sm">
+        <i class="fa fa-sign-out-alt"></i> Salir
+      </button>
+    </form>
+  </div>
+</header>
+
 <nav class="side-nav" id="nav-bar">
   <div class="side-nav-header">
     <div class="side-nav-brand">
@@ -19,51 +38,31 @@
         <span class="side-nav-text">Menú</span>
       </button>
 
-      <ul class="side-nav-list">
-        <!-- <li data-page="dashboard">
-          {{-- <a href="{{ route('dashboard') }}"> --}}
-            {{-- <span class="side-nav-icon"><img src="{{ asset('icons/casa.svg') }}" alt="dashboard" /></span> --}}
-            <span class="side-nav-text">Inicio</span>
-          </a>
-        </li> -->
-        
-
+      <ul class="side-nav-list">      
         <li class="sidebar-item">
-            <a href="{{ route('usuarios.index') }}">
+            <a href="{{ route('admin.usuarios.index') }}">
                 <i class="fa fa-users"></i> Usuarios
             </a>
         </li>
 
-      {{--  <li class="sidebar-item">
-            <a href="{{ route('conceptoIngresos.index') }}">
-                <i class="fa fa-arrow-up"></i> Concepto Ingreso
-            </a>
-        </li>
+    <li class="sidebar-item">
+  <a href="{{ route('admin.conceptoIngresos.index') }}">
+        <span class="side-nav-icon"><img src="{{ asset('icons/ingresos.svg') }}" alt="Ingresos" /></span>
+        Ingresos</a>
+    </li> 
 
-        <li class="sidebar-item">
-            <a href="{{ route('conceptoEgresos.index') }}">
-                <i class="fa fa-arrow-down"></i> Concepto Egreso
-            </a>
-        </li> --}}
-        
-        <!-- <li data-page="reportes">
-          {{-- <a href="{{ route('reportes.index') }}"> --}}
-            {{-- <span class="side-nav-icon"><img src="{{ asset('icons/reportes.svg') }}" alt="Reportes" /></span> --}}
-            <span class="side-nav-text">Reportes</span>
-          </a>
-        </li> -->
-      </ul>
-    </div>
-  </div>
-
-  <!-- <div class="side-nav-footer">
+    <li class="sidebar-item">
+  <a href="{{ route('admin.conceptosEgresos.index') }}"><span class="side-nav-icon"><img src="{{ asset('icons/egresos.svg') }}" alt="Egresos" /></span>
+      Egresos</a>
+    </li>
     {{-- <a href="{{ route('ayuda') }}" class="side-nav-footer-link" data-page="ayuda"> --}}
-      {{-- <span class="side-nav-icon"><img src="{{ asset('icons/pregunta.svg') }}" alt="Ayuda" /></span> --}}
+      {{-- <span class="side-nav-icon"><img src="{{ asset('icons/pregunta.svg') }}" alt="Ayuda" /></span> 
       <span class="side-nav-text">Ayuda</span>
-    </a>
+    </a>--}}
     {{-- <a href="{{ route('perfil') }}" class="side-nav-footer-link" data-page="perfil"> --}}
-      {{-- <span class="side-nav-icon"><img src="{{ asset('icons/perfil.svg') }}" alt="Perfil" /></span> --}}
+      {{-- <span class="side-nav-icon"><img src="{{ asset('icons/perfil.svg') }}" alt="Perfil" /></span> 
       <span class="side-nav-text">Perfil</span>
     </a>
-  </div> -->
+    --}}
+  </div> 
 </nav>

@@ -13,6 +13,9 @@ use App\Http\Controllers\AhorroMetaController;
 use App\Http\Controllers\AporteAhorroController;
 use App\Http\Controllers\Admin\UsuarioController;
 
+use App\Http\Controllers\Admin\ConceptoIngresoAdminController;
+use App\Http\Controllers\Admin\ConceptoEgresoAdminController;
+
 Route::get('/', function () {
     return view('landing.landing');
 });
@@ -118,4 +121,10 @@ Route::middleware('groq.auth')->group(function () {
 
 Route::middleware('groq.auth')->group(function () {
     Route::resource('usuarios', UsuarioController::class);
+});
+// Administración (Usuarios y Conceptos)
+Route::prefix('admin')->name('admin.')->middleware('groq.auth')->group(function () {
+    Route::resource('usuarios', UsuarioController::class);
+    Route::resource('conceptoIngresos', ConceptoIngresoAdminController::class);
+    Route::resource('conceptosEgresos', ConceptoEgresoAdminController::class);
 });

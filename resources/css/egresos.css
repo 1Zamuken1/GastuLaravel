@@ -24,10 +24,10 @@ body {
   color: var(--text-medium);
   line-height: 1.6;
   min-height: 100vh;
-  display: flex;
+  /* display: flex; */
 }
 
-.layout {
+/* .layout {
   display: flex;
   width: 100%;
 }
@@ -35,7 +35,7 @@ body {
 .page-content {
   flex-grow: 1;
   padding: 30px;
-}
+} */
 
 .card {
   background: white;
@@ -276,7 +276,7 @@ tr:hover td {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 3000;
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
@@ -296,6 +296,7 @@ tr:hover td {
   height: 100%;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(2px);
+  z-index: 3001; /* <-- sube el z-index aquí */
 }
 
 .modal-content {
@@ -306,7 +307,7 @@ tr:hover td {
   border-radius: 12px;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  z-index: 1001;
+  z-index: 3001;
   position: relative;
   transform: translateY(20px) scale(0.95);
   transition: transform 0.3s ease;

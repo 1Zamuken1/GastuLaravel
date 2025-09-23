@@ -53,7 +53,7 @@ class AutenticacionController extends Controller
 
         // Redirección según rol
         if ($usuario->rol_id == 1) { // Admin
-            return redirect()->route('usuarios.index');
+            return redirect()->route('admin.usuarios.index');
         }
 
         return redirect()->route('dashboard');
